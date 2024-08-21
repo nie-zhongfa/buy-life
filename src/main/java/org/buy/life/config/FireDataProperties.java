@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class FireDataProperties {
     /**
      *
+     *
      */
     private String url;
 
