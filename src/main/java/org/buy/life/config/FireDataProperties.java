@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "buy.data")
 @Data
 public class FireDataProperties {
-
+    /**
+     *
+     */
     private String url;
 
     private String projectServerUrl;
