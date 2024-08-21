@@ -1,0 +1,114 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /fire
+spring:
+  redis:
+    database: 0 #redis数据库编号，存在0-15共16个数据库
+    host: 47.103.7.180
+    port: 16379
+    password: Ycdp2023.
+    timeout: 10000ms #请求超时时间，超过此值则提示连接超时异常
+    jedis:
+      pool:
+        max-active: 32 #jedis最大连接数，超过此值则提示获取不到连接异常
+        max-wait: 10000ms #jedis最大等等时间，超过此值则提示连接超时异常
+        max-idle: 32 #jedis最大等待连接数
+        min-idle: 0 #jedis最小等待连接数
+
+  datasource:
+    url: jdbc:mysql://47.103.7.180:33336/dataplatform?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
+    username: dataplatform
+    password: Ycdp2023.
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库访问配置, 使用druid数据源(默认数据源是HikariDataSource)
+    type: com.alibaba.druid.pool.DruidDataSource
+    # 链接池配置
+    druid:
+      # 连接池配置：大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 连接等待超时时间
+      max-wait: 30000
+      # 配置检测可以关闭的空闲连接，间隔时间
+      time-between-eviction-runs-millis: 60000
+      # 配置连接在池中的最小生存时间
+      min-evictable-idle-time-millis: 300000
+      # 检测连接是否有，有效得select语句
+      validation-query: select '1' from dual
+      # 申请连接的时候检测，如果空闲时间大于time-between-eviction-runs-millis，执行validationQuery检测连接是否有效，建议配置为true，不影响性能，并且保证安全性。
+      test-while-idle: true
+      # 申请连接时执行validationQuery检测连接是否有效，建议设置为false，不然会会降低性能
+      test-on-borrow: false
+      # 归还连接时执行validationQuery检测连接是否有效，建议设置为false，不然会会降低性能
+      test-on-return: false
+      # 是否缓存preparedStatement，也就是PSCache  官方建议MySQL下建议关闭   个人建议如果想用SQL防火墙 建议打开
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的filters, 去掉后监控界面sql无法统计, 'wall'用于防火墙防御sql注入，stat监控统计,logback日志
+      filters: stat,wall
+      # Spring监控AOP切入点，如x.y.z.service.*,配置多个英文逗号分隔
+      #aop-patterns: com.springboot.servie.*
+      # lowSqlMillis用来配置SQL慢的标准，执行时间超过slowSqlMillis的就是慢
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      # WebStatFilter监控配置
+      web-stat-filter:
+        enabled: true
+        # 添加过滤规则：那些访问拦截统计
+        url-pattern: /*
+        # 忽略过滤的格式：哪些不拦截，不统计
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+      # StatViewServlet配置（Druid监控后台的Servlet映射配置，因为SpringBoot项目没有web.xml所在在这里使用配置文件设置）
+      stat-view-servlet:
+        enabled: true
+        # 配置Servlet的访问路径：访问路径为/druid/**时，跳转到StatViewServlet，会自动转到Druid监控后台
+        url-pattern: /druid/*
+        # 是否能够重置数据
+        reset-enable: false
+        # 设置监控后台的访问账户及密码
+        login-username: admin
+        login-password: 123456
+        # IP白名单：允许哪些主机访问，默认为“”任何主机
+        # allow: 127.0.0.1
+        # IP黑名单：禁止IP访问，（共同存在时，deny优先于allow）
+        # deny: 192.168.1.218
+      # 配置StatFilter
+      filter:
+        stat:
+          log-slow-sql: true
+# mybatis-plus相关配置
+mybatis-plus:
+  # xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
+  mapper-locations: classpath:com/fire/data/mapper/xml/*.xml
+  # 以下配置均有默认值,可以不设置
+  global-config:
+    db-config:
+      #主键类型 AUTO:"数据库ID自增" INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      id-type: auto
+      #字段策略 IGNORED:"忽略判断"  NOT_NULL:"非 NULL 判断")  NOT_EMPTY:"非空判断"
+      field-strategy: NOT_EMPTY
+      #数据库类型
+      db-type: MYSQL
+  configuration:
+    # 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射
+    map-underscore-to-camel-case: true
+    # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
+    call-setters-on-nulls: true
+logging:
+  config: classpath:logback.xml
+fire:
+  data:
+    url: https://www.zxyun119.com/thirdPartyApi/login
+    projectServerUrl: https://www.zxyun119.com/thirdPartyApi/ThreePlaceREST
+    appkey: TI1GNQwRn05ztes1rGwxlSOK
+    masterSecret: vEIAmcRhTIFX8azj3F6yxmizXCmdp7
+    zxyNoAuthUrl: https://www.zxyun119.com/FreeLogin.html?appkey=be647fce-7db5-4e7b-8750-9416763864f2
+    wlwName: aa1
+    wlwPass: Bb2023
+    wlwUrl: http://47.103.7.180:8002
+    wlwNoAuthUrl: http://47.115.88.225:8062/Default.aspx?secretId=
+    rootDept: 12000
+    tenantKey: YC_XF

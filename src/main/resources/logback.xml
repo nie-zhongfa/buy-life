@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="APP" value="cpm" />
+    <property name="APP_ID" value="fire" />
+    <property name="LOG_HOME" value="../data/logs/${APP_ID}" />
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS}[%thread] [Hr_trace_id = %X{Hr_trace_id}] %-5level %logger.%line - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="INFO_ONLINE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_ID}.log</file>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger.%line - %msg%n
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_HOME}/${APP_ID}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="INFO_ONLINE"/>
+        <neverBlock>true</neverBlock>
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>2048</queueSize>
+    </appender>
+
+
+    <root level="DEBUG">
+        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="STDOUT"/>
+        <!--<appender-ref ref="CAT"/>-->
+    </root>
+
+</configuration>
