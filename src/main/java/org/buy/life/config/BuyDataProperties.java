@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "buy.data")
 @Data
-public class FireDataProperties {
+public class BuyDataProperties {
     /**
      *
      *
