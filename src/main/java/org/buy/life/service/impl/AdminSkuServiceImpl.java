@@ -28,8 +28,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
 
     @Override
-    public PageInfo<AdminSkuResponse> queryAdminSkuPage(AdminSkuRequest adminSkuRequest) {
-        Page<BuySkuEntity> adminSkuPage = getAdminSkuPage(adminSkuRequest);
+    public PageInfo<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
+        Page<BuySkuEntity> adminSkuPage = getSkuPage(adminSkuRequest);
         PageInfo<AdminSkuResponse> pageInfo = BeanUtil.copyProperties(adminSkuPage, PageInfo.class);
         List<AdminSkuResponse> responses = new ArrayList<>();
         if (CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
@@ -43,7 +43,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         return pageInfo;
     }
 
-    public Page<BuySkuEntity> getAdminSkuPage(AdminSkuRequest adminSkuRequest) {
+    public Page<BuySkuEntity> getSkuPage(AdminSkuRequest adminSkuRequest) {
         Page<BuySkuEntity> page = new Page<>(adminSkuRequest.getPageNum(), adminSkuRequest.getPageSize());
         return lambdaQuery()
                 .eq(BuySkuEntity::getClassification, adminSkuRequest.getClassification())

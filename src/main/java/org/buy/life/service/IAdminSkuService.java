@@ -14,5 +14,5 @@ import org.buy.life.model.response.AdminSkuResponse;
  */
 public interface IAdminSkuService extends IService<BuySkuEntity> {
 
-    PageInfo<AdminSkuResponse> queryAdminSkuPage(AdminSkuRequest adminSkuRequest);
+    PageInfo<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest);
 }

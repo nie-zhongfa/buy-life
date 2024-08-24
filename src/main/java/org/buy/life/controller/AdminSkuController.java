@@ -26,8 +26,8 @@ public class AdminSkuController {
     private IAdminSkuService adminSkuService;
 
     @PostMapping("/queryPage")
-    public ResponseEntity<PageInfo<AdminSkuResponse>> queryAdminSkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
-        PageInfo<AdminSkuResponse> pageInfo = adminSkuService.queryAdminSkuPage(adminSkuRequest);
+    public ResponseEntity<PageInfo<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
+        PageInfo<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
         return ResponseEntity.ok(pageInfo);
     }
 }
