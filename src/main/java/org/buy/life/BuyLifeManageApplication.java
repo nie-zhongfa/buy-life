@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@MapperScan("org.buy.life")
+@MapperScan("org.buy.life.mapper")
 public class BuyLifeManageApplication {
 
 	public static void main(String[] args) {

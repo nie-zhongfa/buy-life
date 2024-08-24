@@ -1,10 +1,18 @@
 package org.buy.life.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.pagehelper.PageInfo;
+import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.model.request.AdminAccountRequest;
+import org.buy.life.model.response.AccountResponse;
+
 /**
  * @menu TODO
  * @Author YourJustin
  * @Date 2024/8/24 2:55 PM
  * I am a code man ^_^ !!
  */
-public interface IAdminAccountService {
+public interface IAdminAccountService  extends IService<BuyUserEntity> {
+
+    PageInfo<AccountResponse> queryAccountPage(AdminAccountRequest adminAccountRequest);
 }

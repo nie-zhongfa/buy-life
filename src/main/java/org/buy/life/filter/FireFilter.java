@@ -57,6 +57,11 @@ public class FireFilter implements Filter {
                 request.getRequestURI().contains("/fireDayNotify/notify")){
             filterChain.doFilter(request, response);
         }else {
+//            if (request.getRequestURI().contains("/swagger-ui.html")
+//                    || request.getRequestURI().contains("/swagger-resources")
+//                    || request.getRequestURI().contains("/webjars")) {
+//                filterChain.doFilter(request, response);
+//            }
             try {
                /* String token = request.getHeader(FireConstant.FIRE_TOKEN_HEADER);
                 if(StringUtils.isEmpty(token)){
