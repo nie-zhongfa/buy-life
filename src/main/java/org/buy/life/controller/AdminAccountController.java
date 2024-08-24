@@ -1,7 +1,8 @@
 package org.buy.life.controller;
 
 import com.github.pagehelper.PageInfo;
-import org.buy.life.model.request.AdminAccountRequest;
+import org.buy.life.model.request.QueryAccountRequest;
+import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
 import org.buy.life.service.IAdminAccountService;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,14 @@ public class AdminAccountController {
 
 
     @PostMapping("/queryPage")
-    public ResponseEntity<PageInfo<AccountResponse>> queryAccountPage(@RequestBody AdminAccountRequest adminAccountRequest) {
-        PageInfo<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(adminAccountRequest);
+    public ResponseEntity<PageInfo<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
+        PageInfo<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
         return ResponseEntity.ok(pageInfo);
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<Boolean> updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest) {
+        iAdminAccountService.updateAccount(updateAccountRequest);
+        return ResponseEntity.ok(true);
     }
 }

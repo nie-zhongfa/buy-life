@@ -5,11 +5,9 @@ import lombok.Data;
 /**
  * @menu TODO
  * @Author YourJustin
- * @Date 2024/8/25 12:01 AM
+ * @Date 2024/8/25 12:13 AM
  * I am a code man ^_^ !!
  */
 @Data
-public class AdminAccountRequest extends BaseRequest {
-
-
+public class QueryAccountRequest extends BaseRequest {
 }

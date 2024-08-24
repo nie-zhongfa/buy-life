@@ -5,13 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.mapper.BuyUserMapper;
-import org.buy.life.model.request.AdminAccountRequest;
-import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.model.request.QueryAccountRequest;
+import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
-import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminAccountService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,8 +28,8 @@ import java.util.List;
 public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity> implements IAdminAccountService {
 
     @Override
-    public PageInfo<AccountResponse> queryAccountPage(AdminAccountRequest adminAccountRequest) {
-        Page<BuyUserEntity> accountPage = getAccountPage(adminAccountRequest);
+    public PageInfo<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest) {
+        Page<BuyUserEntity> accountPage = getAccountPage(queryAccountRequest);
         PageInfo<AccountResponse> pageInfo = BeanUtil.copyProperties(accountPage, PageInfo.class);
         List<AccountResponse> responses = new ArrayList<>();
         if (CollectionUtils.isEmpty(accountPage.getRecords())) {
@@ -45,8 +43,14 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
         return pageInfo;
     }
 
-    public Page<BuyUserEntity> getAccountPage(AdminAccountRequest adminAccountRequest) {
-        Page<BuyUserEntity> page = new Page<>(adminAccountRequest.getPageNum(), adminAccountRequest.getPageSize());
+    @Override
+    public void updateAccount(UpdateAccountRequest updateAccountRequest) {
+        BuyUserEntity buyUserEntity = BeanUtil.copyProperties(updateAccountRequest, BuyUserEntity.class);
+        this.updateById(buyUserEntity);
+    }
+
+    public Page<BuyUserEntity> getAccountPage(QueryAccountRequest queryAccountRequest) {
+        Page<BuyUserEntity> page = new Page<>(queryAccountRequest.getPageNum(), queryAccountRequest.getPageSize());
         return lambdaQuery()
                 .eq(BuyUserEntity::getIsDeleted, false)
                 .orderByDesc(BuyUserEntity::getMtime)
