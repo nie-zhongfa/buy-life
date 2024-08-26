@@ -1,7 +1,6 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -68,16 +66,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             for (ImportSkuDto importSkuDto : doReadSync) {
                 String fileUrl = uploadSkuImg(importSkuDto);
                 PriceDto price = PriceDto.builder().price(importSkuDto.getPrice()).currency("CNY").build();
-                BuySkuEntity buySkuEntity = BuySkuEntity.builder()
-                        .skuId(importSkuDto.getSkuId())
-                        .skuName(importSkuDto.getSkuName())
-                        .skuType(importSkuDto.getSkuType())
-                        .skuCategory(importSkuDto.getSkuCategory())
-                        .price(JSON.toJSONString(price))
-                        .costPrice(importSkuDto.getCostPrice())
-                        .stock(importSkuDto.getStock())
-                        .batchKey(fileUrl)
-                        .build();
+                BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
+                buySkuEntity.setPrice(JSON.toJSONString(price));
+                buySkuEntity.setBatchKey(fileUrl);
                 List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                 if (!CollectionUtils.isEmpty(list)) {
                     buySkuEntity.setId(list.get(0).getId());
