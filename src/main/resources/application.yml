@@ -19,7 +19,7 @@ spring:
   datasource:
     url: jdbc:mysql://101.132.155.114:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
     username: root
-    password: 12345678
+    password: xiguatianbutian
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 数据库访问配置, 使用druid数据源(默认数据源是HikariDataSource)
     type: com.alibaba.druid.pool.DruidDataSource
@@ -79,6 +79,12 @@ spring:
       filter:
         stat:
           log-slow-sql: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
 # mybatis-plus相关配置
 mybatis-plus:
   # xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
@@ -115,4 +121,6 @@ fire:
 
 
 fdfs:
-  tracker-list: http://www.iwxb.cn:8888/
+  tracker-list:
+    - 101.132.155.114:22122
+  fileUrl: 101.132.155.114:8888

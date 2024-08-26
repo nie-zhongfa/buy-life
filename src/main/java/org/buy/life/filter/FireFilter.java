@@ -76,6 +76,9 @@ public class FireFilter implements Filter {
                 TtlUtils.setSPCtx(fireUserInfo);
                 filterChain.doFilter(request, response);
                 TtlUtils.removeSPCtx();*/
+
+                filterChain.doFilter(request, response);
+
             }catch (Exception e){
                 handlerExceptionResolver.resolveException(request, response, null, e);//交给全局异常处理类处理
                 return;

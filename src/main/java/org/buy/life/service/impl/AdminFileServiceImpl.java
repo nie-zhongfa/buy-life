@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @menu TODO
@@ -26,8 +27,8 @@ public class AdminFileServiceImpl implements IAdminFileService {
     @Resource
     private FastFileStorageClient storageClient;
 
-    @Value("${fdfs.tracker-list}")
-    private String trackerList;
+    @Value("${fdfs.fileUrl}")
+    private String fileUrl;
 
     /**
      * 上传文件
@@ -43,6 +44,21 @@ public class AdminFileServiceImpl implements IAdminFileService {
                     file.getInputStream(),
                     file.getSize(),
                     getFileExtension(file.getOriginalFilename()),
+                    null);
+            return getResAccessUrl(storePath);
+        } catch (Exception e) {
+            log.error("上传文件失败", e);
+        }
+        throw new BusinessException(9999, "上传文件失败");
+    }
+
+    @Override
+    public String uploadFile(String fileName, InputStream inputStream) {
+        try {
+            StorePath storePath = storageClient.uploadFile(
+                    inputStream,
+                    0,
+                    getFileExtension(fileName),
                     null);
             return getResAccessUrl(storePath);
         } catch (Exception e) {
@@ -101,6 +117,6 @@ public class AdminFileServiceImpl implements IAdminFileService {
      * @return 文件访问地址
      */
     private String getResAccessUrl(StorePath storePath) {
-        return trackerList + storePath.getFullPath();
+        return "http://" + fileUrl + "/" + storePath.getFullPath();
     }
 }

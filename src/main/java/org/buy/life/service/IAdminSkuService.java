@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.model.request.AdminSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @menu TODO
@@ -15,4 +16,6 @@ import org.buy.life.model.response.AdminSkuResponse;
 public interface IAdminSkuService extends IService<BuySkuEntity> {
 
     PageInfo<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest);
+
+    void importSku(MultipartFile file);
 }

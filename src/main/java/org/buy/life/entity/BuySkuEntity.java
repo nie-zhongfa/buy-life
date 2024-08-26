@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import lombok.*;
 
 /**
  * <p>
@@ -18,6 +18,9 @@ import lombok.EqualsAndHashCode;
  * @since 2024-08-21
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @TableName("buy_sku")
 public class BuySkuEntity extends Model<BuySkuEntity> {
@@ -115,6 +118,10 @@ public class BuySkuEntity extends Model<BuySkuEntity> {
      */
     private String classification;
 
+    /**
+     * 基准成本价
+     */
+    private String costPrice;
 
     @Override
     protected Serializable pkVal() {

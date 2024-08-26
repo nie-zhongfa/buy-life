@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
@@ -29,5 +30,11 @@ public class AdminSkuController {
     public ResponseEntity<PageInfo<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
         PageInfo<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
         return ResponseEntity.ok(pageInfo);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<String> export(@RequestBody MultipartFile file) {
+        adminSkuService.importSku(file);
+        return ResponseEntity.ok("");
     }
 }

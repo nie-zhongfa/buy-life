@@ -22,10 +22,6 @@ public class AdminSkuResponse implements Serializable {
      */
     private String skuName;
     /**
-     * 商品图片
-     */
-    private String skuImg;
-    /**
      * 商品图片batchKey
      */
     private String batchKey;
