@@ -26,6 +26,8 @@ public class BuyOrderDetailResp {
 
     List<OrderDetail> orderDetails;
 
+    private String orderId;
+
     @Data
     public static class OrderDetail{
         /**

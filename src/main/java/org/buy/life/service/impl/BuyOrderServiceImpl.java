@@ -98,8 +98,8 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         for (BuyOrderEntity buyOrderEntity:orderEntityList){
             BuyOrderDetailResp buyOrderDetailResp=new BuyOrderDetailResp();
             buyOrderDetailResp.setOrderAmt(buyOrderEntity.getOrderAmt());
-            buyOrderDetailResp.setSubmitTime(buyOrderDetailResp.getSubmitTime());
-
+            buyOrderDetailResp.setSubmitTime(buyOrderEntity.getLstSubmitTime());
+            buyOrderDetailResp.setOrderId(buyOrderEntity.getOrderId());
             List<BuyOrderDetailEntity> buyOrderDetailEntities = detailMap.get(buyOrderEntity.getOrderId());
             List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(buyOrderDetailEntities, BuyOrderDetailResp.OrderDetail.class);
             orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
@@ -138,6 +138,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         BuyOrderDetailResp buyOrderDetailResp=new BuyOrderDetailResp();
         buyOrderDetailResp.setOrderAmt(orderEntity.getOrderAmt());
         buyOrderDetailResp.setSubmitTime(orderEntity.getLstSubmitTime());
+        buyOrderDetailResp.setOrderId(orderEntity.getOrderId());
         List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
         orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
             o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
