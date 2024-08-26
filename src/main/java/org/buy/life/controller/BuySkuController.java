@@ -26,7 +26,7 @@ import javax.annotation.Resource;
  * @since 2024-08-21
  */
 @RestController
-@RequestMapping("/buySkuEntity")
+@RequestMapping("/buySku")
 public class BuySkuController {
 
     @Resource

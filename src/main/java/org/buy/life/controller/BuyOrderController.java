@@ -25,7 +25,7 @@ import java.util.List;
  * @since 2024-08-21
  */
 @RestController
-@RequestMapping("/buyOrderEntity")
+@RequestMapping("/buyOrder")
 public class BuyOrderController {
 
     @Resource
@@ -33,14 +33,19 @@ public class BuyOrderController {
 
 
     @PostMapping("/joinOrder")
-    public JSONData joinOrder(@RequestBody BuyOrderDetailReq req){
-        buyOrderService.joinOrder(req);
-        return JSONData.success();
+    public JSONData<String> joinOrder(@RequestBody BuyOrderDetailReq req){
+        return JSONData.success(buyOrderService.joinOrder(req));
     }
 
     @GetMapping("/orderList")
     public JSONData<List<BuyOrderDetailResp>> orderList(){
         return JSONData.success(buyOrderService.orderList());
+    }
+
+
+    @GetMapping("/orderDetail")
+    public JSONData<BuyOrderDetailResp> orderDetail(@RequestParam String orderId){
+        return JSONData.success(buyOrderService.orderDetail(orderId));
     }
 }
 
