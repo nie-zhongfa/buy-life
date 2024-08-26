@@ -2,6 +2,10 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuyCartEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.req.BuyCartReq;
+import org.buy.life.entity.resp.BuyCartResp;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBuyCartService extends IService<BuyCartEntity> {
 
+    BuyCartResp cartList();
+
+
+    void joinCart(BuyCartReq buyCartReq);
 }

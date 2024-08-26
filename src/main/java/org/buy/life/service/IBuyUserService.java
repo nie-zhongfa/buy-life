@@ -2,6 +2,7 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuyUserEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.req.LoginInfoReq;
 
 /**
  * <p>
@@ -13,4 +14,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBuyUserService extends IService<BuyUserEntity> {
 
+    BuyUserEntity findByToken(String token);
+
+    BuyUserEntity findByAccount(String userId);
+
+    BuyUserEntity doLogin(LoginInfoReq loginInfoReq);
+
+    void delToken(LoginInfoReq loginInfoReq);
 }

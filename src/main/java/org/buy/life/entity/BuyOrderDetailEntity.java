@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import lombok.*;
 
 /**
  * <p>
@@ -20,6 +20,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("buy_order_detail")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class BuyOrderDetailEntity extends Model<BuyOrderDetailEntity> {
 
     private static final long serialVersionUID = 1L;
