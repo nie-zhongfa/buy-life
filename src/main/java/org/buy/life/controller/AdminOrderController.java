@@ -8,10 +8,7 @@ import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminOrderService;
 import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -38,6 +35,11 @@ public class AdminOrderController {
     @PostMapping("/import")
     public JSONData<Boolean> export(@RequestBody MultipartFile file) {
         adminOrderService.importOrder(file);
+        return JSONData.success(true);
+    }
+
+    @GetMapping("/detail")
+    public JSONData<Boolean> detail(@RequestParam("orderId") String orderId) {
         return JSONData.success(true);
     }
 }
