@@ -17,9 +17,9 @@ spring:
         min-idle: 0 #jedis最小等待连接数
 
   datasource:
-    url: jdbc:mysql://47.103.7.180:33336/dataplatform?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
-    username: dataplatform
-    password: Ycdp2023.
+    url: jdbc:mysql://101.132.155.114:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
+    username: root
+    password: xiguatianbutian
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 数据库访问配置, 使用druid数据源(默认数据源是HikariDataSource)
     type: com.alibaba.druid.pool.DruidDataSource
@@ -79,6 +79,12 @@ spring:
       filter:
         stat:
           log-slow-sql: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
 # mybatis-plus相关配置
 mybatis-plus:
   # xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
@@ -99,16 +105,7 @@ mybatis-plus:
     call-setters-on-nulls: true
 logging:
   config: classpath:logback.xml
-fire:
-  data:
-    url: https://www.zxyun119.com/thirdPartyApi/login
-    projectServerUrl: https://www.zxyun119.com/thirdPartyApi/ThreePlaceREST
-    appkey: TI1GNQwRn05ztes1rGwxlSOK
-    masterSecret: vEIAmcRhTIFX8azj3F6yxmizXCmdp7
-    zxyNoAuthUrl: https://www.zxyun119.com/FreeLogin.html?appkey=be647fce-7db5-4e7b-8750-9416763864f2
-    wlwName: aa1
-    wlwPass: Bb2023
-    wlwUrl: http://47.103.7.180:8002
-    wlwNoAuthUrl: http://47.115.88.225:8062/Default.aspx?secretId=
-    rootDept: 12000
-    tenantKey: YC_XF
+fdfs:
+  tracker-list:
+    - 101.132.155.114:22122
+  fileUrl: 101.132.155.114:8888
