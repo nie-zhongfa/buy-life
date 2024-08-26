@@ -17,7 +17,9 @@ import java.util.List;
  */
 public interface IBuyOrderService extends IService<BuyOrderEntity> {
 
-    void joinOrder(BuyOrderDetailReq req);
+    String joinOrder(BuyOrderDetailReq req);
 
     List<BuyOrderDetailResp> orderList();
+
+    BuyOrderDetailResp orderDetail(String orderId);
 }

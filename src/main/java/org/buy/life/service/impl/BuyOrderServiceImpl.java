@@ -47,7 +47,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
     private IBuySkuService skuService;
 
     @Override
-    public void joinOrder(BuyOrderDetailReq req){
+    public String joinOrder(BuyOrderDetailReq req){
         DateTimeFormatter yyyyMM = DateTimeFormatter.ofPattern("yyyyMM");
         String format = LocalDateTime.now().format(yyyyMM);
         String orderId = format+random();
@@ -66,6 +66,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         }
         save(buyOrder);
         buyOrderDetailService.saveBatch(buyOrderDetailEntityList);
+        return orderId;
     }
 
 
@@ -110,6 +111,43 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         }
         return buyOrderDetailResps;
     }
+
+
+
+
+    @Override
+    public BuyOrderDetailResp orderDetail(String orderId){
+        String userId = TtlUtils.getSPCtx().getUserId();
+        LambdaQueryWrapper<BuyOrderEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BuyOrderEntity::getUserId,userId)
+                .eq(BuyOrderEntity::getIsDeleted,0).eq(BuyOrderEntity::getOrderId,orderId);
+
+        BuyOrderEntity orderEntity = getOne(wrapper);
+
+        LambdaQueryWrapper<BuyOrderDetailEntity> orderDetailWrapper = new LambdaQueryWrapper<>();
+        orderDetailWrapper.eq(BuyOrderDetailEntity::getOrderId,orderEntity.getOrderId())
+                .eq(BuyOrderDetailEntity::getIsDeleted,0);
+        List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.list(orderDetailWrapper);
+
+        List<String> skus = orderDetails.stream().map(BuyOrderDetailEntity::getSkuId).collect(Collectors.toList());
+        LambdaQueryWrapper<BuySkuEntity> skuWrapper = new LambdaQueryWrapper<>();
+        skuWrapper.in(BuySkuEntity::getSkuId,skus);
+        List<BuySkuEntity> skuEntitys = skuService.list(skuWrapper);
+        Map<String, BuySkuEntity> skuMap = skuEntitys.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, Function.identity(), (key1, key2) -> key2));
+
+        BuyOrderDetailResp buyOrderDetailResp=new BuyOrderDetailResp();
+        buyOrderDetailResp.setOrderAmt(orderEntity.getOrderAmt());
+        buyOrderDetailResp.setSubmitTime(orderEntity.getLstSubmitTime());
+        List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
+        orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
+            o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
+            return o;
+        }).collect(Collectors.toList());
+        buyOrderDetailResp.setOrderDetails(orderDetails1);
+        return buyOrderDetailResp;
+    }
+
+
 
 
     private int random(){
