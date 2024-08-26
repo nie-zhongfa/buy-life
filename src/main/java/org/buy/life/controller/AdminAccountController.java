@@ -5,6 +5,7 @@ import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
 import org.buy.life.service.IAdminAccountService;
+import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,14 +29,14 @@ public class AdminAccountController {
 
 
     @PostMapping("/queryPage")
-    public ResponseEntity<PageInfo<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
+    public JSONData<PageInfo<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
         PageInfo<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
-        return ResponseEntity.ok(pageInfo);
+        return JSONData.success(pageInfo);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<Boolean> updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest) {
+    public JSONData<Boolean> updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest) {
         iAdminAccountService.updateAccount(updateAccountRequest);
-        return ResponseEntity.ok(true);
+        return JSONData.success(true);
     }
 }
