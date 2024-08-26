@@ -28,4 +28,7 @@
         id, is_deleted, ctime, mtime, creator, updater, sku_id, status, sku_name, sku_type, sku_category, price, lang_price, stock, batch_key, image_name, ext
     </sql>
 
+
+
+
 </mapper>

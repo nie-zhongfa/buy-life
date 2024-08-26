@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: /fire
+    context-path: /buy-life
 spring:
   redis:
     database: 0 #redis数据库编号，存在0-15共16个数据库

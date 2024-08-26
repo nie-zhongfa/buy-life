@@ -2,6 +2,9 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuySkuEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.req.BuySkuReq;
+import org.buy.life.entity.req.PageBasicReq;
+import org.buy.life.entity.resp.SimplePage;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBuySkuService extends IService<BuySkuEntity> {
 
+    SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq);
 }

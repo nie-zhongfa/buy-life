@@ -7,6 +7,7 @@ package org.buy.life.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import lombok.extern.slf4j.Slf4j;
+import org.buy.life.entity.BuyUserEntity;
 
 /**
  * <p>
@@ -23,15 +24,15 @@ public class TtlUtils {
     /**
      * 周期类型TTL上下文
      */
-    private static final TransmittableThreadLocal<RequestData> sPCtx = new TransmittableThreadLocal<>();
+    private static final TransmittableThreadLocal<BuyUserEntity> sPCtx = new TransmittableThreadLocal<>();
 
     /**
      * 获取周期类型上下文
      *
      * @return
      */
-    public static RequestData getSPCtx() {
-        RequestData data = sPCtx.get();
+    public static BuyUserEntity getSPCtx() {
+        BuyUserEntity data = sPCtx.get();
         return data;
     }
 
@@ -39,7 +40,7 @@ public class TtlUtils {
      * 设置周期类型上下文
      * @param data
      */
-    public static void setSPCtx(RequestData data) {
+    public static void setSPCtx(BuyUserEntity data) {
         if (log.isDebugEnabled()) {
             String name = Thread.currentThread().getName();
             log.debug("Thread name is {} okr cycle set ctx {}", name, JSON.toJSON(data));

@@ -1,9 +1,14 @@
 package org.buy.life.controller;
 
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.buy.life.entity.req.LoginInfoReq;
+import org.buy.life.service.IBuyUserService;
+import org.buy.life.utils.JSONData;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -13,9 +18,31 @@ import org.springframework.stereotype.Controller;
  * @author kavin
  * @since 2024-08-21
  */
-@Controller
-@RequestMapping("/buyUserEntity")
+@RestController
+@RequestMapping("/buyUser")
 public class BuyUserController {
+
+    @Resource
+    IBuyUserService buyUserService;
+
+    @PostMapping("/doLogin")
+    public JSONData doLogin(@RequestBody LoginInfoReq loginInfoReq){
+        return JSONData.success(buyUserService.doLogin(loginInfoReq));
+    }
+
+    @PostMapping("/getTokenInfo")
+    public JSONData getTokenInfo(@RequestBody LoginInfoReq loginInfoReq){
+        return JSONData.success(buyUserService.findByAccount(loginInfoReq.getAccount()));
+    }
+
+    @PostMapping("/removeToken")
+    public JSONData removeToken(@RequestBody LoginInfoReq loginInfoReq){
+        buyUserService.delToken(loginInfoReq);
+        return JSONData.success();
+    }
+
+
+
 
 }
 
