@@ -44,7 +44,7 @@ public class BuyOrderController {
 
 
     @GetMapping("/orderDetail")
-    public JSONData<BuyOrderDetailResp> orderDetail(@RequestParam String orderId){
+    public JSONData<BuyOrderDetailResp> orderDetail(@RequestParam("orderId") String orderId){
         return JSONData.success(buyOrderService.orderDetail(orderId));
     }
 }
