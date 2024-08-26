@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import org.buy.life.model.request.AdminSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminSkuService;
+import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,8 +34,8 @@ public class AdminSkuController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<String> export(@RequestBody MultipartFile file) {
+    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
         adminSkuService.importSku(file);
-        return ResponseEntity.ok("");
+        return JSONData.success(true);
     }
 }

@@ -6,6 +6,7 @@ import org.buy.life.model.request.AdminSkuRequest;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminOrderService;
+import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,14 +30,14 @@ public class AdminOrderController {
     private IAdminOrderService adminOrderService;
 
     @PostMapping("/queryPage")
-    public ResponseEntity<PageInfo<AdminOrderResponse>> queryOrderPage(@RequestBody AdminOrderRequest adminOrderRequest) {
+    public JSONData<PageInfo<AdminOrderResponse>> queryOrderPage(@RequestBody AdminOrderRequest adminOrderRequest) {
         PageInfo<AdminOrderResponse> pageInfo = adminOrderService.queryOrderPage(adminOrderRequest);
-        return ResponseEntity.ok(pageInfo);
+        return JSONData.success(pageInfo);
     }
 
     @PostMapping("/import")
-    public ResponseEntity<String> export(@RequestBody MultipartFile file) {
+    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
         adminOrderService.importOrder(file);
-        return ResponseEntity.ok("");
+        return JSONData.success(true);
     }
 }

@@ -1,6 +1,7 @@
 package org.buy.life.controller;
 
 import org.buy.life.service.IAdminFileService;
+import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,8 +30,8 @@ public class AdminFileController {
      * @return
      */
     @PostMapping("/upload")
-    public ResponseEntity<String> login(@RequestBody MultipartFile file) {
+    public JSONData<String> login(@RequestBody MultipartFile file) {
         String fileUrl = adminFileService.uploadFile(file);
-        return ResponseEntity.ok(fileUrl);
+        return JSONData.success(fileUrl);
     }
 }

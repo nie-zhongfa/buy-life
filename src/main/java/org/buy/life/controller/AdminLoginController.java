@@ -2,6 +2,7 @@ package org.buy.life.controller;
 
 import org.buy.life.model.request.AdminLoginRequest;
 import org.buy.life.service.IBuyAdminService;
+import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,8 +25,8 @@ public class AdminLoginController {
     private IBuyAdminService buyAdminService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AdminLoginRequest adminLoginRequest) {
+    public JSONData<String> login(@RequestBody AdminLoginRequest adminLoginRequest) {
         String token = buyAdminService.login(adminLoginRequest.getUsername(), adminLoginRequest.getPassword());
-        return ResponseEntity.ok(token);
+        return JSONData.success(token);
     }
 }
