@@ -23,4 +23,13 @@
         id, is_deleted, ctime, mtime, creator, updater, order_id, user_id, order_amt, lst_submit_time, status, ext
     </sql>
 
+    <select id="getAdminOrderList" >
+        select * from
+        buy_order o left join buy_order_detail d on o.order_id = d.order_id
+        where
+        o.is_deleted = 0 and d.is_deleted = 0
+        group o.order_id
+        order by o.ctime desc
+    </select>
+
 </mapper>
