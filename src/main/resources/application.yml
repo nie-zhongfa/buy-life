@@ -105,21 +105,6 @@ mybatis-plus:
     call-setters-on-nulls: true
 logging:
   config: classpath:logback.xml
-fire:
-  data:
-    url: https://www.zxyun119.com/thirdPartyApi/login
-    projectServerUrl: https://www.zxyun119.com/thirdPartyApi/ThreePlaceREST
-    appkey: TI1GNQwRn05ztes1rGwxlSOK
-    masterSecret: vEIAmcRhTIFX8azj3F6yxmizXCmdp7
-    zxyNoAuthUrl: https://www.zxyun119.com/FreeLogin.html?appkey=be647fce-7db5-4e7b-8750-9416763864f2
-    wlwName: aa1
-    wlwPass: Bb2023
-    wlwUrl: http://47.103.7.180:8002
-    wlwNoAuthUrl: http://47.115.88.225:8062/Default.aspx?secretId=
-    rootDept: 12000
-    tenantKey: YC_XF
-
-
 fdfs:
   tracker-list:
     - 101.132.155.114:22122
