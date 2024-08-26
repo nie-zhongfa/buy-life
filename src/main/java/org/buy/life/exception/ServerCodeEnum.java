@@ -34,6 +34,9 @@ public enum ServerCodeEnum {
     GET_DAY_FIRE_FAIL(2008,"获取事件趋势失败"),
     MEMBER_HAS_EXIST(2009,"用户已存在"),
     PROJECT_NO_EXIST(2010,"部门不存在"),
+    USERNAME_IS_NULL(2050, "用户名不能为空"),
+    PASSWORD_IS_NULL(2050, "密码不能为空"),
+    USERNAME_OR_PWD_IS_VAIL(2051, "用户名或密码错误"),
     ;
     private Integer code;
     private String msg;

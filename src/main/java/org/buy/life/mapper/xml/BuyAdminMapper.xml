@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.buy.life.mapper.BuyAdminMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.buy.life.entity.BuyAdminEntity">
+        <id column="id" property="id" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="ctime" property="ctime" />
+        <result column="mtime" property="mtime" />
+        <result column="creator" property="creator" />
+        <result column="updater" property="updater" />
+        <result column="user_id" property="userId" />
+        <result column="pwd" property="pwd" />
+        <result column="status" property="status" />
+        <result column="lst_login_time" property="lstLoginTime" />
+        <result column="token" property="token" />
+        <result column="lst_lang" property="lstLang" />
+        <result column="ext" property="ext" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, is_deleted, ctime, mtime, creator, updater, user_id, pwd, status, lst_login_time, token, lst_lang, ext
+    </sql>
+
+</mapper>

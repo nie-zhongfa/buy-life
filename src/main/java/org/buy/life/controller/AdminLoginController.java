@@ -1,12 +1,14 @@
 package org.buy.life.controller;
 
 import org.buy.life.model.request.AdminLoginRequest;
-import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.service.IBuyAdminService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
 
 /**
  * @menu TODO
@@ -18,8 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminLoginController {
 
+    @Resource
+    private IBuyAdminService buyAdminService;
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody AdminLoginRequest adminLoginRequest) {
-        return ResponseEntity.ok("");
+        String token = buyAdminService.login(adminLoginRequest.getUsername(), adminLoginRequest.getPassword());
+        return ResponseEntity.ok(token);
     }
 }

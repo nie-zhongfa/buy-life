@@ -15,25 +15,26 @@ public class MybatisGenerator {
     /**
      * 表名逗号分割
      */
-    private static final String tables = "buy_user,buy_sku,buy_cart,buy_order,buy_order_detail";
+//    private static final String tables = "buy_user,buy_sku,buy_cart,buy_order,buy_order_detail";
+    private static final String tables = "buy_admin";
 
     public static void main(String[] args) {
         // 创建generator对象
         AutoGenerator mpg = new AutoGenerator();
         // 数据源
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        dataSourceConfig.setUrl("jdbc:mysql://10.23.180.91:3306/buy_life?useSSL=false&charset=utf8mb4&allowMultiQueries=true&serverTimezone=GMT%2b8&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true");
+        dataSourceConfig.setUrl("jdbc:mysql://101.132.155.114:3306/buy_life?useSSL=false&charset=utf8mb4&allowMultiQueries=true&serverTimezone=GMT%2b8&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true");
         //com.mysql.jdbc.Driver
         dataSourceConfig.setDriverName("com.mysql.cj.jdbc.Driver");
         dataSourceConfig.setUsername("root");
-        dataSourceConfig.setPassword("123456");
+        dataSourceConfig.setPassword("xiguatianbutian");
         mpg.setDataSource(dataSourceConfig);
 
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
         String projectPath = System.getProperty("user.dir");
         gc.setOutputDir(projectPath + "/src/main/java");
-        gc.setAuthor("kavin");
+        gc.setAuthor("MrWu");
         // 覆盖
         gc.setFileOverride(true);
         gc.setActiveRecord(true);

@@ -112,3 +112,7 @@ fire:
     wlwNoAuthUrl: http://47.115.88.225:8062/Default.aspx?secretId=
     rootDept: 12000
     tenantKey: YC_XF
+
+
+fdfs:
+  tracker-list: http://www.iwxb.cn:8888/
