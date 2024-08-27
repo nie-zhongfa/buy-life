@@ -4,6 +4,8 @@ import org.buy.life.entity.BuyUserEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.buy.life.entity.req.LoginInfoReq;
 
+import java.util.List;
+
 /**
  * <p>
  * 用户信息表 服务类
@@ -21,4 +23,8 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
     BuyUserEntity doLogin(LoginInfoReq loginInfoReq);
 
     void delToken(LoginInfoReq loginInfoReq);
+
+    List<BuyUserEntity> getUserListByUserId(List<String> userIds);
+
+    BuyUserEntity getUserByUserId(String userId);
 }

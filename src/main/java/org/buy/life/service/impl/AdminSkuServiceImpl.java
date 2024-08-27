@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.entity.BuySkuEntity;
+import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.dto.PriceDto;
@@ -41,11 +42,14 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     private IAdminFileService adminFileService;
 
     @Override
-    public PageInfo<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
+    public SimplePage<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
         Page<BuySkuEntity> adminSkuPage = getSkuPage(adminSkuRequest);
-        PageInfo<AdminSkuResponse> pageInfo = BeanUtil.copyProperties(adminSkuPage, PageInfo.class);
+        if (adminSkuPage == null || CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
+            return SimplePage.emptyPage();
+        }
+        SimplePage<AdminSkuResponse> pageInfo = BeanUtil.copyProperties(adminSkuPage, SimplePage.class);
         List<AdminSkuResponse> responses = new ArrayList<>();
-        if (CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
+        if (!CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
             adminSkuPage.getRecords().forEach(r -> {
                 AdminSkuResponse adminSkuResponse = BeanUtil.copyProperties(r, AdminSkuResponse.class);
 
@@ -99,5 +103,13 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             log.error("上传文件失败", e);
         }
         return null;
+    }
+
+    @Override
+    public List<BuySkuEntity> getSkuBySkuIdList(List<String> skuIds) {
+        return lambdaQuery()
+                .in(BuySkuEntity::getSkuId, skuIds)
+                .eq(BuySkuEntity::getIsDeleted, false)
+                .list();
     }
 }

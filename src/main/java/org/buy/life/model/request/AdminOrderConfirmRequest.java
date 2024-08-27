@@ -5,12 +5,13 @@ import lombok.Data;
 /**
  * @menu TODO
  * @Author YourJustin
- * @Date 2024/8/24 9:22 PM
+ * @Date 2024/8/27 1:23 PM
  * I am a code man ^_^ !!
  */
 @Data
-public class BaseRequest {
+public class AdminOrderConfirmRequest {
 
-    private Long pageSize;
-    private Long pageNum;
+    private String orderId;
+
+    private String action;
 }

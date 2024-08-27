@@ -15,6 +15,8 @@ public enum OrderStatusEnum {
     HAS_DELIVERY("HAS_DELIVERY", "已发货"),
 
     END("END", "已结束"),
+
+    CANCEL("CANCEL", "已取消"),
     ;
     /**
      * 后端code

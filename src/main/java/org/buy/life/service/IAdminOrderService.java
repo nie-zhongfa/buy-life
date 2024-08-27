@@ -1,9 +1,12 @@
 package org.buy.life.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.BuyOrderEntity;
+import org.buy.life.entity.resp.SimplePage;
+import org.buy.life.model.request.AdminOrderConfirmRequest;
 import org.buy.life.model.request.AdminOrderRequest;
+import org.buy.life.model.request.UpdateOrderRequest;
+import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface IAdminOrderService  extends IService<BuyOrderEntity> {
 
-    PageInfo<AdminOrderResponse> queryOrderPage(AdminOrderRequest adminOrderRequest);
+    SimplePage<AdminOrderResponse> queryOrderPage(AdminOrderRequest adminOrderRequest);
+
+    AdminOrderDetailResponse queryDetail(String orderId);
+
+    void confirm(AdminOrderConfirmRequest adminOrderConfirmRequest);
 
     void importOrder(MultipartFile file);
+
+    void update(UpdateOrderRequest updateOrderRequest);
 }

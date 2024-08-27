@@ -1,6 +1,7 @@
 package org.buy.life.controller;
 
 import com.github.pagehelper.PageInfo;
+import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminSkuService;
@@ -28,8 +29,8 @@ public class AdminSkuController {
     private IAdminSkuService adminSkuService;
 
     @PostMapping("/queryPage")
-    public ResponseEntity<PageInfo<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
-        PageInfo<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
+    public ResponseEntity<SimplePage<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
+        SimplePage<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
         return ResponseEntity.ok(pageInfo);
     }
 

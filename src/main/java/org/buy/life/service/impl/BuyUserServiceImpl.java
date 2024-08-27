@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -73,4 +74,13 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
         updateById(user);
     }
 
+    @Override
+    public List<BuyUserEntity> getUserListByUserId(List<String> userIds) {
+        return lambdaQuery().in(BuyUserEntity::getUserId, userIds).list();
+    }
+
+    @Override
+    public BuyUserEntity getUserByUserId(String userId) {
+        return lambdaQuery().eq(BuyUserEntity::getUserId, userId).one();
+    }
 }

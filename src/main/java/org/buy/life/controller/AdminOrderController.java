@@ -1,8 +1,12 @@
 package org.buy.life.controller;
 
 import com.github.pagehelper.PageInfo;
+import org.buy.life.entity.resp.SimplePage;
+import org.buy.life.model.request.AdminOrderConfirmRequest;
 import org.buy.life.model.request.AdminOrderRequest;
 import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.model.request.UpdateOrderRequest;
+import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminOrderService;
@@ -27,8 +31,8 @@ public class AdminOrderController {
     private IAdminOrderService adminOrderService;
 
     @PostMapping("/queryPage")
-    public JSONData<PageInfo<AdminOrderResponse>> queryOrderPage(@RequestBody AdminOrderRequest adminOrderRequest) {
-        PageInfo<AdminOrderResponse> pageInfo = adminOrderService.queryOrderPage(adminOrderRequest);
+    public JSONData<SimplePage<AdminOrderResponse>> queryOrderPage(@RequestBody AdminOrderRequest adminOrderRequest) {
+        SimplePage<AdminOrderResponse> pageInfo = adminOrderService.queryOrderPage(adminOrderRequest);
         return JSONData.success(pageInfo);
     }
 
@@ -39,7 +43,20 @@ public class AdminOrderController {
     }
 
     @GetMapping("/detail")
-    public JSONData<Boolean> detail(@RequestParam("orderId") String orderId) {
+    public JSONData<AdminOrderDetailResponse> detail(@RequestParam("orderId") String orderId) {
+        AdminOrderDetailResponse adminOrderDetailResponse = adminOrderService.queryDetail(orderId);
+        return JSONData.success(adminOrderDetailResponse);
+    }
+
+    @PostMapping("/confirm")
+    public JSONData<Boolean> confirm(@RequestBody AdminOrderConfirmRequest adminOrderConfirmRequest) {
+        adminOrderService.confirm(adminOrderConfirmRequest);
+        return JSONData.success(true);
+    }
+
+    @PostMapping("/update")
+    public JSONData<Boolean> update(@RequestBody UpdateOrderRequest updateOrderRequest) {
+        adminOrderService.update(updateOrderRequest);
         return JSONData.success(true);
     }
 }

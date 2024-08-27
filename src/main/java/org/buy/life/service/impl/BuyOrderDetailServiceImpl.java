@@ -6,6 +6,8 @@ import org.buy.life.service.IBuyOrderDetailService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 用户信息表 服务实现类
@@ -17,4 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class BuyOrderDetailServiceImpl extends ServiceImpl<BuyOrderDetailMapper, BuyOrderDetailEntity> implements IBuyOrderDetailService {
 
+    @Override
+    public List<BuyOrderDetailEntity> getDetailByOrderId(String orderId) {
+        return lambdaQuery().eq(BuyOrderDetailEntity::getOrderId, orderId).eq(BuyOrderDetailEntity::getIsDeleted, false).list();
+    }
 }

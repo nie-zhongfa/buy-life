@@ -88,6 +88,11 @@ public class BuyOrderEntity extends Model<BuyOrderEntity> {
      */
     private String ext;
 
+    /**
+     * 币种
+     */
+    private String currency;
+
 
     @Override
     protected Serializable pkVal() {

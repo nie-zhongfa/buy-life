@@ -3,6 +3,7 @@ package org.buy.life.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
@@ -15,7 +16,7 @@ import org.buy.life.model.response.AccountResponse;
  */
 public interface IAdminAccountService extends IService<BuyUserEntity> {
 
-    PageInfo<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest);
+    SimplePage<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest);
 
     void updateAccount(UpdateAccountRequest updateAccountRequest);
 }

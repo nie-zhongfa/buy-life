@@ -1,6 +1,7 @@
 package org.buy.life.controller;
 
 import com.github.pagehelper.PageInfo;
+import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
@@ -29,8 +30,8 @@ public class AdminAccountController {
 
 
     @PostMapping("/queryPage")
-    public JSONData<PageInfo<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
-        PageInfo<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
+    public JSONData<SimplePage<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
+        SimplePage<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
         return JSONData.success(pageInfo);
     }
 

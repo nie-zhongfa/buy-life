@@ -1,60 +1,66 @@
 package org.buy.life.model.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.NoArgsConstructor;
 
 /**
- * @menu TODO
+ * @menu 订单明细
  * @Author YourJustin
- * @Date 2024/8/24 9:07 PM
+ * @Date 2024/8/27 12:56 PM
  * I am a code man ^_^ !!
  */
 @Data
-public class AdminSkuResponse implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrderDetailInfoResponse {
+
+    private Long id;
 
     /**
      * 商品id
      */
     private String skuId;
+
     /**
      * 商品名称
      */
     private String skuName;
+
     /**
      * 商品图片batchKey
      */
     private String batchKey;
+
     /**
      * 材质品类
      */
     private String skuCategory;
+
     /**
      * 人物款式
      */
     private String skuType;
+
     /**
-     * 基准成本价
+     * 单价
      */
-    private String costPrice;
+    private String price;
+
     /**
-     * 人民币零售价
+     * 金额
      */
-    private String priceCNY;
+    private String totalAmt;
+
     /**
-     * 美元零售价
+     * 币种
      */
-    private String priceUSD;
+    private String currency;
+
     /**
-     * 欧元零售价
+     * 数量
      */
-    private String priceEUR;
-    /**
-     * 库存
-     */
-    private String stock;
-    /**
-     * 分类：genshin_impact、star_rail、zenless_zone_zero
-     */
-    private String classification;
+    private Long skuNum;
 }

@@ -5,7 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.req.BuySkuReq;
+import org.buy.life.entity.req.PageBasicReq;
+import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.mapper.BuyUserMapper;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,17 +33,21 @@ import java.util.List;
 public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity> implements IAdminAccountService {
 
     @Override
-    public PageInfo<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest) {
+    public SimplePage<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest) {
         Page<BuyUserEntity> accountPage = getAccountPage(queryAccountRequest);
-        PageInfo<AccountResponse> pageInfo = BeanUtil.copyProperties(accountPage, PageInfo.class);
+        if (accountPage == null || CollectionUtils.isEmpty(accountPage.getRecords())) {
+            return SimplePage.emptyPage();
+        }
+        SimplePage<AccountResponse> pageInfo = BeanUtil.copyProperties(accountPage, SimplePage.class);
         List<AccountResponse> responses = new ArrayList<>();
-        if (CollectionUtils.isEmpty(accountPage.getRecords())) {
+        if (!CollectionUtils.isEmpty(accountPage.getRecords())) {
             accountPage.getRecords().forEach(r -> {
                 AccountResponse accountResponse = BeanUtil.copyProperties(r, AccountResponse.class);
 
                 responses.add(accountResponse);
             });
         }
+
         pageInfo.setList(responses);
         return pageInfo;
     }
