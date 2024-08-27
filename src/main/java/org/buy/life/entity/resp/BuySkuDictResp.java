@@ -28,6 +28,13 @@ public class BuySkuDictResp{
 
     private List<SkuDict> skuDicts;
 
+    private List<CountryDict> countryDicts;
+
+    private List<LangDict> langDicts;
+
+    private List<CurrencyDict> currencyDicts;
+
+
     @Data
     public static class TitleDict{
         private String code;
@@ -37,6 +44,30 @@ public class BuySkuDictResp{
 
     @Data
     public static class OrderStatusDict{
+        private String code;
+
+        private String desc;
+    }
+
+
+    @Data
+    public static class CountryDict{
+        private String code;
+
+        private String desc;
+    }
+
+
+    @Data
+    public static class LangDict{
+        private String code;
+
+        private String desc;
+    }
+
+
+    @Data
+    public static class CurrencyDict{
         private String code;
 
         private String desc;
