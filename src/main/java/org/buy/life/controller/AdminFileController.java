@@ -21,11 +21,12 @@ import javax.annotation.Resource;
 @RequestMapping("/admin/file")
 public class AdminFileController {
 
-   @Resource
-   private IAdminFileService adminFileService;
+    @Resource
+    private IAdminFileService adminFileService;
 
     /**
      * 上传文件
+     *
      * @param file
      * @return
      */

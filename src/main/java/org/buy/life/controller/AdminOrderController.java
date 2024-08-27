@@ -29,42 +29,84 @@ public class AdminOrderController {
     @Resource
     private IAdminOrderService adminOrderService;
 
+    /**
+     * 订单列表
+     *
+     * @param adminOrderRequest
+     * @return
+     */
     @PostMapping("/queryPage")
     public JSONData<SimplePage<AdminOrderResponse>> queryOrderPage(@RequestBody AdminOrderRequest adminOrderRequest) {
         SimplePage<AdminOrderResponse> pageInfo = adminOrderService.queryOrderPage(adminOrderRequest);
         return JSONData.success(pageInfo);
     }
 
-    @PostMapping("/import")
-    public JSONData<Boolean> importOrder(@RequestBody MultipartFile file) {
-        adminOrderService.importOrder(file);
-        return JSONData.success(true);
-    }
-
+    /**
+     * 订单详情
+     *
+     * @param orderId
+     * @return
+     */
     @GetMapping("/detail")
     public JSONData<AdminOrderDetailResponse> detail(@RequestParam("orderId") String orderId) {
         AdminOrderDetailResponse adminOrderDetailResponse = adminOrderService.queryDetail(orderId);
         return JSONData.success(adminOrderDetailResponse);
     }
 
+    /**
+     * 确认订单&取消订单 #org.buy.life.model.enums.ActionEnum
+     *
+     * @param adminOrderConfirmRequest
+     * @return
+     */
     @PostMapping("/confirm")
     public JSONData<Boolean> confirm(@RequestBody AdminOrderConfirmRequest adminOrderConfirmRequest) {
         adminOrderService.confirm(adminOrderConfirmRequest);
         return JSONData.success(true);
     }
 
+    /**
+     * 添加备注
+     *
+     * @param addOrderRemarkRequest
+     * @return
+     */
     @PostMapping("/addRemark")
     public JSONData<Boolean> addRemark(@RequestBody AddOrderRemarkRequest addOrderRemarkRequest) {
         adminOrderService.addRemark(addOrderRemarkRequest);
         return JSONData.success(true);
     }
 
+    /**
+     * 修改订单
+     *
+     * @param updateOrderDetailRequest
+     * @return
+     */
     @PostMapping("/update")
     public JSONData<Boolean> update(@RequestBody List<UpdateOrderDetailRequest> updateOrderDetailRequest) {
         adminOrderService.update(updateOrderDetailRequest);
         return JSONData.success(true);
     }
 
+    /**
+     * 导入订单明细
+     *
+     * @param file
+     * @return
+     */
+    @PostMapping("/import")
+    public JSONData<Boolean> importOrder(@RequestBody MultipartFile file) {
+        adminOrderService.importOrder(file);
+        return JSONData.success(true);
+    }
+
+    /**
+     * 导出订单明细
+     *
+     * @param orderId
+     * @param response
+     */
     @GetMapping("/export")
     public void export(@RequestParam("orderId") String orderId, HttpServletResponse response) {
         adminOrderService.export(orderId, response);

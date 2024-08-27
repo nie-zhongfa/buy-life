@@ -24,6 +24,12 @@ public class AdminLoginController {
     @Resource
     private IBuyAdminService buyAdminService;
 
+    /**
+     * 管理端登录
+     *
+     * @param adminLoginRequest
+     * @return
+     */
     @PostMapping("/login")
     public JSONData<String> login(@RequestBody AdminLoginRequest adminLoginRequest) {
         String token = buyAdminService.login(adminLoginRequest.getUsername(), adminLoginRequest.getPassword());

@@ -28,12 +28,24 @@ public class AdminSkuController {
     @Resource
     private IAdminSkuService adminSkuService;
 
+    /**
+     * 商品列表
+     *
+     * @param adminSkuRequest
+     * @return
+     */
     @PostMapping("/queryPage")
     public ResponseEntity<SimplePage<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
         SimplePage<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
         return ResponseEntity.ok(pageInfo);
     }
 
+    /**
+     * 导入商品
+     *
+     * @param file
+     * @return
+     */
     @PostMapping("/import")
     public JSONData<Boolean> export(@RequestBody MultipartFile file) {
         adminSkuService.importSku(file);

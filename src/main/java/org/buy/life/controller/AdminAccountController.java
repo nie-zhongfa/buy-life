@@ -28,13 +28,24 @@ public class AdminAccountController {
     @Resource
     private IAdminAccountService iAdminAccountService;
 
-
+    /**
+     * 查询账号列表
+     *
+     * @param queryAccountRequest
+     * @return
+     */
     @PostMapping("/queryPage")
     public JSONData<SimplePage<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
         SimplePage<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
         return JSONData.success(pageInfo);
     }
 
+    /**
+     * 更新账号信息
+     *
+     * @param updateAccountRequest
+     * @return
+     */
     @PostMapping("/update")
     public JSONData<Boolean> updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest) {
         iAdminAccountService.updateAccount(updateAccountRequest);
