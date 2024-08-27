@@ -1,7 +1,7 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.excel.util.StringUtils;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import org.buy.life.service.IAdminOrderService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.service.IBuyOrderDetailService;
 import org.buy.life.service.IBuyUserService;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -131,7 +132,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         if (status != null) {
             lambdaUpdate()
                     .set(BuyOrderEntity::getStatus, status)
-                    .set(!StringUtils.isEmpty(adminOrderConfirmRequest.getReceiptCertificate()), BuyOrderEntity::getReceiptCertificate, adminOrderConfirmRequest.getReceiptCertificate())
+                    .set(StringUtils.isNotBlank(adminOrderConfirmRequest.getReceiptCertificate()), BuyOrderEntity::getReceiptCertificate, adminOrderConfirmRequest.getReceiptCertificate())
                     .eq(BuyOrderEntity::getOrderId, adminOrderConfirmRequest.getOrderId())
                     .update();
         }
@@ -141,6 +142,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         Page<BuyOrderEntity> page = new Page<>(adminOrderRequest.getPageNum(), adminOrderRequest.getPageSize());
         return lambdaQuery()
                 .eq(BuyOrderEntity::getStatus, adminOrderRequest.getStatus())
+                .eq(StringUtils.isNotBlank(adminOrderRequest.getOrderId()), BuyOrderEntity::getOrderId, adminOrderRequest.getOrderId())
                 .eq(BuyOrderEntity::getIsDeleted, false)
                 .orderByDesc(BuyOrderEntity::getMtime)
                 .page(page);
@@ -161,7 +163,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     @Override
     public void addRemark(AddOrderRemarkRequest addOrderRemarkRequest) {
         lambdaUpdate()
-                .set(!StringUtils.isEmpty(addOrderRemarkRequest.getAdminRemark()), BuyOrderEntity::getAdminRemark, addOrderRemarkRequest.getAdminRemark())
+                .set(StringUtils.isNotBlank(addOrderRemarkRequest.getAdminRemark()), BuyOrderEntity::getAdminRemark, addOrderRemarkRequest.getAdminRemark())
                 .eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId())
                 .update();
     }
@@ -175,8 +177,16 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             if (order.getSkuNum().equals(orderDetail.getSkuNum())) {
                 return;
             }
-            //校验库存是否满足
             BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
+            //为0则删除该订单明细
+            if (order.getSkuNum() == 0) {
+                BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder().id(orderDetail.getId()).isDeleted(BooleanUtil.toInteger(true)).build();
+                buyOrderDetailService.updateById(entity);
+                //返回库存
+                adminSkuService.updateStock(sku.getId(), - orderDetail.getSkuNum());
+                return;
+            }
+            //校验库存是否满足
             long num = order.getSkuNum() - orderDetail.getSkuNum();
             if (Long.parseLong(sku.getStock()) < num) {
                 throw new BusinessException(9999, "【" + sku.getSkuName() + "】" + "库存不足");
@@ -202,6 +212,14 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                     .eq(BuyOrderEntity::getOrderId, updateOrderDetailRequest.get(0).getOrderId())
                     .update();
         }
+    }
+
+    @Override
+    public void export(AdminOrderRequest adminOrderRequest) {
+        adminOrderRequest.setPageNum(1L);
+        adminOrderRequest.setPageSize(Long.MAX_VALUE);
+        Page<BuyOrderEntity> orderPage = getOrderPage(adminOrderRequest);
+
     }
 
 }

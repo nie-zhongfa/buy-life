@@ -32,4 +32,6 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
     void addRemark(AddOrderRemarkRequest addOrderRemarkRequest);
 
     void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest);
+
+    void export(AdminOrderRequest adminOrderRequest);
 }

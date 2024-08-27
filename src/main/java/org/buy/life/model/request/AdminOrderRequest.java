@@ -17,4 +17,9 @@ public class AdminOrderRequest extends BaseRequest implements Serializable {
      * 状态
      */
     private String status;
+
+    /**
+     * 订单号
+     */
+    private String orderId;
 }
