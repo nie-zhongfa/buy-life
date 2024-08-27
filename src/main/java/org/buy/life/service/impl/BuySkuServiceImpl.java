@@ -33,6 +33,7 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
     public SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq){
         LambdaQueryWrapper<BuySkuEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BuySkuEntity::getIsDeleted,0)
+                .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getClassification()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getClassification())
                 .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuCategory()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getSkuCategory())
                 .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuType()),BuySkuEntity::getSkuType,buySkuReq.getCondition().getSkuType())
                 .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED))

@@ -58,4 +58,12 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
                 .update();
         return token;
     }
+
+    @Override
+    public BuyAdminEntity  getAdmin(String token){
+        BuyAdminEntity adminEntity = lambdaQuery().eq(BuyAdminEntity::getToken, token).one();
+        return adminEntity;
+    }
+
+
 }

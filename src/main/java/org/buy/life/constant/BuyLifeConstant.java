@@ -7,9 +7,5 @@ package org.buy.life.constant;
  * @version: 1.0
  */
 public class BuyLifeConstant {
-    public static  String TOKEN_PREFIX="zxy_auth_token";
-    public static  String WLW_TOKEN_PREFIX="wlw_auth_token";
-    public static String FIRE_TOKEN_HEADER="FIRE_TOKEN";
-    public static String FIRE_TOKEN_REDIS="fire_token_";
-
+    public static String BUY_TOKEN_HEADER="BUY_TOKEN";
 }
