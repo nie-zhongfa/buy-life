@@ -18,6 +18,8 @@ public interface IBuySkuDictService extends IService<BuySkuDictEntity> {
 
     List<BuySkuDictEntity> getSkuDictByCode(String code);
 
+    List<BuySkuDictEntity> getSkuDictByCodes(List<String> codes);
+
     List<BuySkuDictEntity> getSkuDictList();
 
     BuySkuDictResp getAllDict();

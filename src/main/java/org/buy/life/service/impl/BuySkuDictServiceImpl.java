@@ -31,6 +31,11 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
     }
 
     @Override
+    public List<BuySkuDictEntity> getSkuDictByCodes(List<String> codes) {
+        return lambdaQuery().in(BuySkuDictEntity::getCode, codes).eq(BuySkuDictEntity::getIsDeleted, false).list();
+    }
+
+    @Override
     public List<BuySkuDictEntity> getSkuDictList() {
         return lambdaQuery().eq(BuySkuDictEntity::getIsDeleted, false).list();
     }

@@ -6,8 +6,11 @@ import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.buy.life.model.request.SkuName;
 
 /**
  * <p>
@@ -83,6 +86,11 @@ public class BuySkuDictEntity extends Model<BuySkuDictEntity> {
     @Override
     protected Serializable pkVal() {
         return this.id;
+    }
+
+    public static String getSkuCategoryName(List<BuySkuDictEntity> skuCategoryList, String lang) {
+        BuySkuDictEntity buySkuDictEntity = skuCategoryList.stream().filter(s -> lang.equals(s.getLang())).findFirst().get();
+        return buySkuDictEntity.getSkuCategory();
     }
 
 }

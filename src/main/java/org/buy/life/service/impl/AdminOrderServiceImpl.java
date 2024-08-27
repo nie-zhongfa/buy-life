@@ -8,10 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.constant.OrderStatusEnum;
-import org.buy.life.entity.BuyOrderDetailEntity;
-import org.buy.life.entity.BuyOrderEntity;
-import org.buy.life.entity.BuySkuEntity;
-import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.*;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
@@ -24,10 +21,7 @@ import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.buy.life.model.response.OrderDetailInfoResponse;
-import org.buy.life.service.IAdminOrderService;
-import org.buy.life.service.IAdminSkuService;
-import org.buy.life.service.IBuyOrderDetailService;
-import org.buy.life.service.IBuyUserService;
+import org.buy.life.service.*;
 import org.buy.life.utils.excel.ExcelUtil;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -59,6 +53,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     private IBuyOrderDetailService buyOrderDetailService;
     @Resource
     private IAdminSkuService adminSkuService;
+    @Resource
+    private IBuySkuDictService buySkuDictService;
 
     @Override
     public SimplePage<AdminOrderResponse> queryOrderPage(AdminOrderRequest adminOrderRequest) {
@@ -95,13 +91,25 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         List<BuySkuEntity> skuList = adminSkuService.getSkuBySkuIdList(skuIds);
         Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
         List<OrderDetailInfoResponse> detailInfoResponses = new ArrayList<>();
+
+        //品类
+        List<String> skuCategoryCodeList = skuList.stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
+        List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
+        Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
+
+        //订单明细
         orderDetailList.forEach(d -> {
             OrderDetailInfoResponse orderDetailInfoResponse = BeanUtil.copyProperties(d, OrderDetailInfoResponse.class);
             BuySkuEntity buySkuEntity = skuMap.get(d.getSkuId());
+            String skuName = SkuName.getSkuName(buySkuEntity.getSkuName(), LangEnum.ZH_CN.getCode());
+
+            List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
+            String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
+
             orderDetailInfoResponse.setBatchKey(buySkuEntity.getBatchKey());
-            orderDetailInfoResponse.setSkuName(buySkuEntity.getSkuName());
+            orderDetailInfoResponse.setSkuName(skuName);
             orderDetailInfoResponse.setSkuType(buySkuEntity.getSkuType());
-            orderDetailInfoResponse.setSkuCategory(buySkuEntity.getSkuCategory());
+            orderDetailInfoResponse.setSkuCategory(skuCategory);
             orderDetailInfoResponse.setStock(buySkuEntity.getStock());
             detailInfoResponses.add(orderDetailInfoResponse);
         });
@@ -112,7 +120,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     @Override
     public void confirm(AdminOrderConfirmRequest adminOrderConfirmRequest) {
         ActionEnum actionEnum = ActionEnum.getByAction(adminOrderConfirmRequest.getAction());
-        String status = null;
+        String status;
         switch (actionEnum) {
             case CONFIRM:
                 status = OrderStatusEnum.NEED_PAY.getCode();
@@ -132,13 +140,11 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             default:
                 return;
         }
-        if (status != null) {
-            lambdaUpdate()
-                    .set(BuyOrderEntity::getStatus, status)
-                    .set(StringUtils.isNotBlank(adminOrderConfirmRequest.getReceiptCertificate()), BuyOrderEntity::getReceiptCertificate, adminOrderConfirmRequest.getReceiptCertificate())
-                    .eq(BuyOrderEntity::getOrderId, adminOrderConfirmRequest.getOrderId())
-                    .update();
-        }
+        lambdaUpdate()
+                .set(BuyOrderEntity::getStatus, status)
+                .set(StringUtils.isNotBlank(adminOrderConfirmRequest.getReceiptCertificate()), BuyOrderEntity::getReceiptCertificate, adminOrderConfirmRequest.getReceiptCertificate())
+                .eq(BuyOrderEntity::getOrderId, adminOrderConfirmRequest.getOrderId())
+                .update();
     }
 
     public Page<BuyOrderEntity> getOrderPage(AdminOrderRequest adminOrderRequest) {
@@ -279,23 +285,34 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         }
         BuyOrderDetailEntity entity = orderDetails.get(0);
         BuyOrderEntity order = lambdaQuery().eq(BuyOrderEntity::getOrderId, entity.getOrderId()).one();
+
         BuyUserEntity user = buyUserService.getUserByUserId(order.getUserId());
+
+        //sku
         List<String> skuIds = orderDetails.stream().map(BuyOrderDetailEntity::getSkuId).distinct().collect(Collectors.toList());
         List<BuySkuEntity> skuList = adminSkuService.getSkuBySkuIdList(skuIds);
         Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
-        List<ExportOrderDetailInfoDto> list = new ArrayList<>();
 
+        //品类
+        List<String> skuCategoryCodeList = skuList.stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
+        List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
+        Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
+
+        List<ExportOrderDetailInfoDto> list = new ArrayList<>();
         orderDetails.forEach(o -> {
             BuySkuEntity buySkuEntity = skuMap.get(o.getSkuId());
-            List<SkuName> skuNames = JSON.parseArray(buySkuEntity.getSkuName(), SkuName.class);
-            SkuName skuName = skuNames.stream().filter(s -> LangEnum.ZH_CN.getCode().equals(s.getLang())).findFirst().get();
+            String skuName = SkuName.getSkuName(buySkuEntity.getSkuName(), LangEnum.ZH_CN.getCode());
+
+            List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
+            String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
+
             ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                     .orderId(orderId)
                     .userId(user.getUserId())
                     .mail(user.getMail())
                     .skuId(buySkuEntity.getSkuId())
-                    .skuName(skuName.getSkuName())
-                    .skuCategory(buySkuEntity.getSkuCategory())
+                    .skuName(skuName)
+                    .skuCategory(skuCategory)
                     .skuType(buySkuEntity.getSkuType())
                     .price(o.getPrice())
                     .totalAmt(o.getTotalAmt())
