@@ -16,7 +16,7 @@ public class MybatisGenerator {
      * 表名逗号分割
      */
 //    private static final String tables = "buy_user,buy_sku,buy_cart,buy_order,buy_order_detail";
-    private static final String tables = "buy_admin";
+    private static final String tables = "buy_sku_dict";
 
     public static void main(String[] args) {
         // 创建generator对象

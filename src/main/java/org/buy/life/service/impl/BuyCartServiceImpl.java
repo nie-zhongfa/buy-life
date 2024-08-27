@@ -10,6 +10,7 @@ import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.req.BuyCartReq;
 import org.buy.life.entity.resp.BuyCartResp;
 import org.buy.life.mapper.BuyCartMapper;
+import org.buy.life.model.request.SkuPrice;
 import org.buy.life.service.IBuyCartService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.service.IBuySkuService;
@@ -76,9 +77,9 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
             if(Objects.isNull(buySkuEntity)){
                 continue;
             }
-            List<BuySkuServiceImpl.SkuPrice> skuPrice = JSONObject.parseArray(buySkuEntity.getPrice(), BuySkuServiceImpl.SkuPrice.class);
+            List<SkuPrice> skuPrice = JSONObject.parseArray(buySkuEntity.getPrice(), SkuPrice.class);
 
-            Map<String, BuySkuServiceImpl.SkuPrice> skuPriceMap = skuPrice.stream().collect(Collectors.toMap(BuySkuServiceImpl.SkuPrice::getCurrency,
+            Map<String, SkuPrice> skuPriceMap = skuPrice.stream().collect(Collectors.toMap(SkuPrice::getCurrency,
                     Function.identity(), (key1, key2) -> key2));
             
             String price=skuPriceMap.get(TtlUtils.getSPCtx().getCurrency()).getSkuPrice();
