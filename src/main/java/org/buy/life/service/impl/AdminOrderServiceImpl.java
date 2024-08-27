@@ -106,9 +106,11 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
 
+            String skuType = SkuType.getSkuType(buySkuEntity.getSkuType(), LangEnum.ZH_CN.getCode());
+
             orderDetailInfoResponse.setBatchKey(buySkuEntity.getBatchKey());
             orderDetailInfoResponse.setSkuName(skuName);
-            orderDetailInfoResponse.setSkuType(buySkuEntity.getSkuType());
+            orderDetailInfoResponse.setSkuType(skuType);
             orderDetailInfoResponse.setSkuCategory(skuCategory);
             orderDetailInfoResponse.setStock(buySkuEntity.getStock());
             detailInfoResponses.add(orderDetailInfoResponse);
@@ -306,6 +308,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
 
+            String skuType = SkuType.getSkuType(buySkuEntity.getSkuType(), LangEnum.ZH_CN.getCode());
+
             ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                     .orderId(orderId)
                     .userId(user.getUserId())
@@ -313,7 +317,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                     .skuId(buySkuEntity.getSkuId())
                     .skuName(skuName)
                     .skuCategory(skuCategory)
-                    .skuType(buySkuEntity.getSkuType())
+                    .skuType(skuType)
                     .price(o.getPrice())
                     .totalAmt(o.getTotalAmt())
                     .currency(o.getCurrency())
