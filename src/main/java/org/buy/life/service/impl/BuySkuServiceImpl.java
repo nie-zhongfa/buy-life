@@ -50,24 +50,4 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
         }
         return new SimplePage<>(page.getRecords(), buySkuReq.getPageNum(), buySkuReq.getPageSize(), page.getTotal());
     }
-
-
-    @Data
-    public static class SkuName{
-
-        private String lang;
-
-        private String skuName;
-
-    }
-
-
-    @Data
-    public static class SkuPrice{
-
-        private String currency;
-
-        private String skuPrice;
-
-    }
 }
