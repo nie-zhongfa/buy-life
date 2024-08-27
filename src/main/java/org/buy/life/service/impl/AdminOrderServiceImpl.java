@@ -19,6 +19,7 @@ import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.ActionEnum;
+import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
@@ -287,7 +288,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         orderDetails.forEach(o -> {
             BuySkuEntity buySkuEntity = skuMap.get(o.getSkuId());
             List<SkuName> skuNames = JSON.parseArray(buySkuEntity.getSkuName(), SkuName.class);
-            SkuName skuName = skuNames.stream().filter(s -> s.getLang().equals("zh_CN")).findFirst().get();
+            SkuName skuName = skuNames.stream().filter(s -> LangEnum.ZH_CN.getCode().equals(s.getLang())).findFirst().get();
             ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                     .orderId(orderId)
                     .userId(user.getUserId())
