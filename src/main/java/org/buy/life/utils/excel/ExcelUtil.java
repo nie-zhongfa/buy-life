@@ -1,6 +1,10 @@
 package org.buy.life.utils.excel;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +24,7 @@ import java.util.List;
  * @Date 2024/8/26 4:50 PM
  * I am a code man ^_^ !!
  */
+@Slf4j
 public class ExcelUtil {
 
     /**
@@ -78,5 +83,26 @@ public class ExcelUtil {
          */
         response.setHeader("Content-disposition", "attachment;filename=" + excelFileName + ".xlsx");
         response.setHeader("Content-Type", "application/octet-stream;charset=utf-8");
+    }
+
+    public static void writeExcel(HttpServletResponse response, String fileName, Class<?> tClass, List<?> objects) {
+        ExcelWriter excelWriter = null;
+        try {
+            response.setContentType("application/octet-stream");
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+            response.setHeader("Content-disposition", "attachment;filename=" + fileName +".xlsx");
+            excelWriter = EasyExcel.write(response.getOutputStream(), tClass).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet(fileName).build();
+            excelWriter.write(objects, writeSheet);
+        } catch (IOException e) {
+            log.error("导出文件失败", e);
+        }finally {
+            // 千万别忘记finish 会帮忙关闭流
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+
     }
 }

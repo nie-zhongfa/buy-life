@@ -23,4 +23,12 @@ public class BuyOrderDetailServiceImpl extends ServiceImpl<BuyOrderDetailMapper,
     public List<BuyOrderDetailEntity> getDetailByOrderId(String orderId) {
         return lambdaQuery().eq(BuyOrderDetailEntity::getOrderId, orderId).eq(BuyOrderDetailEntity::getIsDeleted, false).list();
     }
+
+    @Override
+    public List<BuyOrderDetailEntity> getDetailByOrderIds(List<String> orderIds) {
+        return lambdaQuery()
+                .in(BuyOrderDetailEntity::getOrderId, orderIds)
+                .eq(BuyOrderDetailEntity::getIsDeleted, false)
+                .list();
+    }
 }

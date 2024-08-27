@@ -2,6 +2,8 @@ package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +15,10 @@ import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
+import org.buy.life.model.dto.ExportOrderDetailInfoDto;
+import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.ActionEnum;
-import org.buy.life.model.request.AdminOrderConfirmRequest;
-import org.buy.life.model.request.AdminOrderRequest;
-import org.buy.life.model.request.AddOrderRemarkRequest;
-import org.buy.life.model.request.UpdateOrderDetailRequest;
+import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.buy.life.model.response.OrderDetailInfoResponse;
@@ -25,6 +26,7 @@ import org.buy.life.service.IAdminOrderService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.service.IBuyOrderDetailService;
 import org.buy.life.service.IBuyUserService;
+import org.buy.life.utils.excel.ExcelUtil;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,17 +67,15 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         SimplePage<AdminOrderResponse> pageInfo = BeanUtil.copyProperties(orderPage, SimplePage.class);
         List<AdminOrderResponse> responses = new ArrayList<>();
         List<BuyOrderEntity> records = orderPage.getRecords();
-        if (!CollectionUtils.isEmpty(records)) {
-            List<String> userIds = records.stream().map(BuyOrderEntity::getUserId).distinct().collect(Collectors.toList());
-            List<BuyUserEntity> userList = buyUserService.getUserListByUserId(userIds);
-            Map<String, BuyUserEntity> userMap = userList.stream().collect(Collectors.toMap(BuyUserEntity::getUserId, contract -> contract, (a, b) -> a));
-            orderPage.getRecords().forEach(r -> {
-                AdminOrderResponse adminOrderResponse = BeanUtil.copyProperties(r, AdminOrderResponse.class);
-                BuyUserEntity buyUserEntity = userMap.get(r.getUserId());
-                adminOrderResponse.setMail(buyUserEntity.getMail());
-                responses.add(adminOrderResponse);
-            });
-        }
+        List<String> userIds = records.stream().map(BuyOrderEntity::getUserId).distinct().collect(Collectors.toList());
+        List<BuyUserEntity> userList = buyUserService.getUserListByUserId(userIds);
+        Map<String, BuyUserEntity> userMap = userList.stream().collect(Collectors.toMap(BuyUserEntity::getUserId, contract -> contract, (a, b) -> a));
+        orderPage.getRecords().forEach(r -> {
+            AdminOrderResponse adminOrderResponse = BeanUtil.copyProperties(r, AdminOrderResponse.class);
+            BuyUserEntity buyUserEntity = userMap.get(r.getUserId());
+            adminOrderResponse.setMail(buyUserEntity.getMail());
+            responses.add(adminOrderResponse);
+        });
         pageInfo.setList(responses);
         return pageInfo;
     }
@@ -215,11 +216,39 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     }
 
     @Override
-    public void export(AdminOrderRequest adminOrderRequest) {
-        adminOrderRequest.setPageNum(1L);
-        adminOrderRequest.setPageSize(Long.MAX_VALUE);
-        Page<BuyOrderEntity> orderPage = getOrderPage(adminOrderRequest);
+    public void export(String orderId, HttpServletResponse response) {
+        List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(orderId);
+        if (CollectionUtils.isEmpty(orderDetails)) {
+            throw new BusinessException(9999, "未查询到数据");
+        }
+        BuyOrderDetailEntity entity = orderDetails.get(0);
+        BuyOrderEntity order = lambdaQuery().eq(BuyOrderEntity::getOrderId, entity.getOrderId()).one();
+        BuyUserEntity user = buyUserService.getUserByUserId(order.getUserId());
+        List<String> skuIds = orderDetails.stream().map(BuyOrderDetailEntity::getSkuId).distinct().collect(Collectors.toList());
+        List<BuySkuEntity> skuList = adminSkuService.getSkuBySkuIdList(skuIds);
+        Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
+        List<ExportOrderDetailInfoDto> list = new ArrayList<>();
 
+        orderDetails.forEach(o ->{
+            BuySkuEntity buySkuEntity = skuMap.get(o.getSkuId());
+            List<SkuName> skuNames = JSON.parseArray(buySkuEntity.getSkuName(), SkuName.class);
+            SkuName skuName = skuNames.stream().filter(s -> s.getLang().equals("zh_CN")).findFirst().get();
+            ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
+                    .orderId(orderId)
+                    .userId(user.getUserId())
+                    .mail(user.getMail())
+                    .skuId(buySkuEntity.getSkuId())
+                    .skuName(skuName.getSkuName())
+                    .skuCategory(buySkuEntity.getSkuCategory())
+                    .skuType(buySkuEntity.getSkuType())
+                    .price(o.getPrice())
+                    .totalAmt(o.getTotalAmt())
+                    .currency(o.getCurrency())
+                    .skuNum(o.getSkuNum())
+                    .build();
+            list.add(detailInfoDto);
+        });
+        ExcelUtil.writeExcel(response, orderId, ExportOrderDetailInfoDto.class, list);
     }
 
 }

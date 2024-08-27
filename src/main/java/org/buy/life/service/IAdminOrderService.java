@@ -11,6 +11,7 @@ import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -33,5 +34,5 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
 
     void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest);
 
-    void export(AdminOrderRequest adminOrderRequest);
+    void export(String orderId, HttpServletResponse response);
 }
