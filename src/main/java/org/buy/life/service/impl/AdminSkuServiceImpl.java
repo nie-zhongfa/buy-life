@@ -7,16 +7,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.dto.PriceDto;
+import org.buy.life.model.enums.CurrencyEnum;
+import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.model.request.SkuName;
+import org.buy.life.model.request.SkuPrice;
+import org.buy.life.model.request.SkuType;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminFileService;
 import org.buy.life.service.IAdminSkuService;
+import org.buy.life.service.IBuySkuDictService;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -28,6 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @menu TODO
@@ -41,6 +50,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
     @Resource
     private IAdminFileService adminFileService;
+    @Resource
+    private IBuySkuDictService buySkuDictService;
 
     @Override
     public SimplePage<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
@@ -49,10 +60,30 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             return SimplePage.emptyPage();
         }
         SimplePage<AdminSkuResponse> pageInfo = BeanUtil.copyProperties(adminSkuPage, SimplePage.class);
+
+        //品类
+        List<String> skuCategoryCodeList = adminSkuPage.getRecords().stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
+        List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
+        Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
+
         List<AdminSkuResponse> responses = new ArrayList<>();
         if (!CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
             adminSkuPage.getRecords().forEach(r -> {
                 AdminSkuResponse adminSkuResponse = BeanUtil.copyProperties(r, AdminSkuResponse.class);
+
+                String skuName = SkuName.getSkuName(r.getSkuName(), LangEnum.ZH_CN.getCode());
+
+                List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(r.getSkuCategory());
+                String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
+
+                String skuType = SkuType.getSkuType(r.getSkuType(), LangEnum.ZH_CN.getCode());
+
+                adminSkuResponse.setSkuName(skuName);
+                adminSkuResponse.setSkuCategory(skuCategory);
+                adminSkuResponse.setSkuType(skuType);
+                adminSkuResponse.setPriceCNY(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.CNY.getCode()));
+                adminSkuResponse.setPriceUSD(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.USD.getCode()));
+                adminSkuResponse.setPriceEUR(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.EUR.getCode()));
 
                 responses.add(adminSkuResponse);
             });
