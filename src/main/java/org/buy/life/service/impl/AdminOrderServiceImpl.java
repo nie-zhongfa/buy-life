@@ -161,7 +161,6 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     @Override
     public void addRemark(AddOrderRemarkRequest addOrderRemarkRequest) {
         lambdaUpdate()
-                .set(!StringUtils.isEmpty(addOrderRemarkRequest.getUserRemark()), BuyOrderEntity::getUserRemark, addOrderRemarkRequest.getUserRemark())
                 .set(!StringUtils.isEmpty(addOrderRemarkRequest.getAdminRemark()), BuyOrderEntity::getAdminRemark, addOrderRemarkRequest.getAdminRemark())
                 .eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId())
                 .update();

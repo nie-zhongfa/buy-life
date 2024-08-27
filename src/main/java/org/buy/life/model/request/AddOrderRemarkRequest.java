@@ -13,7 +13,5 @@ public class AddOrderRemarkRequest {
 
     private String orderId;
 
-    private String userRemark;
-
     private String adminRemark;
 }
