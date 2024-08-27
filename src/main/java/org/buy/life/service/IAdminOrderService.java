@@ -28,11 +28,11 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
 
     void confirm(AdminOrderConfirmRequest adminOrderConfirmRequest);
 
-    void importOrder(MultipartFile file);
-
     void addRemark(AddOrderRemarkRequest addOrderRemarkRequest);
 
     void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest);
+
+    void importOrder(MultipartFile file);
 
     void export(String orderId, HttpServletResponse response);
 }

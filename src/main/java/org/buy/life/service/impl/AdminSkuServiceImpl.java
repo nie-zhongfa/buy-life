@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
+import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.dto.PriceDto;
@@ -82,6 +83,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             this.saveOrUpdateBatch(buySkuEntities);
         } catch (Exception ex) {
             log.error("importSku fail", ex);
+            throw new BusinessException(9999, "导入失败");
         }
     }
 

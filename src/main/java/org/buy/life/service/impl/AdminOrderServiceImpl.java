@@ -16,6 +16,7 @@ import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
+import org.buy.life.model.dto.ImportOrderDto;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.ActionEnum;
 import org.buy.life.model.request.*;
@@ -156,10 +157,6 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                 .one();
     }
 
-    @Override
-    public void importOrder(MultipartFile file) {
-
-    }
 
     @Override
     public void addRemark(AddOrderRemarkRequest addOrderRemarkRequest) {
@@ -184,19 +181,13 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                 BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder().id(orderDetail.getId()).isDeleted(BooleanUtil.toInteger(true)).build();
                 buyOrderDetailService.updateById(entity);
                 //返回库存
-                adminSkuService.updateStock(sku.getId(), - orderDetail.getSkuNum());
+                adminSkuService.updateStock(sku.getId(), -orderDetail.getSkuNum());
                 return;
             }
             //校验库存是否满足
             long num = order.getSkuNum() - orderDetail.getSkuNum();
-            if (Long.parseLong(sku.getStock()) < num) {
-                throw new BusinessException(9999, "【" + sku.getSkuName() + "】" + "库存不足");
-            }
-            //更新sku库存
-            boolean b = adminSkuService.updateStock(sku.getId(), num);
-            if (!b) {
-                throw new BusinessException(9999, "【" + sku.getSkuName() + "】" + "库存不足");
-            }
+            checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
+
             String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(orderDetail.getPrice())));
             BuyOrderDetailEntity entity = new BuyOrderDetailEntity();
             entity.setSkuNum(order.getSkuNum());
@@ -206,12 +197,76 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         });
         if (!CollectionUtils.isEmpty(list)) {
             buyOrderDetailService.updateBatchById(list);
+            //更新订单总金额
             List<BuyOrderDetailEntity> detailList = buyOrderDetailService.getDetailByOrderId(updateOrderDetailRequest.get(0).getOrderId());
-            BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO,BigDecimal::add);
+            BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
             lambdaUpdate()
                     .set(BuyOrderEntity::getOrderAmt, orderAmt)
                     .eq(BuyOrderEntity::getOrderId, updateOrderDetailRequest.get(0).getOrderId())
                     .update();
+        }
+    }
+
+    @Override
+    @Transactional
+    public void importOrder(MultipartFile file) {
+        try {
+            List<ImportOrderDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportOrderDto.class).sheet().doReadSync();
+            if (CollectionUtils.isEmpty(doReadSync)) {
+                return;
+            }
+            List<String> orderIds = doReadSync.stream().map(ImportOrderDto::getOrderId).distinct().collect(Collectors.toList());
+            if (orderIds.size() > 1) {
+                throw new BusinessException(9999, "不支持不同订单号导入");
+            }
+            List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
+            if (CollectionUtils.isEmpty(orderDetails)) {
+                throw new BusinessException(9999, "订单号" + orderIds.get(0) + "未匹配到订单明细");
+            }
+            Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
+
+            List<BuyOrderDetailEntity> entities = new ArrayList<>();
+            doReadSync.forEach(order -> {
+                BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
+                BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
+                //为0则删除该订单明细
+                if (order.getSkuNum() == 0 && orderDetail != null) {
+                    BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder().id(orderDetail.getId()).isDeleted(BooleanUtil.toInteger(true)).build();
+                    buyOrderDetailService.updateById(entity);
+                    //返回库存
+                    adminSkuService.updateStock(sku.getId(), -orderDetail.getSkuNum());
+                    return;
+                }
+                //校验库存是否满足
+                long num = order.getSkuNum() - (orderDetail != null ? orderDetail.getSkuNum() : 0);
+                checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
+
+                String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(order.getPrice())));
+                BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
+                        .orderId(order.getOrderId())
+                        .skuId(order.getSkuId())
+                        .skuNum(order.getSkuNum())
+                        .price(order.getPrice())
+                        .totalAmt(totalAmount)
+                        .status(OrderStatusEnum.NEED_CONFIRM.getCode())
+                        .currency(order.getCurrency())
+                        .build();
+                if (orderDetail != null) {
+                    entity.setId(orderDetail.getId());
+                }
+                entities.add(entity);
+            });
+            buyOrderDetailService.saveOrUpdateBatch(entities);
+            //更新订单总金额
+            List<BuyOrderDetailEntity> detailList = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
+            BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
+            lambdaUpdate()
+                    .set(BuyOrderEntity::getOrderAmt, orderAmt)
+                    .eq(BuyOrderEntity::getOrderId, orderIds.get(0))
+                    .update();
+        } catch (Exception ex) {
+            log.error("importOrder fail", ex);
+            throw new BusinessException(9999, "导入失败");
         }
     }
 
@@ -229,7 +284,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
         List<ExportOrderDetailInfoDto> list = new ArrayList<>();
 
-        orderDetails.forEach(o ->{
+        orderDetails.forEach(o -> {
             BuySkuEntity buySkuEntity = skuMap.get(o.getSkuId());
             List<SkuName> skuNames = JSON.parseArray(buySkuEntity.getSkuName(), SkuName.class);
             SkuName skuName = skuNames.stream().filter(s -> s.getLang().equals("zh_CN")).findFirst().get();
@@ -251,4 +306,15 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         ExcelUtil.writeExcel(response, orderId, ExportOrderDetailInfoDto.class, list);
     }
 
+    private void checkStock(Long id, String skuName, String stock, Long num) {
+        //校验库存是否满足
+        if (Long.parseLong(stock) < num) {
+            throw new BusinessException(9999, "【" + skuName + "】" + "库存不足");
+        }
+        //更新sku库存
+        boolean b = adminSkuService.updateStock(id, num);
+        if (!b) {
+            throw new BusinessException(9999, "【" + skuName + "】" + "库存不足");
+        }
+    }
 }
