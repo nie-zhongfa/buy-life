@@ -28,6 +28,12 @@ public class BuyOrderDetailResp {
 
     private String orderId;
 
+
+    /**
+     * 币种
+     */
+    private String currency;
+
     @Data
     public static class OrderDetail{
         /**
@@ -51,6 +57,12 @@ public class BuyOrderDetailResp {
          * 金额
          */
         private String totalAmt;
+
+
+        /**
+         * 币种
+         */
+        private String currency;
     }
 
 
