@@ -15,4 +15,5 @@ public interface IBuyAdminService extends IService<BuyAdminEntity> {
 
     String login(String username, String password);
 
+    BuyAdminEntity  getAdmin(String token);
 }

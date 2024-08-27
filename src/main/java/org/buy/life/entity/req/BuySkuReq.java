@@ -37,6 +37,8 @@ public class BuySkuReq{
      * sku品类
      */
     private String skuCategory;
-
-
+    /**
+     * 主体
+     */
+    private String classification;
 }

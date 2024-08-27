@@ -62,6 +62,24 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
 
 
     @Override
+    public  BuyUserEntity reset(LoginInfoReq loginInfoReq){
+        LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,loginInfoReq.getAccount());
+        BuyUserEntity user = getOne(queryWrapper);
+        if(Objects.isNull(user)){
+            throw  new BusinessException(ServerCodeEnum.NO_ACCOUNT);
+        }
+        if(StringUtils.isEmpty(loginInfoReq.getPassword())||!loginInfoReq.getPassword().equals(user.getPwd())){
+            throw  new BusinessException(ServerCodeEnum.PWD_ERROR);
+        }
+        user.setLstLoginTime(LocalDateTime.now());
+        user.setPwd(loginInfoReq.getPassword());
+        updateById(user);
+        return user;
+    }
+
+
+    @Override
     public void delToken(LoginInfoReq loginInfoReq){
         LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
         queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,loginInfoReq.getAccount());

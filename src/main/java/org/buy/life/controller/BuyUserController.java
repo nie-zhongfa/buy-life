@@ -31,6 +31,12 @@ public class BuyUserController {
         return JSONData.success(buyUserService.doLogin(loginInfoReq));
     }
 
+    @PostMapping("/reset")
+    public JSONData<BuyUserEntity> reset(@RequestBody LoginInfoReq loginInfoReq){
+        return JSONData.success(buyUserService.reset(loginInfoReq));
+    }
+
+
     @PostMapping("/getTokenInfo")
     public JSONData<BuyUserEntity> getTokenInfo(@RequestBody LoginInfoReq loginInfoReq){
         return JSONData.success(buyUserService.findByAccount(loginInfoReq.getAccount()));

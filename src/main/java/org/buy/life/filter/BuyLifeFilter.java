@@ -6,9 +6,11 @@ package org.buy.life.filter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.buy.life.constant.BuyLifeConstant;
+import org.buy.life.entity.BuyAdminEntity;
 import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.exception.ServerCodeEnum;
+import org.buy.life.service.IBuyAdminService;
 import org.buy.life.service.IBuyUserService;
 import org.buy.life.utils.TtlUtils;
 import org.slf4j.MDC;
@@ -47,6 +49,9 @@ public class BuyLifeFilter implements Filter {
     private HandlerExceptionResolver handlerExceptionResolver;
 
     @Resource
+    private IBuyAdminService buyAdminService;
+
+    @Resource
     private IBuyUserService buyUserService;
 
     @Override
@@ -66,30 +71,48 @@ public class BuyLifeFilter implements Filter {
         }
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
         if(request.getRequestURI().contains("/buyUser/doLogin")||request.getRequestURI().contains("/buyUser/getTokenInfo")
-        || request.getRequestURI().contains("/")){
+        || request.getRequestURI().contains("/admin/login")){
             filterChain.doFilter(request, response);
         }else {
             try {
-               String token = request.getHeader(BuyLifeConstant.FIRE_TOKEN_HEADER);
-                if(StringUtils.isEmpty(token)){
-                    throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
-                }
-                BuyUserEntity byToken = buyUserService.findByToken(token);
-
-                if(Objects.isNull(byToken)){
-                    throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
-                }
-                long nowTimeStamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
-                long lstTimeStamp = byToken.getLstLoginTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
-                if(nowTimeStamp-lstTimeStamp>1800){
-                    throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                if(request.getRequestURI().contains("/admin")){
+                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+                    if(StringUtils.isEmpty(token)){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }
+                    BuyAdminEntity admin = buyAdminService.getAdmin(token);
+                    if(Objects.isNull(admin)){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }
+                    if(admin.getLstTokenExpire().isBefore(LocalDateTime.now())){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }
+                    LocalDateTime lstTokenExpire = LocalDateTime.now().plusMinutes(30);
+                    admin.setLstTokenExpire(lstTokenExpire);
+                    buyAdminService.updateById(admin);
                 }else {
-                    byToken.setLstLoginTime(LocalDateTime.now());
-                    buyUserService.updateById(byToken);
+                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+                    if(StringUtils.isEmpty(token)){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }
+                    BuyUserEntity byToken = buyUserService.findByToken(token);
+
+                    if(Objects.isNull(byToken)){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }
+                    long nowTimeStamp = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+                    long lstTimeStamp = byToken.getLstLoginTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+                    if(nowTimeStamp-lstTimeStamp>1800){
+                        throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
+                    }else {
+                        byToken.setLstLoginTime(LocalDateTime.now());
+                        buyUserService.updateById(byToken);
+                    }
+                    TtlUtils.setSPCtx(byToken);
+                    filterChain.doFilter(request, response);
+                    TtlUtils.removeSPCtx();
                 }
-                TtlUtils.setSPCtx(byToken);
-                filterChain.doFilter(request, response);
-                TtlUtils.removeSPCtx();
+
             }catch (Exception e){
                 handlerExceptionResolver.resolveException(request, response, null, e);//交给全局异常处理类处理
             }

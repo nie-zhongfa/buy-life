@@ -114,7 +114,7 @@ public class BuySkuEntity extends Model<BuySkuEntity> {
     private String ext;
 
     /**
-     * 分类：genshin_impact、star_rail、zenless_zone_zero
+     * 主体：genshin_impact、star_rail、zenless_zone_zero
      */
     private String classification;
 

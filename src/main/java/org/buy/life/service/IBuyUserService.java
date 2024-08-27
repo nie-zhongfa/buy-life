@@ -22,6 +22,8 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
 
     BuyUserEntity doLogin(LoginInfoReq loginInfoReq);
 
+    BuyUserEntity reset(LoginInfoReq loginInfoReq);
+
     void delToken(LoginInfoReq loginInfoReq);
 
     List<BuyUserEntity> getUserListByUserId(List<String> userIds);

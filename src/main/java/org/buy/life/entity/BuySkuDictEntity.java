@@ -56,6 +56,10 @@ public class BuySkuDictEntity extends Model<BuySkuDictEntity> {
     private String updater;
 
     /**
+     * 主体
+     */
+    private String title;
+    /**
      * 修改人
      */
     private String code;
