@@ -2,6 +2,7 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuySkuDictEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.resp.BuySkuDictResp;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface IBuySkuDictService extends IService<BuySkuDictEntity> {
     List<BuySkuDictEntity> getSkuDictByCode(String code);
 
     List<BuySkuDictEntity> getSkuDictList();
+
+    BuySkuDictResp getAllDict();
 }
