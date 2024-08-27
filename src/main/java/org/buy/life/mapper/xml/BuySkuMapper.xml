@@ -29,6 +29,11 @@
     </sql>
 
 
-
+    <update id="updateStock" >
+        update buy_sku
+        set stcok = stock - #{stock}
+        where id = #{id}
+        and stock - #{stock} > 0
+    </update>
 
 </mapper>

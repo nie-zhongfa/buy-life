@@ -1,5 +1,6 @@
 package org.buy.life.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.buy.life.entity.BuySkuEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface BuySkuMapper extends BaseMapper<BuySkuEntity> {
 
+    int updateStock(@Param("id") Long id, @Param("stock") Long stock);
 }

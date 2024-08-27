@@ -11,7 +11,18 @@ import lombok.Data;
 @Data
 public class AdminOrderConfirmRequest {
 
+    /**
+     * 订单id
+     */
     private String orderId;
 
+    /**
+     * 动作
+     */
     private String action;
+
+    /**
+     * 发货凭证
+     */
+    private String receiptCertificate;
 }

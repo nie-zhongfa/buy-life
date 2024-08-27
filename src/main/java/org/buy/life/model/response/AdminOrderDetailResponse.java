@@ -68,7 +68,7 @@ public class AdminOrderDetailResponse {
     /**
      * 订单明细
      */
-    List<OrderDetailInfoResponse> orderDetails;
+    private List<OrderDetailInfoResponse> orderDetails;
 
 
 }

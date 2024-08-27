@@ -63,4 +63,9 @@ public class OrderDetailInfoResponse {
      * 数量
      */
     private Long skuNum;
+
+    /**
+     * 库存
+     */
+    private String stock;
 }

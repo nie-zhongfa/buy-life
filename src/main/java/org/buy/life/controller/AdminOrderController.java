@@ -1,21 +1,19 @@
 package org.buy.life.controller;
 
-import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminOrderConfirmRequest;
 import org.buy.life.model.request.AdminOrderRequest;
-import org.buy.life.model.request.AdminSkuRequest;
-import org.buy.life.model.request.UpdateOrderRequest;
+import org.buy.life.model.request.AddOrderRemarkRequest;
+import org.buy.life.model.request.UpdateOrderDetailRequest;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
-import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminOrderService;
 import org.buy.life.utils.JSONData;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @menu TODO
@@ -54,9 +52,15 @@ public class AdminOrderController {
         return JSONData.success(true);
     }
 
+    @PostMapping("/addRemark")
+    public JSONData<Boolean> addRemark(@RequestBody AddOrderRemarkRequest addOrderRemarkRequest) {
+        adminOrderService.addRemark(addOrderRemarkRequest);
+        return JSONData.success(true);
+    }
+
     @PostMapping("/update")
-    public JSONData<Boolean> update(@RequestBody UpdateOrderRequest updateOrderRequest) {
-        adminOrderService.update(updateOrderRequest);
+    public JSONData<Boolean> update(@RequestBody List<UpdateOrderDetailRequest> updateOrderDetailRequest) {
+        adminOrderService.update(updateOrderDetailRequest);
         return JSONData.success(true);
     }
 }

@@ -9,13 +9,11 @@ import lombok.Data;
  * I am a code man ^_^ !!
  */
 @Data
-public class UpdateOrderRequest {
+public class AddOrderRemarkRequest {
 
     private String orderId;
 
     private String userRemark;
 
     private String adminRemark;
-
-
 }

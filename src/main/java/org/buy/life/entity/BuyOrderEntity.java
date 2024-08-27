@@ -93,6 +93,20 @@ public class BuyOrderEntity extends Model<BuyOrderEntity> {
      */
     private String currency;
 
+    /**
+     * 用户备注
+     */
+    private String userRemark;
+
+    /**
+     * 管理员备注
+     */
+    private String adminRemark;
+
+    /**
+     * 发货凭证
+     */
+    private String receiptCertificate;
 
     @Override
     protected Serializable pkVal() {

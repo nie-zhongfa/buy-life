@@ -112,4 +112,18 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 .eq(BuySkuEntity::getIsDeleted, false)
                 .list();
     }
+
+    @Override
+    public BuySkuEntity getSkuBySkuId(String skuId) {
+        return lambdaQuery()
+                .eq(BuySkuEntity::getSkuId, skuId)
+                .eq(BuySkuEntity::getIsDeleted, false)
+                .one();
+    }
+
+    @Override
+    public boolean updateStock(Long id, Long stock) {
+        int i = this.baseMapper.updateStock(id, stock);
+        return i > 0;
+    }
 }

@@ -5,10 +5,13 @@ import org.buy.life.entity.BuyOrderEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminOrderConfirmRequest;
 import org.buy.life.model.request.AdminOrderRequest;
-import org.buy.life.model.request.UpdateOrderRequest;
+import org.buy.life.model.request.AddOrderRemarkRequest;
+import org.buy.life.model.request.UpdateOrderDetailRequest;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @menu TODO
@@ -26,5 +29,7 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
 
     void importOrder(MultipartFile file);
 
-    void update(UpdateOrderRequest updateOrderRequest);
+    void addRemark(AddOrderRemarkRequest addOrderRemarkRequest);
+
+    void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest);
 }
