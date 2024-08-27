@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.service.IBuySkuService;
 import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -101,6 +102,7 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
 
 
     @Override
+    @Transactional
     public void joinCart(BuyCartReq buyCartReq){
         String userId = TtlUtils.getSPCtx().getUserId();
         LambdaQueryWrapper<BuyCartEntity> wrapper = new LambdaQueryWrapper<>();

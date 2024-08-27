@@ -5,6 +5,9 @@ import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.mapper.BuySkuDictMapper;
 import org.buy.life.model.enums.ClassificationEnum;
+import org.buy.life.model.enums.CountryEnum;
+import org.buy.life.model.enums.CurrencyEnum;
+import org.buy.life.model.enums.LangEnum;
 import org.buy.life.service.IBuySkuDictService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
@@ -59,9 +62,30 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
             titleDict.setDesc(o.getDesc());
             return titleDict;
         }).collect(Collectors.toList());
+
         buySkuDictResp.setTitleDicts(titleDicts);
         buySkuDictResp.setSkuDicts(skuDicts);
         buySkuDictResp.setOrderStatusDicts(orderStatus);
+        buySkuDictResp.setCountryDicts(Arrays.stream(CountryEnum.values()).map(o -> {
+            BuySkuDictResp.CountryDict dict = new BuySkuDictResp.CountryDict();
+            dict.setCode(o.getCode());
+            dict.setDesc(o.getDesc());
+            return dict;
+        }).collect(Collectors.toList()));
+
+        buySkuDictResp.setLangDicts(Arrays.stream(LangEnum.values()).map(o -> {
+            BuySkuDictResp.LangDict dict = new BuySkuDictResp.LangDict();
+            dict.setCode(o.getCode());
+            dict.setDesc(o.getDesc());
+            return dict;
+        }).collect(Collectors.toList()));
+
+        buySkuDictResp.setCurrencyDicts(Arrays.stream(CurrencyEnum.values()).map(o -> {
+            BuySkuDictResp.CurrencyDict dict = new BuySkuDictResp.CurrencyDict();
+            dict.setCode(o.getCode());
+            dict.setDesc(o.getDesc());
+            return dict;
+        }).collect(Collectors.toList()));
         return buySkuDictResp;
     }
 }
