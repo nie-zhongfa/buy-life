@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class AdminOrderController {
     }
 
     @PostMapping("/import")
-    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
+    public JSONData<Boolean> importOrder(@RequestBody MultipartFile file) {
         adminOrderService.importOrder(file);
         return JSONData.success(true);
     }
@@ -62,5 +63,10 @@ public class AdminOrderController {
     public JSONData<Boolean> update(@RequestBody List<UpdateOrderDetailRequest> updateOrderDetailRequest) {
         adminOrderService.update(updateOrderDetailRequest);
         return JSONData.success(true);
+    }
+
+    @GetMapping("/export")
+    public void export(@RequestParam("orderId") String orderId, HttpServletResponse response) {
+        adminOrderService.export(orderId, response);
     }
 }

@@ -17,4 +17,5 @@ public interface IBuyOrderDetailService extends IService<BuyOrderDetailEntity> {
 
     List<BuyOrderDetailEntity> getDetailByOrderId(String orderId);
 
+    List<BuyOrderDetailEntity> getDetailByOrderIds(List<String> orderIds);
 }

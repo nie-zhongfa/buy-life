@@ -37,8 +37,7 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
         if (adminEntity == null) {
             throw new BusinessException(ServerCodeEnum.USERNAME_OR_PWD_IS_VAIL);
         }
-        String encryptPwd = MD5Utils.encryptMD5(password);
-        if (!encryptPwd.equals(adminEntity.getPwd())) {
+        if (!password.equals(adminEntity.getPwd())) {
             throw new BusinessException(ServerCodeEnum.USERNAME_OR_PWD_IS_VAIL);
         }
         //多人登录的场景，返回相同token
