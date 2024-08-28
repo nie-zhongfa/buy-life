@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.model.request.UpAndDownSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,4 +29,6 @@ public interface IAdminSkuService extends IService<BuySkuEntity> {
     boolean updateStock(Long id, Long stock);
 
     void importCategory(MultipartFile file);
+
+    void upAndSownShelves(UpAndDownSkuRequest upAndDownSkuRequest);
 }

@@ -18,10 +18,7 @@ import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.ClassificationEnum;
 import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
-import org.buy.life.model.request.AdminSkuRequest;
-import org.buy.life.model.request.SkuName;
-import org.buy.life.model.request.SkuPrice;
-import org.buy.life.model.request.SkuType;
+import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminFileService;
 import org.buy.life.service.IAdminSkuService;
@@ -209,6 +206,14 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             log.error("importCategory fail", ex);
             throw new BusinessException(9999, "导入失败");
         }
+    }
+
+    @Override
+    public void upAndSownShelves(UpAndDownSkuRequest upAndDownSkuRequest) {
+        lambdaUpdate()
+                .set(BuySkuEntity::getStatus, upAndDownSkuRequest.getStatus())
+                .eq(BuySkuEntity::getSkuId, upAndDownSkuRequest.getSkuId())
+                .update();
     }
 
     private void buildCategory(List<BuySkuDictEntity> list,

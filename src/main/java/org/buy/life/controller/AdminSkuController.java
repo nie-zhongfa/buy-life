@@ -1,8 +1,8 @@
 package org.buy.life.controller;
 
-import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminSkuRequest;
+import org.buy.life.model.request.UpAndDownSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.utils.JSONData;
@@ -61,6 +61,17 @@ public class AdminSkuController {
     @PostMapping("/importCategory")
     public JSONData<Boolean> importCategory(@RequestBody MultipartFile file) {
         adminSkuService.importCategory(file);
+        return JSONData.success(true);
+    }
+
+    /**
+     * 上下架商品
+     * @param upAndDownSkuRequest
+     * @return
+     */
+    @PostMapping("/upAndSownSku")
+    public JSONData<Boolean> UpAndSownShelves(@RequestBody UpAndDownSkuRequest upAndDownSkuRequest) {
+        adminSkuService.upAndSownShelves(upAndDownSkuRequest);
         return JSONData.success(true);
     }
 }
