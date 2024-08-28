@@ -22,4 +22,13 @@ public enum CountryEnum {
 
     private final String code;
     private final String desc;
+
+    public static String getDescByCode(String code) {
+        for (CountryEnum countryEnum : values()) {
+            if (countryEnum.getCode().equals(code)) {
+                return countryEnum.getDesc();
+            }
+        }
+        return null;
+    }
 }

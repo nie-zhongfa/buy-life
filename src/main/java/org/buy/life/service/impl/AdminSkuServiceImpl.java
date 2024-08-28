@@ -12,6 +12,7 @@ import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
+import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportSkuDto;
@@ -108,9 +109,12 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
                 buySkuEntity.setPrice(JSON.toJSONString(price));
                 buySkuEntity.setBatchKey(fileUrl);
+                buySkuEntity.setCreator(CurrentAdminUser.getUserId());
+                buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
                 List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                 if (!CollectionUtils.isEmpty(list)) {
                     buySkuEntity.setId(list.get(0).getId());
+                    buySkuEntity.setCreator(list.get(0).getCreator());
                 }
                 buySkuEntities.add(buySkuEntity);
             }
@@ -188,18 +192,21 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     }
 
     private void buildCategory(List<BuySkuDictEntity> list,
-                                           String land,
+                                           String lang,
                                            String skuCategory,
                                            ImportCategoryDto categoryDto,
                                            Map<String, BuySkuDictEntity> skuDictMap) {
         BuySkuDictEntity buySkuDictEntity = new BuySkuDictEntity();
         buySkuDictEntity.setCode(categoryDto.getCategoryCode().trim());
         buySkuDictEntity.setSkuCategory(skuCategory.trim());
-        buySkuDictEntity.setLang(land);
+        buySkuDictEntity.setLang(lang);
         buySkuDictEntity.setTitle(ClassificationEnum.getCodeByDesc(categoryDto.getIp().trim()));
+        buySkuDictEntity.setCreator(CurrentAdminUser.getUserId());
+        buySkuDictEntity.setUpdater(CurrentAdminUser.getUserId());
         BuySkuDictEntity entity = skuDictMap.get(categoryDto.getCategoryCode().trim());
         if (entity != null) {
             buySkuDictEntity.setId(entity.getId());
+            buySkuDictEntity.setCreator(entity.getCreator());
         }
         list.add(buySkuDictEntity);
     }

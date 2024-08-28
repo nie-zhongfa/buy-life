@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -90,7 +89,10 @@ public class BuyLifeFilter implements Filter {
                     LocalDateTime lstTokenExpire = LocalDateTime.now().plusMinutes(30);
                     admin.setLstTokenExpire(lstTokenExpire);
                     buyAdminService.updateById(admin);
-                }else {
+                    CurrentAdminUser.setUserId(admin.getUserId());
+                    filterChain.doFilter(request, response);
+                    CurrentAdminUser.remove();
+                } else {
                     String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
                     if(StringUtils.isEmpty(token)){
                         throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);

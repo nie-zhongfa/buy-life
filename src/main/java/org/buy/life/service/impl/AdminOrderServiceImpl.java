@@ -11,6 +11,7 @@ import org.buy.life.constant.OrderStatusEnum;
 import org.buy.life.entity.*;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
+import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyOrderMapper;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
@@ -145,6 +146,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         lambdaUpdate()
                 .set(BuyOrderEntity::getStatus, status)
                 .set(StringUtils.isNotBlank(adminOrderConfirmRequest.getReceiptCertificate()), BuyOrderEntity::getReceiptCertificate, adminOrderConfirmRequest.getReceiptCertificate())
+                .set(BuyOrderEntity::getUpdater, CurrentAdminUser.getUserId())
                 .eq(BuyOrderEntity::getOrderId, adminOrderConfirmRequest.getOrderId())
                 .update();
     }
@@ -171,6 +173,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     public void addRemark(AddOrderRemarkRequest addOrderRemarkRequest) {
         lambdaUpdate()
                 .set(StringUtils.isNotBlank(addOrderRemarkRequest.getAdminRemark()), BuyOrderEntity::getAdminRemark, addOrderRemarkRequest.getAdminRemark())
+                .set(BuyOrderEntity::getUpdater, CurrentAdminUser.getUserId())
                 .eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId())
                 .update();
     }
@@ -187,10 +190,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
             //为0则删除该订单明细
             if (order.getSkuNum() == 0) {
-                BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder().id(orderDetail.getId()).isDeleted(BooleanUtil.toInteger(true)).build();
-                buyOrderDetailService.updateById(entity);
-                //返回库存
-                adminSkuService.updateStock(sku.getId(), -orderDetail.getSkuNum());
+                deleteOrderDetail(orderDetail.getId(), sku, orderDetail.getSkuNum());
                 return;
             }
             //校验库存是否满足
@@ -198,85 +198,99 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
 
             String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(orderDetail.getPrice())));
-            BuyOrderDetailEntity entity = new BuyOrderDetailEntity();
-            entity.setSkuNum(order.getSkuNum());
-            entity.setTotalAmt(totalAmount);
-            entity.setId(order.getId());
+            BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
+                    .id(order.getId())
+                    .skuNum(order.getSkuNum())
+                    .totalAmt(totalAmount)
+                    .updater(CurrentAdminUser.getUserId())
+                    .build();
             list.add(entity);
         });
         if (!CollectionUtils.isEmpty(list)) {
             buyOrderDetailService.updateBatchById(list);
             //更新订单总金额
-            List<BuyOrderDetailEntity> detailList = buyOrderDetailService.getDetailByOrderId(updateOrderDetailRequest.get(0).getOrderId());
-            BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
-            lambdaUpdate()
-                    .set(BuyOrderEntity::getOrderAmt, orderAmt)
-                    .eq(BuyOrderEntity::getOrderId, updateOrderDetailRequest.get(0).getOrderId())
-                    .update();
+            updateOrderAmt(updateOrderDetailRequest.get(0).getOrderId());
         }
     }
 
     @Override
     @Transactional
     public void importOrder(MultipartFile file) {
+        List<ImportOrderDto> doReadSync;
         try {
-            List<ImportOrderDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportOrderDto.class).sheet().doReadSync();
+            doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportOrderDto.class).sheet().doReadSync();
             if (CollectionUtils.isEmpty(doReadSync)) {
                 return;
             }
-            List<String> orderIds = doReadSync.stream().map(ImportOrderDto::getOrderId).distinct().collect(Collectors.toList());
-            if (orderIds.size() > 1) {
-                throw new BusinessException(9999, "不支持不同订单号导入");
-            }
-            List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
-            if (CollectionUtils.isEmpty(orderDetails)) {
-                throw new BusinessException(9999, "订单号" + orderIds.get(0) + "未匹配到订单明细");
-            }
-            Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
-
-            List<BuyOrderDetailEntity> entities = new ArrayList<>();
-            doReadSync.forEach(order -> {
-                BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
-                BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
-                //为0则删除该订单明细
-                if (order.getSkuNum() == 0 && orderDetail != null) {
-                    BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder().id(orderDetail.getId()).isDeleted(BooleanUtil.toInteger(true)).build();
-                    buyOrderDetailService.updateById(entity);
-                    //返回库存
-                    adminSkuService.updateStock(sku.getId(), -orderDetail.getSkuNum());
-                    return;
-                }
-                //校验库存是否满足
-                long num = order.getSkuNum() - (orderDetail != null ? orderDetail.getSkuNum() : 0);
-                checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
-
-                String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(order.getPrice())));
-                BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
-                        .orderId(order.getOrderId())
-                        .skuId(order.getSkuId())
-                        .skuNum(order.getSkuNum())
-                        .price(order.getPrice())
-                        .totalAmt(totalAmount)
-                        .status(OrderStatusEnum.NEED_CONFIRM.getCode())
-                        .currency(order.getCurrency())
-                        .build();
-                if (orderDetail != null) {
-                    entity.setId(orderDetail.getId());
-                }
-                entities.add(entity);
-            });
-            buyOrderDetailService.saveOrUpdateBatch(entities);
-            //更新订单总金额
-            List<BuyOrderDetailEntity> detailList = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
-            BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
-            lambdaUpdate()
-                    .set(BuyOrderEntity::getOrderAmt, orderAmt)
-                    .eq(BuyOrderEntity::getOrderId, orderIds.get(0))
-                    .update();
         } catch (Exception ex) {
             log.error("importOrder fail", ex);
             throw new BusinessException(9999, "导入失败");
         }
+        List<String> orderIds = doReadSync.stream().map(ImportOrderDto::getOrderId).distinct().collect(Collectors.toList());
+        if (orderIds.size() > 1) {
+            throw new BusinessException(9999, "不支持不同订单号导入");
+        }
+        List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
+        if (CollectionUtils.isEmpty(orderDetails)) {
+            throw new BusinessException(9999, "订单号" + orderIds.get(0) + "未匹配到订单明细");
+        }
+        Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
+
+        List<BuyOrderDetailEntity> entities = new ArrayList<>();
+        doReadSync.forEach(order -> {
+            BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
+            BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
+            //为0则删除该订单明细
+            if (order.getSkuNum() == 0 && orderDetail != null) {
+                deleteOrderDetail(orderDetail.getId(), sku, orderDetail.getSkuNum());
+                return;
+            }
+            //校验库存是否满足
+            long num = order.getSkuNum() - (orderDetail != null ? orderDetail.getSkuNum() : 0);
+            checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
+
+            String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(order.getPrice())));
+            BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
+                    .orderId(order.getOrderId())
+                    .skuId(order.getSkuId())
+                    .skuNum(order.getSkuNum())
+                    .price(order.getPrice())
+                    .totalAmt(totalAmount)
+                    .status(OrderStatusEnum.NEED_CONFIRM.getCode())
+                    .currency(order.getCurrency())
+                    .creator(CurrentAdminUser.getUserId())
+                    .updater(CurrentAdminUser.getUserId())
+                    .build();
+            if (orderDetail != null) {
+                entity.setId(orderDetail.getId());
+                entity.setCreator(orderDetail.getCreator());
+            }
+            entities.add(entity);
+        });
+        buyOrderDetailService.saveOrUpdateBatch(entities);
+        //更新订单总金额
+        updateOrderAmt(orderIds.get(0));
+    }
+
+    private void updateOrderAmt(String orderId) {
+        //更新订单总金额
+        List<BuyOrderDetailEntity> detailList = buyOrderDetailService.getDetailByOrderId(orderId);
+        BigDecimal orderAmt = detailList.stream().map(BuyOrderDetailEntity::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
+        lambdaUpdate()
+                .set(BuyOrderEntity::getOrderAmt, orderAmt)
+                .set(BuyOrderEntity::getUpdater, CurrentAdminUser.getUserId())
+                .eq(BuyOrderEntity::getOrderId, orderId)
+                .update();
+    }
+
+    private void deleteOrderDetail(Long id, BuySkuEntity sku, Long skuNum) {
+        BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
+                .id(id)
+                .updater(CurrentAdminUser.getUserId())
+                .isDeleted(BooleanUtil.toInteger(true)).build();
+        buyOrderDetailService.updateById(entity);
+        //返回库存
+        adminSkuService.updateStock(sku.getId(), -skuNum);
     }
 
     @Override

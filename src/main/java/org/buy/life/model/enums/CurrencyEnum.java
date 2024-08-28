@@ -19,4 +19,13 @@ public enum CurrencyEnum {
 
     private final String code;
     private final String desc;
+
+    public static String getDescByCode(String code) {
+        for (CurrencyEnum currencyEnum : values()) {
+            if (currencyEnum.getCode().equals(code)) {
+                return currencyEnum.getDesc();
+            }
+        }
+        return null;
+    }
 }
