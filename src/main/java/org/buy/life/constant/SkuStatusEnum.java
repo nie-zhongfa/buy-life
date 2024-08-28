@@ -23,4 +23,13 @@ public enum SkuStatusEnum {
      * desc 后端节点翻译
      */
     private final String desc;
+
+    public static String getCodeByDesc(String desc) {
+        for (SkuStatusEnum skuStatusEnum : values()) {
+            if (skuStatusEnum.desc.equals(desc)) {
+                return skuStatusEnum.code;
+            }
+        }
+        return null;
+    }
 }

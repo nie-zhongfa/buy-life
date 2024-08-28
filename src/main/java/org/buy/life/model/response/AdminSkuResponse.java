@@ -57,4 +57,6 @@ public class AdminSkuResponse implements Serializable {
      * 分类：genshin_impact、star_rail、zenless_zone_zero
      */
     private String classification;
+
+    private String status;
 }

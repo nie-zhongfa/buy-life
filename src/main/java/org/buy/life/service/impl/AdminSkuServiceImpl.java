@@ -5,18 +5,16 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.buy.life.constant.SkuStatusEnum;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
-import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportSkuDto;
-import org.buy.life.model.dto.PriceDto;
 import org.buy.life.model.enums.ClassificationEnum;
 import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
@@ -103,14 +101,36 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             List<ImportSkuDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportSkuDto.class).sheet().doReadSync();
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySkuEntity> buySkuEntities = new ArrayList<>();
+
+            List<BuySkuDictEntity> skuDictList = buySkuDictService.getSkuDictListByLang(LangEnum.ZH_CN.getCode());
+            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getCode, contract -> contract, (a, b) -> a));
+
             for (ImportSkuDto importSkuDto : doReadSync) {
                 String fileUrl = uploadSkuImg(importSkuDto);
-                PriceDto price = PriceDto.builder().price(importSkuDto.getPrice()).currency("CNY").build();
+
+                List<SkuPrice> prices = new ArrayList<>();
+                SkuPrice.buildPriceList(importSkuDto, prices);
+
+                List<SkuType> skuTypes = new ArrayList<>();
+                SkuType.buildSkuTypeList(importSkuDto, skuTypes);
+
+                List<SkuName> skuNames = new ArrayList<>();
+                SkuName.buildSkuNameList(importSkuDto, skuNames);
+
                 BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
-                buySkuEntity.setPrice(JSON.toJSONString(price));
+                buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
+                buySkuEntity.setPrice(JSON.toJSONString(prices));
+                buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
                 buySkuEntity.setBatchKey(fileUrl);
+                buySkuEntity.setStatus(SkuStatusEnum.getCodeByDesc(importSkuDto.getSkuStatus()));
                 buySkuEntity.setCreator(CurrentAdminUser.getUserId());
                 buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
+
+                BuySkuDictEntity buySkuDictEntity = skuDictMap.get(importSkuDto.getSkuCategory());
+                if (buySkuDictEntity != null) {
+                    buySkuEntity.setSkuCategory(buySkuDictEntity.getCode());
+                }
+
                 List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                 if (!CollectionUtils.isEmpty(list)) {
                     buySkuEntity.setId(list.get(0).getId());
@@ -136,7 +156,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
     public String uploadSkuImg(ImportSkuDto importSkuDto) {
         try {
-            String fileName = importSkuDto.getSkuName() + importSkuDto.getImgSuffix();
+            String fileName = importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix();
             MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", importSkuDto.getFile());
             return adminFileService.uploadFile(imgFile);
         } catch (IOException e) {
@@ -210,4 +230,5 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         }
         list.add(buySkuDictEntity);
     }
+
 }
