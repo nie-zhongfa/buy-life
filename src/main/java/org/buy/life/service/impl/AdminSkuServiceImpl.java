@@ -122,6 +122,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 buySkuEntity.setStatus(SkuStatusEnum.getCodeByDesc(importSkuDto.getSkuStatus()));
                 buySkuEntity.setCreator(CurrentAdminUser.getUserId());
                 buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
+                buySkuEntity.setClassification(ClassificationEnum.getCodeByDesc(importSkuDto.getClassification()));
 
                 BuySkuDictEntity buySkuDictEntity = skuDictMap.get(importSkuDto.getSkuCategory());
                 if (buySkuDictEntity != null) {
