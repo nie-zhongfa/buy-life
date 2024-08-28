@@ -1,6 +1,9 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +35,7 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
 
     @Override
     public SimplePage<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest) {
-        Page<BuyUserEntity> accountPage = getAccountPage(queryAccountRequest);
+        IPage<BuyUserEntity> accountPage = getAccountPage(queryAccountRequest);
         if (accountPage == null || CollectionUtils.isEmpty(accountPage.getRecords())) {
             return SimplePage.emptyPage();
         }
@@ -57,11 +60,10 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
         this.updateById(buyUserEntity);
     }
 
-    public Page<BuyUserEntity> getAccountPage(QueryAccountRequest queryAccountRequest) {
-        Page<BuyUserEntity> page = new Page<>(queryAccountRequest.getPageNum(), queryAccountRequest.getPageSize());
+    public IPage<BuyUserEntity> getAccountPage(QueryAccountRequest queryAccountRequest) {
         return lambdaQuery()
                 .eq(BuyUserEntity::getIsDeleted, false)
                 .orderByDesc(BuyUserEntity::getMtime)
-                .page(page);
+                .page(new Page<>(queryAccountRequest.getPageNum(), queryAccountRequest.getPageSize()));
     }
 }
