@@ -51,4 +51,16 @@ public class AdminSkuController {
         adminSkuService.importSku(file);
         return JSONData.success(true);
     }
+
+    /**
+     * 导入品类
+     *
+     * @param file
+     * @return
+     */
+    @PostMapping("/importCategory")
+    public JSONData<Boolean> importCategory(@RequestBody MultipartFile file) {
+        adminSkuService.importCategory(file);
+        return JSONData.success(true);
+    }
 }

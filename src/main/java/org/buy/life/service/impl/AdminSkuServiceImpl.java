@@ -9,11 +9,14 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
+import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuySkuMapper;
+import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.dto.PriceDto;
+import org.buy.life.model.enums.ClassificationEnum;
 import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.AdminSkuRequest;
@@ -158,5 +161,46 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     public boolean updateStock(Long id, Long stock) {
         int i = this.baseMapper.updateStock(id, stock);
         return i > 0;
+    }
+
+    @Override
+    public void importCategory(MultipartFile file) {
+        try {
+            List<ImportCategoryDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportCategoryDto.class).sheet().doReadSync();
+            if (CollectionUtils.isEmpty(doReadSync)) {
+                return;
+            }
+            List<BuySkuDictEntity> skuDictList = buySkuDictService.getSkuDictList();
+            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getCode, contract -> contract, (a, b) -> a));
+            List<BuySkuDictEntity> list = new ArrayList<>();
+            for (ImportCategoryDto categoryDto : doReadSync) {
+                buildCategory(list, LangEnum.ZH_CN.getCode(), categoryDto.getZh_cn(), categoryDto, skuDictMap);
+                buildCategory(list, LangEnum.EN.getCode(), categoryDto.getEn(), categoryDto, skuDictMap);
+                buildCategory(list, LangEnum.ES.getCode(), categoryDto.getEs(), categoryDto, skuDictMap);
+                buildCategory(list, LangEnum.FR.getCode(), categoryDto.getFr(), categoryDto, skuDictMap);
+                buildCategory(list, LangEnum.DE.getCode(), categoryDto.getDe(), categoryDto, skuDictMap);
+            }
+            buySkuDictService.saveOrUpdateBatch(list);
+        } catch (Exception ex) {
+            log.error("importCategory fail", ex);
+            throw new BusinessException(9999, "导入失败");
+        }
+    }
+
+    private void buildCategory(List<BuySkuDictEntity> list,
+                                           String land,
+                                           String skuCategory,
+                                           ImportCategoryDto categoryDto,
+                                           Map<String, BuySkuDictEntity> skuDictMap) {
+        BuySkuDictEntity buySkuDictEntity = new BuySkuDictEntity();
+        buySkuDictEntity.setCode(categoryDto.getCategoryCode().trim());
+        buySkuDictEntity.setSkuCategory(skuCategory.trim());
+        buySkuDictEntity.setLang(land);
+        buySkuDictEntity.setTitle(ClassificationEnum.getCodeByDesc(categoryDto.getIp().trim()));
+        BuySkuDictEntity entity = skuDictMap.get(categoryDto.getCategoryCode().trim());
+        if (entity != null) {
+            buySkuDictEntity.setId(entity.getId());
+        }
+        list.add(buySkuDictEntity);
     }
 }

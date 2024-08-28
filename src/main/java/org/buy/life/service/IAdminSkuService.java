@@ -26,4 +26,6 @@ public interface IAdminSkuService extends IService<BuySkuEntity> {
     BuySkuEntity getSkuBySkuId(String skuId);
 
     boolean updateStock(Long id, Long stock);
+
+    void importCategory(MultipartFile file);
 }
