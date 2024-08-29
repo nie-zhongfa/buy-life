@@ -2,20 +2,25 @@ package org.buy.life.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.req.BuyUserReq;
 import org.buy.life.entity.req.LoginInfoReq;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.exception.ServerCodeEnum;
 import org.buy.life.mapper.BuyUserMapper;
 import org.buy.life.service.IBuyUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.buy.life.utils.BeanCopiesUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * <p>
@@ -26,6 +31,7 @@ import java.util.UUID;
  * @since 2024-08-21
  */
 @Service
+@Slf4j
 public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity> implements IBuyUserService {
 
 
@@ -59,6 +65,16 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
         updateById(user);
         return user;
     }
+
+
+    @Override
+    public  void create(BuyUserReq buyUserReq){
+        BuyUserEntity buyUser = BeanCopiesUtils.copy(buyUserReq, BuyUserEntity.class);
+        buyUser.setUserId(random()+"");
+        buyUser.setPwd(randomPwd(8));
+        save(buyUser);
+    }
+
 
 
     @Override
@@ -100,5 +116,31 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
     @Override
     public BuyUserEntity getUserByUserId(String userId) {
         return lambdaQuery().eq(BuyUserEntity::getUserId, userId).one();
+    }
+
+
+    private int random(){
+        int min = 100000;
+        int max = 999999;
+        int randomNumber = ThreadLocalRandom.current().nextInt(min, max + 1);
+        LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,randomNumber+"");
+        BuyUserEntity user = getOne(queryWrapper);
+        if(Objects.nonNull(user)){
+            return random();
+        }
+        return randomNumber;
+    }
+
+
+    private String randomPwd(int length){
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(chars.length());
+            sb.append(chars.charAt(index));
+        }
+        return sb.toString();
     }
 }

@@ -2,6 +2,7 @@ package org.buy.life.controller;
 
 
 import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.req.BuyUserReq;
 import org.buy.life.entity.req.LoginInfoReq;
 import org.buy.life.service.IBuyUserService;
 import org.buy.life.utils.JSONData;
@@ -30,6 +31,14 @@ public class BuyUserController {
     public JSONData<BuyUserEntity> doLogin(@RequestBody LoginInfoReq loginInfoReq){
         return JSONData.success(buyUserService.doLogin(loginInfoReq));
     }
+
+
+    @PostMapping("/create")
+    public JSONData<Void> doLogin(@RequestBody BuyUserReq buyUserReq){
+        buyUserService.create(buyUserReq);
+        return JSONData.success();
+    }
+
 
     @PostMapping("/reset")
     public JSONData<BuyUserEntity> reset(@RequestBody LoginInfoReq loginInfoReq){

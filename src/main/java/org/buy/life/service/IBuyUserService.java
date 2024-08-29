@@ -2,6 +2,7 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuyUserEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.req.BuyUserReq;
 import org.buy.life.entity.req.LoginInfoReq;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
     BuyUserEntity findByAccount(String userId);
 
     BuyUserEntity doLogin(LoginInfoReq loginInfoReq);
+
+    void create(BuyUserReq buyUserReq);
 
     BuyUserEntity reset(LoginInfoReq loginInfoReq);
 
