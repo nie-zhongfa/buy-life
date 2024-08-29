@@ -97,7 +97,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             List<BuySkuEntity> buySkuEntities = new ArrayList<>();
 
             List<BuySkuDictEntity> skuDictList = buySkuDictService.getSkuDictListByLang(LangEnum.ZH_CN.getCode());
-            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getCode, contract -> contract, (a, b) -> a));
+            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getSkuCategory, contract -> contract, (a, b) -> a));
 
             for (ImportSkuDto importSkuDto : doReadSync) {
                 String fileUrl = uploadSkuImg(importSkuDto);
