@@ -1,7 +1,7 @@
 package org.buy.life.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import org.buy.life.model.request.SkuName;
  * </p>
  *
  * @author MrWu
- * @since 2024-08-27
+ * @since 2024-08-29
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -59,10 +59,6 @@ public class BuySkuDictEntity extends Model<BuySkuDictEntity> {
     private String updater;
 
     /**
-     * 主体
-     */
-    private String title;
-    /**
      * 修改人
      */
     private String code;
@@ -82,15 +78,20 @@ public class BuySkuDictEntity extends Model<BuySkuDictEntity> {
      */
     private String ext;
 
+    /**
+     * 主题
+     */
+    private String title;
+
 
     @Override
     protected Serializable pkVal() {
         return this.id;
     }
 
+
     public static String getSkuCategoryName(List<BuySkuDictEntity> skuCategoryList, String lang) {
         BuySkuDictEntity buySkuDictEntity = skuCategoryList.stream().filter(s -> lang.equals(s.getLang())).findFirst().get();
         return buySkuDictEntity.getSkuCategory();
     }
-
 }

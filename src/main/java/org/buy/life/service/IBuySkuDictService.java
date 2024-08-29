@@ -26,3 +26,4 @@ public interface IBuySkuDictService extends IService<BuySkuDictEntity> {
 
     BuySkuDictResp getAllDict();
 }
+

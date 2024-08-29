@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author MrWu
- * @since 2024-08-27
+ * @since 2024-08-29
  */
 public interface BuySkuDictMapper extends BaseMapper<BuySkuDictEntity> {
 

@@ -69,8 +69,8 @@ public class BuyLifeFilter implements Filter {
             log.error("get mdc buyTraceId fail", e);
         }
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
-        if(request.getRequestURI().contains("/buyUser/doLogin")||request.getRequestURI().contains("/buyUser/getTokenInfo")
-        || request.getRequestURI().contains("/admin/login")||request.getRequestURI().contains("/")){
+        if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
+                request.getRequestURI().contains("/")){
             filterChain.doFilter(request, response);
         }else {
             try {

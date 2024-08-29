@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Objects;
 
 /**
  * <p>
@@ -32,13 +33,18 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
     @Override
     public SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq){
         LambdaQueryWrapper<BuySkuEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BuySkuEntity::getIsDeleted,0)
-                .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getClassification()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getClassification())
-                .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuCategory()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getSkuCategory())
-                .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuType()),BuySkuEntity::getSkuType,buySkuReq.getCondition().getSkuType())
-                .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED))
-                .and(StringUtils.isNoneBlank(buySkuReq.getCondition().getKeyWord()),r->r.like(BuySkuEntity::getSkuId,buySkuReq.getCondition().getKeyWord()).
-                        or().like(BuySkuEntity::getSkuName,buySkuReq.getCondition().getKeyWord()));
+        if(Objects.isNull(buySkuReq.getCondition())){
+            wrapper.eq(BuySkuEntity::getIsDeleted,0).in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED));
+        }else {
+            wrapper.eq(BuySkuEntity::getIsDeleted,0)
+                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getClassification()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getClassification())
+                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuCategory()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getSkuCategory())
+                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuType()),BuySkuEntity::getSkuType,buySkuReq.getCondition().getSkuType())
+                    .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED))
+                    .and(StringUtils.isNoneBlank(buySkuReq.getCondition().getKeyWord()),r->r.like(BuySkuEntity::getSkuId,buySkuReq.getCondition().getKeyWord()).
+                            or().like(BuySkuEntity::getSkuName,buySkuReq.getCondition().getKeyWord()));
+        }
+
 
         Page<BuySkuEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), wrapper);
         return  getSimplePage(buySkuReq,page);

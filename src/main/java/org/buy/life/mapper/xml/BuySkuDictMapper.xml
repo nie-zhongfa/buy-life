@@ -14,11 +14,12 @@
         <result column="sku_category" property="skuCategory" />
         <result column="lang" property="lang" />
         <result column="ext" property="ext" />
+        <result column="title" property="title" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, is_deleted, ctime, mtime, creator, updater, code, sku_category, lang, ext
+        id, is_deleted, ctime, mtime, creator, updater, code, sku_category, lang, ext, title
     </sql>
 
 </mapper>
