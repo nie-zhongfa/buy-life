@@ -35,9 +35,9 @@ public class AdminSkuController {
      * @return
      */
     @PostMapping("/queryPage")
-    public ResponseEntity<SimplePage<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
+    public JSONData<SimplePage<AdminSkuResponse>> querySkuPage(@RequestBody AdminSkuRequest adminSkuRequest) {
         SimplePage<AdminSkuResponse> pageInfo = adminSkuService.querySkuPage(adminSkuRequest);
-        return ResponseEntity.ok(pageInfo);
+        return JSONData.success(pageInfo);
     }
 
     /**

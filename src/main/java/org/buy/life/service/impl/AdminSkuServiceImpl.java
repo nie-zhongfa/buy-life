@@ -73,6 +73,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 String skuName = SkuName.getSkuName(r.getSkuName(), LangEnum.ZH_CN.getCode());
 
                 List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(r.getSkuCategory());
+                if(CollectionUtils.isEmpty(skuCategoryList)){
+                    return;
+                }
                 String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
 
                 String skuType = SkuType.getSkuType(r.getSkuType(), LangEnum.ZH_CN.getCode());
