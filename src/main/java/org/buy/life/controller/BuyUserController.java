@@ -34,7 +34,7 @@ public class BuyUserController {
 
 
     @PostMapping("/create")
-    public JSONData<Void> doLogin(@RequestBody BuyUserReq buyUserReq){
+    public JSONData<Void> create(@RequestBody BuyUserReq buyUserReq){
         buyUserService.create(buyUserReq);
         return JSONData.success();
     }
