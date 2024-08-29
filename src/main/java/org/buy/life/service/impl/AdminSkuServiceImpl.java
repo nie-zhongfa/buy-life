@@ -62,8 +62,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
         //品类
         List<String> skuCategoryCodeList = adminSkuPage.getRecords().stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
-        List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
-        Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
+        //List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
+        //Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
 
         List<AdminSkuResponse> responses = new ArrayList<>();
         if (!CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
@@ -72,16 +72,10 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
                 String skuName = SkuName.getSkuName(r.getSkuName(), LangEnum.ZH_CN.getCode());
 
-                List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(r.getSkuCategory());
-                if(CollectionUtils.isEmpty(skuCategoryList)){
-                    return;
-                }
-                String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
-
                 String skuType = SkuType.getSkuType(r.getSkuType(), LangEnum.ZH_CN.getCode());
 
                 adminSkuResponse.setSkuName(skuName);
-                adminSkuResponse.setSkuCategory(skuCategory);
+                adminSkuResponse.setSkuCategory(r.getSkuCategory());
                 adminSkuResponse.setSkuType(skuType);
                 adminSkuResponse.setPriceCNY(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.CNY.getCode()));
                 adminSkuResponse.setPriceUSD(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.USD.getCode()));
