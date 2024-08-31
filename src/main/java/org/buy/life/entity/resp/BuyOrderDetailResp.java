@@ -36,6 +36,8 @@ public class BuyOrderDetailResp {
 
     private String adminRemark;
 
+    private String userRemark;
+
     @Data
     public static class OrderDetail{
         /**

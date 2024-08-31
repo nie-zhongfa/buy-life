@@ -136,6 +136,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             buyOrderDetailResp.setOrderId(buyOrderEntity.getOrderId());
             buyOrderDetailResp.setCurrency(buyOrderEntity.getCurrency());
             buyOrderDetailResp.setAdminRemark(buyOrderEntity.getAdminRemark());
+            buyOrderDetailResp.setUserRemark(buyOrderEntity.getUserRemark());
             List<BuyOrderDetailEntity> buyOrderDetailEntities = detailMap.get(buyOrderEntity.getOrderId());
             List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(buyOrderDetailEntities, BuyOrderDetailResp.OrderDetail.class);
             orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
@@ -181,6 +182,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         buyOrderDetailResp.setOrderId(orderEntity.getOrderId());
         buyOrderDetailResp.setCurrency(orderEntity.getCurrency());
         buyOrderDetailResp.setAdminRemark(orderEntity.getAdminRemark());
+        buyOrderDetailResp.setUserRemark(orderEntity.getUserRemark());
         List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
         orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
             o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
