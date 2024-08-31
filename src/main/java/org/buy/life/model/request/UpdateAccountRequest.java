@@ -15,6 +15,11 @@ public class UpdateAccountRequest implements Serializable {
 
     private Long id;
 
+    /**
+     * 公司名称
+     */
+    private String companyName;
+
     private String userId;
 
     private String pwd;
