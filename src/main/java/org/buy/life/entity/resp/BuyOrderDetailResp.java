@@ -80,6 +80,9 @@ public class BuyOrderDetailResp {
          * sku品类
          */
         private String skuCategory;
+
+        private String classification;
+
     }
 
 

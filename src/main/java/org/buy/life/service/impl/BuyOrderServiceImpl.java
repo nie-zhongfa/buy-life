@@ -143,6 +143,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
                 o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
                 o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
                 o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
+                o.setClassification(skuMap.get(o.getSkuId()).getClassification());
                 return o;
             }).collect(Collectors.toList());
             buyOrderDetailResp.setOrderDetails(orderDetails1);
@@ -186,6 +187,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
             o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
             o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
+            o.setClassification(skuMap.get(o.getSkuId()).getClassification());
             return o;
         }).collect(Collectors.toList());
         buyOrderDetailResp.setOrderDetails(orderDetails1);
