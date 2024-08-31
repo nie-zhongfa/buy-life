@@ -135,10 +135,14 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             buyOrderDetailResp.setSubmitTime(buyOrderEntity.getLstSubmitTime());
             buyOrderDetailResp.setOrderId(buyOrderEntity.getOrderId());
             buyOrderDetailResp.setCurrency(buyOrderEntity.getCurrency());
+            buyOrderDetailResp.setAdminRemark(buyOrderEntity.getAdminRemark());
             List<BuyOrderDetailEntity> buyOrderDetailEntities = detailMap.get(buyOrderEntity.getOrderId());
             List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(buyOrderDetailEntities, BuyOrderDetailResp.OrderDetail.class);
             orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
                 o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
+                o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
+                o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
+                o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
                 return o;
             }).collect(Collectors.toList());
             buyOrderDetailResp.setOrderDetails(orderDetails1);
@@ -175,9 +179,13 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         buyOrderDetailResp.setSubmitTime(orderEntity.getLstSubmitTime());
         buyOrderDetailResp.setOrderId(orderEntity.getOrderId());
         buyOrderDetailResp.setCurrency(orderEntity.getCurrency());
+        buyOrderDetailResp.setAdminRemark(orderEntity.getAdminRemark());
         List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
         orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
             o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
+            o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
+            o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
+            o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
             return o;
         }).collect(Collectors.toList());
         buyOrderDetailResp.setOrderDetails(orderDetails1);

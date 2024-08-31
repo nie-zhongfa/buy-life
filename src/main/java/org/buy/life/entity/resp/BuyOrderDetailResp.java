@@ -34,6 +34,8 @@ public class BuyOrderDetailResp {
      */
     private String currency;
 
+    private String adminRemark;
+
     @Data
     public static class OrderDetail{
         /**
@@ -63,6 +65,21 @@ public class BuyOrderDetailResp {
          * 币种
          */
         private String currency;
+
+        /**
+         * 文件地址
+         */
+        private String batchKey;
+
+        /**
+         * sku类型
+         */
+        private String skuType;
+
+        /**
+         * sku品类
+         */
+        private String skuCategory;
     }
 
 
