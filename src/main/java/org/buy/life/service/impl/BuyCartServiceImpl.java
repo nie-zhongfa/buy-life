@@ -9,6 +9,8 @@ import org.buy.life.entity.BuyCartEntity;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.req.BuyCartReq;
 import org.buy.life.entity.resp.BuyCartResp;
+import org.buy.life.exception.BusinessException;
+import org.buy.life.exception.ServerCodeEnum;
 import org.buy.life.mapper.BuyCartMapper;
 import org.buy.life.model.request.SkuPrice;
 import org.buy.life.service.IBuyCartService;
@@ -18,6 +20,7 @@ import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -45,6 +48,10 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
 
     @Override
     public BuyCartResp cartList(){
+        if(StringUtils.isEmpty(TtlUtils.getSPCtx().getCurrency())){
+            throw new BusinessException(ServerCodeEnum.NO_CURRENCY);
+        }
+
         String userId = TtlUtils.getSPCtx().getUserId();
         LambdaQueryWrapper<BuyCartEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(BuyCartEntity::getUserId,userId)
@@ -128,5 +135,25 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
             }
             updateById(buyCartEntity);
         }
+    }
+
+
+    @Override
+    public void removeSku(List<String> skus){
+        String userId = TtlUtils.getSPCtx().getUserId();
+        LambdaQueryWrapper<BuyCartEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BuyCartEntity::getUserId,userId)
+                .eq(BuyCartEntity::getIsDeleted,0)
+                .in(BuyCartEntity::getSkuId,skus);
+        List<BuyCartEntity> buyCartEntitys = list(wrapper);
+
+        List<BuyCartEntity> collect = buyCartEntitys.stream().map(b -> {
+            b.setStatus(CartStatusEnum.REMOVED.getCode());
+            return b;
+        }).collect(Collectors.toList());
+        if(!CollectionUtils.isEmpty(collect)){
+            updateBatchById(collect);
+        }
+
     }
 }

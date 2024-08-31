@@ -10,11 +10,8 @@ import org.buy.life.entity.req.BuyOrderDetailReq;
 import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
-import org.buy.life.service.IAdminSkuService;
-import org.buy.life.service.IBuyOrderDetailService;
-import org.buy.life.service.IBuyOrderService;
+import org.buy.life.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.buy.life.service.IBuySkuService;
 import org.buy.life.utils.BeanCopiesUtils;
 import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
@@ -52,6 +49,9 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
 
     @Resource
     private IAdminSkuService adminSkuService;
+
+    @Resource
+    private IBuyCartService buyCartService;
 
 
     @Override
@@ -95,6 +95,8 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         //更新库存
         save(buyOrder);
         buyOrderDetailService.saveBatch(buyOrderDetailEntityList);
+        //购物车移除订单
+        buyCartService.removeSku(skus);
         return orderId;
     }
 

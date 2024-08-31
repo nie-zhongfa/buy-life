@@ -21,4 +21,6 @@ public interface IBuyCartService extends IService<BuyCartEntity> {
 
 
     void joinCart(BuyCartReq buyCartReq);
+
+    void removeSku(List<String> skus);
 }
