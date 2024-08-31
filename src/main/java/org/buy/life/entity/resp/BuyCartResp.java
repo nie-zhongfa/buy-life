@@ -57,6 +57,8 @@ public class BuyCartResp {
          */
         private String stock;
 
+        private String batchKey;
+
     }
 
 }
