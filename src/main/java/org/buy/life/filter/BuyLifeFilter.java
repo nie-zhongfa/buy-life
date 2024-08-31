@@ -75,7 +75,7 @@ public class BuyLifeFilter implements Filter {
         }else {
             try {
                 if(request.getRequestURI().contains("/admin")){
-                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
+                    String token = getToken(request);
                     if(StringUtils.isEmpty(token)){
                         throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
                     }
@@ -93,7 +93,7 @@ public class BuyLifeFilter implements Filter {
                     filterChain.doFilter(request, response);
                     CurrentAdminUser.remove();
                 } else {
-                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
+                    String token = getToken(request);
                     if(StringUtils.isEmpty(token)){
                         throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
                     }
@@ -120,6 +120,14 @@ public class BuyLifeFilter implements Filter {
             }
         }
 
+    }
+
+    private String getToken(HttpServletRequest request) {
+        String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+        if (StringUtils.isBlank(token)) {
+            token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
+        }
+        return token;
     }
 }
 
