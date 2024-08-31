@@ -21,6 +21,7 @@ public enum ServerCodeEnum {
     INVALID_PARAMETERS_ERROR(400, "请求异常"),
     UNAUTHORIZED(403, "无权限访问"),
     INTERNAL_SERVER_ERROR(500, "%s%s系统繁忙"),
+
     HTTP_MEDIA_TYPE_NOT_SUPPORT_ERROR(501, "MediaType 不支持"),
     REQUEST_INFO_NULL(5001, "入参为空"),
     REQUEST_INFO_FAIL(1001,"返回非成功"),
@@ -37,6 +38,8 @@ public enum ServerCodeEnum {
     USERNAME_IS_NULL(2050, "用户名不能为空"),
     PASSWORD_IS_NULL(2050, "密码不能为空"),
     USERNAME_OR_PWD_IS_VAIL(2051, "用户名或密码错误"),
+    NO_CURRENCY(2052, "未配置该区域的币种"),
+
     ;
     private Integer code;
     private String msg;

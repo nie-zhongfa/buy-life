@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.buy.life.constant.UserStatusEnum;
 import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.entity.req.BuyUserReq;
 import org.buy.life.entity.req.LoginInfoReq;
@@ -72,6 +73,7 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
         BuyUserEntity buyUser = BeanCopiesUtils.copy(buyUserReq, BuyUserEntity.class);
         buyUser.setUserId(random()+"");
         buyUser.setPwd(randomPwd(8));
+        buyUser.setStatus(UserStatusEnum.CREATE.getCode());
         save(buyUser);
     }
 

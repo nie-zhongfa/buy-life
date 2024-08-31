@@ -70,7 +70,7 @@ public class BuyLifeFilter implements Filter {
         }
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
         if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
-                request.getRequestURI().contains("/")){
+                request.getRequestURI().contains("/buyUser/create")){
             filterChain.doFilter(request, response);
         }else {
             try {
