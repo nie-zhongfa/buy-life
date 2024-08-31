@@ -52,6 +52,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     @Resource
     private IBuySkuDictService buySkuDictService;
 
+    @Resource
+    private BuySkuMapper buySkuMapper;
+
     @Override
     public SimplePage<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
         Page<BuySkuEntity> adminSkuPage = getSkuPage(adminSkuRequest);
@@ -165,7 +168,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
     @Override
     public boolean updateStock(Long id, Long stock) {
-        int i = this.baseMapper.updateStock(id, stock);
+        int i = this.buySkuMapper.updateStock(id, stock);
         return i > 0;
     }
 

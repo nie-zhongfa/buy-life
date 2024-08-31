@@ -10,6 +10,7 @@ import org.buy.life.entity.req.BuyOrderDetailReq;
 import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
+import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
@@ -52,6 +53,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
 
     @Resource
     private IBuyCartService buyCartService;
+
 
 
     @Override

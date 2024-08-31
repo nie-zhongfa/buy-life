@@ -14,5 +14,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface BuySkuMapper extends BaseMapper<BuySkuEntity> {
 
-    int updateStock(@Param("id") Long id, @Param("stock") Long stock);
+    int updateStock(@Param("id") Long id, @Param("stock") Long s);
 }

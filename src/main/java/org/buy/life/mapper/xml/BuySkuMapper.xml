@@ -31,9 +31,9 @@
 
     <update id="updateStock" >
         update buy_sku
-        set stock = stock - #{stock}
+        set stock = stock - #{s}
         where id = #{id}
-        and stock - #{stock} > 0
+        and stock - #{s} > 0
     </update>
 
 </mapper>
