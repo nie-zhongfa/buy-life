@@ -7,5 +7,5 @@ package org.buy.life.constant;
  * @version: 1.0
  */
 public class BuyLifeConstant {
-    public static String BUY_TOKEN_HEADER="BUY_TOKEN";
+    public static String BUY_TOKEN_HEADER="BUY-TOKEN";
 }

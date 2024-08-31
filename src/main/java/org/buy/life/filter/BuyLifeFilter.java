@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -123,9 +124,20 @@ public class BuyLifeFilter implements Filter {
     }
 
     private String getToken(HttpServletRequest request) {
+        // 获取所有header的名称
+        Enumeration<String> headerNames = request.getHeaderNames();
+        // 遍历所有header名称
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            // 输出header的名称和值
+            log.info("输出header的名称和值 >>>>> "+ headerName + ": " + headerValue);
+        }
         String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+        log.info("getToken>>>>>>>>1 :{}", token);
         if (StringUtils.isBlank(token)) {
             token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
+            log.info("getToken>>>>>>>>2 :{}", token);
         }
         return token;
     }
