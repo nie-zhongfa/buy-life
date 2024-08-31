@@ -44,8 +44,8 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
         if (!CollectionUtils.isEmpty(accountPage.getRecords())) {
             accountPage.getRecords().forEach(r -> {
                 AccountResponse accountResponse = BeanUtil.copyProperties(r, AccountResponse.class);
-                accountResponse.setCountry(CountryEnum.getDescByCode(r.getCountry()));
-                accountResponse.setCurrency(CurrencyEnum.getDescByCode(r.getCurrency()));
+//                accountResponse.setCountry(CountryEnum.getDescByCode(r.getCountry()));
+//                accountResponse.setCurrency(CurrencyEnum.getDescByCode(r.getCurrency()));
                 responses.add(accountResponse);
             });
         }
