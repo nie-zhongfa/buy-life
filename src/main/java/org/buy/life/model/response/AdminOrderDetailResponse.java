@@ -65,6 +65,12 @@ public class AdminOrderDetailResponse {
      */
     private String adminRemark;
 
+
+    /**
+     * 发货凭证
+     */
+    private String receiptCertificate;
+
     /**
      * 订单明细
      */

@@ -59,4 +59,8 @@ public class AdminOrderResponse implements Serializable {
      */
     private String status;
 
+    /**
+     * 发货凭证
+     */
+    private String receiptCertificate;
 }
