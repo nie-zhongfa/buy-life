@@ -75,7 +75,7 @@ public class BuyLifeFilter implements Filter {
         }else {
             try {
                 if(request.getRequestURI().contains("/admin")){
-                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
                     if(StringUtils.isEmpty(token)){
                         throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
                     }
@@ -93,7 +93,7 @@ public class BuyLifeFilter implements Filter {
                     filterChain.doFilter(request, response);
                     CurrentAdminUser.remove();
                 } else {
-                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER);
+                    String token = request.getHeader(BuyLifeConstant.BUY_TOKEN_HEADER.toLowerCase());
                     if(StringUtils.isEmpty(token)){
                         throw new BusinessException(ServerCodeEnum.UNAUTHORIZED);
                     }
