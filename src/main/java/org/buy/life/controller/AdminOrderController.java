@@ -96,8 +96,8 @@ public class AdminOrderController {
      * @return
      */
     @PostMapping("/import")
-    public JSONData<Boolean> importOrder(@RequestBody MultipartFile file) {
-        adminOrderService.importOrder(file);
+    public JSONData<Boolean> importOrder(@RequestParam("orderId") String orderId, @RequestBody MultipartFile file) {
+        adminOrderService.importOrder(orderId, file);
         return JSONData.success(true);
     }
 

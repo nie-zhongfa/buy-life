@@ -215,7 +215,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
 
     @Override
     @Transactional
-    public void importOrder(MultipartFile file) {
+    public void importOrder(String orderId, MultipartFile file) {
         List<ImportOrderDto> doReadSync;
         try {
             doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportOrderDto.class).sheet().doReadSync();
@@ -229,6 +229,9 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         List<String> orderIds = doReadSync.stream().map(ImportOrderDto::getOrderId).distinct().collect(Collectors.toList());
         if (orderIds.size() > 1) {
             throw new BusinessException(9999, "不支持不同订单号导入");
+        }
+        if (!orderIds.get(0).equals(orderId)) {
+            throw new BusinessException(9999, "当前仅可导入的订单号为："+orderId);
         }
         List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(orderIds.get(0));
         if (CollectionUtils.isEmpty(orderDetails)) {

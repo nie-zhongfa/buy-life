@@ -32,7 +32,7 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
 
     void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest);
 
-    void importOrder(MultipartFile file);
+    void importOrder(String orderId, MultipartFile file);
 
     void export(String orderId, HttpServletResponse response);
 }
