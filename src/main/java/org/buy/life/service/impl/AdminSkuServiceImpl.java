@@ -60,11 +60,6 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         }
         SimplePage<AdminSkuResponse> pageInfo = BeanUtil.copyProperties(adminSkuPage, SimplePage.class);
 
-        //品类
-        List<String> skuCategoryCodeList = adminSkuPage.getRecords().stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
-        //List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
-        //Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
-
         List<AdminSkuResponse> responses = new ArrayList<>();
         if (!CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
             adminSkuPage.getRecords().forEach(r -> {
@@ -96,9 +91,6 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySkuEntity> buySkuEntities = new ArrayList<>();
 
-            List<BuySkuDictEntity> skuDictList = buySkuDictService.getSkuDictListByLang(LangEnum.ZH_CN.getCode());
-            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getSkuCategory, contract -> contract, (a, b) -> a));
-
             for (ImportSkuDto importSkuDto : doReadSync) {
                 String fileUrl = uploadSkuImg(importSkuDto);
 
@@ -120,11 +112,6 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 buySkuEntity.setCreator(CurrentAdminUser.getUserId());
                 buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
                 buySkuEntity.setClassification(ClassificationEnum.getCodeByDesc(importSkuDto.getClassification()));
-
-                BuySkuDictEntity buySkuDictEntity = skuDictMap.get(importSkuDto.getSkuCategory());
-                if (buySkuDictEntity != null) {
-                    buySkuEntity.setSkuCategory(buySkuDictEntity.getCode());
-                }
 
                 List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                 if (!CollectionUtils.isEmpty(list)) {
