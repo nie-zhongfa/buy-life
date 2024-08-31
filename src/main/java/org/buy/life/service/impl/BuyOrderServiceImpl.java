@@ -73,7 +73,8 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         String orderId = format+random();
         BuyOrderEntity buyOrder = BuyOrderEntity.builder().orderId(orderId).orderAmt(req.getOrderAmt()).isDeleted(0)
                 .ctime(LocalDateTime.now()).lstSubmitTime(req.getSubmitTime()).creator(TtlUtils.getSPCtx().getUserId()).updater(TtlUtils.getSPCtx().getUserId())
-                .userId(TtlUtils.getSPCtx().getUserId()).status(OrderStatusEnum.NEED_CONFIRM.getCode()).currency(TtlUtils.getSPCtx().getCurrency()).build();
+                .userId(TtlUtils.getSPCtx().getUserId()).status(OrderStatusEnum.NEED_CONFIRM.getCode()).
+                userRemark(req.getUserRemark()).currency(TtlUtils.getSPCtx().getCurrency()).build();
         
         List<BuyOrderDetailEntity> buyOrderDetailEntityList=new ArrayList<>();
 

@@ -30,7 +30,10 @@ public class BuyOrderDetailReq{
      */
     private String orderAmt;
 
-    List<OrderDetail> orderDetails;
+    private List<OrderDetail> orderDetails;
+
+    private String userRemark;
+
 
     @Data
     public static class OrderDetail{
@@ -53,6 +56,7 @@ public class BuyOrderDetailReq{
          * 金额
          */
         private String totalAmt;
+
     }
 
 
