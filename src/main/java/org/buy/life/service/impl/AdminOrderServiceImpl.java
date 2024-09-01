@@ -3,7 +3,6 @@ package org.buy.life.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyOrderMapper;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
-import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.ActionEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.*;
@@ -226,6 +224,10 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             log.error("importOrder fail", ex);
             throw new BusinessException(9999, "导入失败");
         }
+        if (CollectionUtils.isEmpty(doReadSync)) {
+            throw new BusinessException(9999, "excel表格内容为空");
+        }
+        doReadSync = doReadSync.stream().filter(d -> StringUtils.isNotBlank(d.getSkuId()) && d.getSkuNum() != null && StringUtils.isNotBlank(d.getPrice())).collect(Collectors.toList());
         List<String> orderIds = doReadSync.stream().map(ImportOrderDto::getOrderId).distinct().collect(Collectors.toList());
         if (orderIds.size() > 1) {
             throw new BusinessException(9999, "不支持不同订单号导入");
@@ -238,9 +240,6 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             throw new BusinessException(9999, "订单号" + orderIds.get(0) + "未匹配到订单明细");
         }
         Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
-
-        doReadSync = doReadSync.stream().filter(d -> StringUtils.isNotBlank(d.getSkuId()) && d.getSkuNum() != null && StringUtils.isNotBlank(d.getPrice())).collect(Collectors.toList());
-
         List<BuyOrderDetailEntity> entities = new ArrayList<>();
         doReadSync.forEach(order -> {
             BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
