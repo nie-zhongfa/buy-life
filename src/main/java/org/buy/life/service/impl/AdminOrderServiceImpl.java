@@ -239,6 +239,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         }
         Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
 
+        doReadSync = doReadSync.stream().filter(d -> StringUtils.isNotBlank(d.getSkuId()) && d.getSkuNum() != null && StringUtils.isNotBlank(d.getPrice())).collect(Collectors.toList());
+
         List<BuyOrderDetailEntity> entities = new ArrayList<>();
         doReadSync.forEach(order -> {
             BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
@@ -342,6 +344,14 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                     .build();
             list.add(detailInfoDto);
         });
+        //最后一行为合计
+        BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
+        Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
+        ExportOrderDetailInfoDto sumDetail = ExportOrderDetailInfoDto.builder()
+                .totalAmt(String.valueOf(orderAmt))
+                .skuNum(totalSkuNum)
+                .build();
+        list.add(sumDetail);
         ExcelUtil.writeExcel(response, orderId, ExportOrderDetailInfoDto.class, list);
     }
 
