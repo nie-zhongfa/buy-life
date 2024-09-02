@@ -25,6 +25,8 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
 
     void create(BuyUserReq buyUserReq);
 
+    void update(BuyUserReq buyUserReq);
+
     BuyUserEntity reset(LoginInfoReq loginInfoReq);
 
     void delToken(LoginInfoReq loginInfoReq);
@@ -32,4 +34,6 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
     List<BuyUserEntity> getUserListByUserId(List<String> userIds);
 
     BuyUserEntity getUserByUserId(String userId);
+
+    void resendPwd(BuyUserReq buyUserReq);
 }

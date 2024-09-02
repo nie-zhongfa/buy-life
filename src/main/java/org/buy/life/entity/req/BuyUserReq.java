@@ -22,6 +22,12 @@ import java.time.LocalDateTime;
 public class BuyUserReq {
 
     private static final long serialVersionUID = 1L;
+
+
+    /**
+     * 用户id
+     */
+    private String userId;
     /**
      * 公司名称
      */

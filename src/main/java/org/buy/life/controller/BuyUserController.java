@@ -58,6 +58,17 @@ public class BuyUserController {
     }
 
 
+    @PostMapping("/update")
+    public JSONData removeToken(@RequestBody BuyUserReq buyUserReq){
+        buyUserService.update(buyUserReq);
+        return JSONData.success();
+    }
+
+    @PostMapping("/resendPwd")
+    public JSONData resendPwd(@RequestBody BuyUserReq buyUserReq){
+        buyUserService.resendPwd(buyUserReq);
+        return JSONData.success();
+    }
 
 
 }

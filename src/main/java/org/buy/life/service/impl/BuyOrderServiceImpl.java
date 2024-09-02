@@ -6,6 +6,7 @@ import org.buy.life.constant.OrderStatusEnum;
 import org.buy.life.entity.BuyOrderDetailEntity;
 import org.buy.life.entity.BuyOrderEntity;
 import org.buy.life.entity.BuySkuEntity;
+import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.entity.req.BuyOrderDetailReq;
 import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.exception.BusinessException;
@@ -137,6 +138,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             buyOrderDetailResp.setCurrency(buyOrderEntity.getCurrency());
             buyOrderDetailResp.setAdminRemark(buyOrderEntity.getAdminRemark());
             buyOrderDetailResp.setUserRemark(buyOrderEntity.getUserRemark());
+            buyOrderDetailResp.setStatus(buyOrderEntity.getStatus());
             List<BuyOrderDetailEntity> buyOrderDetailEntities = detailMap.get(buyOrderEntity.getOrderId());
             List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(buyOrderDetailEntities, BuyOrderDetailResp.OrderDetail.class);
             orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
@@ -183,6 +185,7 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         buyOrderDetailResp.setCurrency(orderEntity.getCurrency());
         buyOrderDetailResp.setAdminRemark(orderEntity.getAdminRemark());
         buyOrderDetailResp.setUserRemark(orderEntity.getUserRemark());
+        buyOrderDetailResp.setStatus(orderEntity.getStatus());
         List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
         orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
             o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());

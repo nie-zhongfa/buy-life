@@ -1,6 +1,7 @@
 package org.buy.life.service.impl;
 
 import org.buy.life.constant.OrderStatusEnum;
+import org.buy.life.constant.UserStatusEnum;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.mapper.BuySkuDictMapper;
@@ -89,6 +90,14 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
             dict.setDesc(o.getDesc());
             return dict;
         }).collect(Collectors.toList()));
+
+        buySkuDictResp.setUserStatusDict(Arrays.stream(UserStatusEnum.values()).map(o -> {
+            BuySkuDictResp.UserStatusDict dict = new BuySkuDictResp.UserStatusDict();
+            dict.setCode(o.getCode());
+            dict.setDesc(o.getDesc());
+            return dict;
+        }).collect(Collectors.toList()));
+
         return buySkuDictResp;
     }
 }

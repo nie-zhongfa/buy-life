@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
 import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,6 +81,21 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
     }
 
 
+    @Override
+    public  void update(BuyUserReq buyUserReq){
+        LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,buyUserReq.getUserId());
+        BuyUserEntity user = getOne(queryWrapper);
+        if(Objects.isNull(user)){
+            throw  new BusinessException(ServerCodeEnum.NO_ACCOUNT);
+        }
+
+        BuyUserEntity buyUser = BeanCopiesUtils.copy(buyUserReq, BuyUserEntity.class);
+        buyUser.setId(user.getId());
+        updateById(buyUser);
+    }
+
+
 
     @Override
     public  BuyUserEntity reset(LoginInfoReq loginInfoReq){
@@ -120,6 +136,20 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
     @Override
     public BuyUserEntity getUserByUserId(String userId) {
         return lambdaQuery().eq(BuyUserEntity::getUserId, userId).one();
+    }
+
+    @Override
+    public void resendPwd(BuyUserReq buyUserReq) {
+        LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,buyUserReq.getUserId());
+        List<BuyUserEntity> user = list(queryWrapper);
+        if(CollectionUtils.isEmpty(user)){
+            throw  new BusinessException(ServerCodeEnum.NO_ACCOUNT);
+        }
+        for (BuyUserEntity buyUserEntity : user) {
+            buyUserEntity.setStatus(UserStatusEnum.CREATE.getCode());
+        }
+        updateBatchById(user);
     }
 
 
