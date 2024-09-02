@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangeKeyValueDto {
+public class ChangeValueDto {
 
     private String oldValue;
 
