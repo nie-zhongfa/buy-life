@@ -3,6 +3,7 @@ package org.buy.life.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyOrderMapper;
+import org.buy.life.model.dto.ChangeKeyValueDto;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
 import org.buy.life.model.enums.ActionEnum;
@@ -32,6 +34,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,9 +57,12 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     private IAdminSkuService adminSkuService;
     @Resource
     private IBuySkuDictService buySkuDictService;
+    @Resource
+    private IBuyOrderChangeLogService buyOrderChangeLogService;
 
     @Override
     public SimplePage<AdminOrderResponse> queryOrderPage(AdminOrderRequest adminOrderRequest) {
+        log.info("queryOrderPage param:{}", JSON.toJSONString(adminOrderRequest));
         Page<BuyOrderEntity> orderPage = getOrderPage(adminOrderRequest);
         if (orderPage == null || CollectionUtils.isEmpty(orderPage.getRecords())) {
             return SimplePage.emptyPage();
@@ -90,23 +96,18 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         List<BuySkuEntity> skuList = adminSkuService.getSkuBySkuIdList(skuIds);
         Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
         List<OrderDetailInfoResponse> detailInfoResponses = new ArrayList<>();
-
         //品类
         List<String> skuCategoryCodeList = skuList.stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
         List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
         Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
-
         //订单明细
         orderDetailList.forEach(d -> {
             OrderDetailInfoResponse orderDetailInfoResponse = BeanUtil.copyProperties(d, OrderDetailInfoResponse.class);
             BuySkuEntity buySkuEntity = skuMap.get(d.getSkuId());
             String skuName = SkuName.getSkuName(buySkuEntity.getSkuName(), LangEnum.ZH_CN.getCode());
-
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
-
             String skuType = SkuType.getSkuType(buySkuEntity.getSkuType(), LangEnum.ZH_CN.getCode());
-
             orderDetailInfoResponse.setBatchKey(buySkuEntity.getBatchKey());
             orderDetailInfoResponse.setSkuName(skuName);
             orderDetailInfoResponse.setSkuType(skuType);
@@ -115,6 +116,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             detailInfoResponses.add(orderDetailInfoResponse);
         });
         adminOrderDetailResponse.setOrderDetails(detailInfoResponses);
+        log.info("queryDetail response:{}", JSON.toJSONString(JSON.toJSONString(adminOrderDetailResponse)));
         return adminOrderDetailResponse;
     }
 
@@ -180,21 +182,28 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     @Transactional
     public void update(List<UpdateOrderDetailRequest> updateOrderDetailRequest) {
         List<BuyOrderDetailEntity> list = new ArrayList<>();
+        List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.getDetailByOrderId(updateOrderDetailRequest.get(0).getOrderId());
+        if (CollectionUtils.isEmpty(orderDetails)) {
+            throw new BusinessException(9999, "订单号" + updateOrderDetailRequest.get(0).getOrderId() + "未匹配到订单明细");
+        }
+        Map<String, BuyOrderDetailEntity> orderDetailMap = orderDetails.stream().collect(Collectors.toMap(BuyOrderDetailEntity::getSkuId, contract -> contract, (a, b) -> a));
         updateOrderDetailRequest.forEach(order -> {
             BuyOrderDetailEntity orderDetail = buyOrderDetailService.getById(order.getId());
             if (order.getSkuNum().equals(orderDetail.getSkuNum())) {
+                log.info("update order 数量未发生变化, skuId:{}, orderId:{}", order.getSkuId(), order.getOrderId());
                 return;
             }
             BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
             //为0则删除该订单明细
             if (order.getSkuNum() == 0) {
+                log.info("update order 删除, skuId:{}, orderId:{}", order.getSkuId(), order.getOrderId());
                 deleteOrderDetail(orderDetail.getId(), sku, orderDetail.getSkuNum());
                 return;
             }
             //校验库存是否满足
             long num = order.getSkuNum() - orderDetail.getSkuNum();
             checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
-
+            //单行总金额
             String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(orderDetail.getPrice())));
             BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
                     .id(order.getId())
@@ -209,6 +218,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             //更新订单总金额
             updateOrderAmt(updateOrderDetailRequest.get(0).getOrderId());
         }
+        //save changeLog
+        saveChangeLog(updateOrderDetailRequest, orderDetailMap);
     }
 
     @Override
@@ -244,6 +255,10 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         doReadSync.forEach(order -> {
             BuyOrderDetailEntity orderDetail = orderDetailMap.get(order.getSkuId());
             BuySkuEntity sku = adminSkuService.getSkuBySkuId(order.getSkuId());
+            //过滤数量为0的数据
+            if (order.getSkuNum() == 0 && orderDetail == null) {
+                return;
+            }
             //为0则删除该订单明细
             if (order.getSkuNum() == 0 && orderDetail != null) {
                 deleteOrderDetail(orderDetail.getId(), sku, orderDetail.getSkuNum());
@@ -252,7 +267,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             //校验库存是否满足
             long num = order.getSkuNum() - (orderDetail != null ? orderDetail.getSkuNum() : 0);
             checkStock(sku.getId(), sku.getSkuName(), sku.getStock(), num);
-
+            //单行总金额
             String totalAmount = String.valueOf(BigDecimal.valueOf(order.getSkuNum()).multiply(new BigDecimal(order.getPrice())));
             BuyOrderDetailEntity entity = BuyOrderDetailEntity.builder()
                     .orderId(order.getOrderId())
@@ -274,6 +289,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         buyOrderDetailService.saveOrUpdateBatch(entities);
         //更新订单总金额
         updateOrderAmt(orderIds.get(0));
+        //save changeLog
+        saveImportChangeLog(doReadSync, orderDetailMap);
     }
 
     private void updateOrderAmt(String orderId) {
@@ -305,29 +322,25 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         }
         BuyOrderDetailEntity entity = orderDetails.get(0);
         BuyOrderEntity order = lambdaQuery().eq(BuyOrderEntity::getOrderId, entity.getOrderId()).one();
-
         BuyUserEntity user = buyUserService.getUserByUserId(order.getUserId());
-
         //sku
         List<String> skuIds = orderDetails.stream().map(BuyOrderDetailEntity::getSkuId).distinct().collect(Collectors.toList());
         List<BuySkuEntity> skuList = adminSkuService.getSkuBySkuIdList(skuIds);
         Map<String, BuySkuEntity> skuMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, contract -> contract, (a, b) -> a));
-
         //品类
         List<String> skuCategoryCodeList = skuList.stream().map(BuySkuEntity::getSkuCategory).collect(Collectors.toList());
         List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
         Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
-
         List<ExportOrderDetailInfoDto> list = new ArrayList<>();
         orderDetails.forEach(o -> {
             BuySkuEntity buySkuEntity = skuMap.get(o.getSkuId());
+            //商品名称
             String skuName = SkuName.getSkuName(buySkuEntity.getSkuName(), LangEnum.ZH_CN.getCode());
-
+            //品类名称
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
-
+            //款式
             String skuType = SkuType.getSkuType(buySkuEntity.getSkuType(), LangEnum.ZH_CN.getCode());
-
             ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                     .orderId(orderId)
                     .userId(user.getUserId())
@@ -343,7 +356,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                     .build();
             list.add(detailInfoDto);
         });
-        //最后一行为合计
+        //导出最后一行为合计
         BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
         Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
         ExportOrderDetailInfoDto sumDetail = ExportOrderDetailInfoDto.builder()
@@ -364,5 +377,72 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         if (!b) {
             throw new BusinessException(9999, "【" + skuName + "】" + "库存不足");
         }
+    }
+
+    private void saveChangeLog(List<UpdateOrderDetailRequest> updateOrderDetailRequest, Map<String, BuyOrderDetailEntity> orderDetailMap) {
+        List<BuyOrderChangeLogEntity> logEntityList = new ArrayList<>();
+        updateOrderDetailRequest.forEach(newOrder -> {
+            BuyOrderDetailEntity newOrderEntity = BeanUtil.copyProperties(newOrder, BuyOrderDetailEntity.class);
+            BuyOrderDetailEntity oldOrderEntity = orderDetailMap.get(newOrder.getSkuId());
+            buildChangeLog(logEntityList, oldOrderEntity, newOrderEntity);
+        });
+        if (!CollectionUtils.isEmpty(logEntityList)) {
+            buyOrderChangeLogService.saveBatch(logEntityList);
+        }
+    }
+
+    private void saveImportChangeLog(List<ImportOrderDto> doReadSync, Map<String, BuyOrderDetailEntity> orderDetailMap) {
+        List<BuyOrderChangeLogEntity> logEntityList = new ArrayList<>();
+        doReadSync.forEach(newOrder -> {
+            BuyOrderDetailEntity newOrderEntity = BeanUtil.copyProperties(newOrder, BuyOrderDetailEntity.class);
+            BuyOrderDetailEntity oldOrderEntity = orderDetailMap.get(newOrder.getSkuId());
+            buildChangeLog(logEntityList, oldOrderEntity, newOrderEntity);
+        });
+        if (!CollectionUtils.isEmpty(logEntityList)) {
+            buyOrderChangeLogService.saveBatch(logEntityList);
+        }
+    }
+
+    private void buildChangeLog(List<BuyOrderChangeLogEntity> logEntityList, BuyOrderDetailEntity oldOrderEntity, BuyOrderDetailEntity newOrderEntity) {
+        if (newOrderEntity.getSkuNum() == 0 && oldOrderEntity == null) {
+            return;
+        }
+        BuyOrderChangeLogEntity changeLog = new BuyOrderChangeLogEntity();
+        changeLog.setOrderId(newOrderEntity.getOrderId());
+        changeLog.setSkuId(newOrderEntity.getSkuId());
+        changeLog.setCreator(CurrentAdminUser.getUserId());
+        //diff
+        Map<String, ChangeKeyValueDto> changeLogMap = diffOrder(oldOrderEntity, newOrderEntity);
+        changeLog.setChangeLog(JSON.toJSONString(changeLogMap));
+        //新增
+        if (oldOrderEntity == null || StringUtils.isBlank(oldOrderEntity.getSkuId())) {
+            changeLog.setChangeType("ADD");
+        }
+        //删除
+        else if (newOrderEntity.getSkuNum() == 0) {
+            changeLog.setChangeType("DELETE");
+        }
+        //修改
+        else if (changeLogMap.size() > 0) {
+            changeLog.setChangeType("UPDATE");
+        }
+        logEntityList.add(changeLog);
+    }
+
+    private Map<String, ChangeKeyValueDto> diffOrder(BuyOrderDetailEntity oldOrder, BuyOrderDetailEntity newOrder) {
+        Map<String, ChangeKeyValueDto> changeLogMap = new HashMap<>();
+        if (oldOrder == null) {
+            oldOrder = new BuyOrderDetailEntity();
+        }
+        if (StringUtils.isNotBlank(newOrder.getPrice()) && !newOrder.getPrice().equals(oldOrder.getPrice())) {
+            changeLogMap.put("price", ChangeKeyValueDto.builder().oldValue(oldOrder.getPrice()).newValue(newOrder.getPrice()).build());
+        }
+        if (newOrder.getSkuNum() != null && !newOrder.getSkuNum().equals(oldOrder.getSkuNum())) {
+            changeLogMap.put("skuNum", ChangeKeyValueDto.builder().oldValue(String.valueOf(oldOrder.getSkuNum())).newValue(String.valueOf(newOrder.getSkuNum())).build());
+        }
+        if (StringUtils.isNotBlank(newOrder.getCurrency()) && !newOrder.getCurrency().equals(oldOrder.getCurrency())) {
+            changeLogMap.put("currency", ChangeKeyValueDto.builder().oldValue(oldOrder.getCurrency()).newValue(newOrder.getCurrency()).build());
+        }
+        return changeLogMap;
     }
 }
