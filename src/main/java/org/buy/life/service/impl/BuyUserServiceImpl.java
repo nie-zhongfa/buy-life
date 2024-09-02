@@ -141,7 +141,7 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
     @Override
     public void resendPwd(BuyUserReq buyUserReq) {
         LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
-        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,buyUserReq.getUserId());
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getMail,buyUserReq.getMail());
         List<BuyUserEntity> user = list(queryWrapper);
         if(CollectionUtils.isEmpty(user)){
             throw  new BusinessException(ServerCodeEnum.NO_ACCOUNT);

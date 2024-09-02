@@ -1,17 +1,14 @@
 package org.buy.life.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.constant.OrderStatusEnum;
-import org.buy.life.entity.BuyOrderDetailEntity;
-import org.buy.life.entity.BuyOrderEntity;
-import org.buy.life.entity.BuySkuEntity;
-import org.buy.life.entity.BuyUserEntity;
+import org.buy.life.entity.*;
 import org.buy.life.entity.req.BuyOrderDetailReq;
 import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyOrderMapper;
-import org.buy.life.mapper.BuySkuMapper;
 import org.buy.life.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
@@ -19,6 +16,7 @@ import org.buy.life.utils.TtlUtils;
 import org.junit.platform.commons.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -55,6 +53,9 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
 
     @Resource
     private IBuyCartService buyCartService;
+
+    @Resource
+    private IBuyOrderChangeLogService buyOrderChangeLogService;
 
 
 
@@ -200,6 +201,23 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         return buyOrderDetailResp;
     }
 
+    @Override
+    public List<BuyOrderDetailResp> orderHis(String orderId){
+        LambdaQueryWrapper<BuyOrderChangeLogEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BuyOrderChangeLogEntity::getOrderId,orderId)
+                .eq(BuyOrderChangeLogEntity::getIsDeleted,0).orderByAsc(BuyOrderChangeLogEntity::getCtime);
+        List<BuyOrderChangeLogEntity> list = buyOrderChangeLogService.list(wrapper);
+        if(CollectionUtils.isEmpty(list)){
+            return new ArrayList<>();
+        }
+
+        List<BuyOrderDetailResp> collect = list.stream().map(l -> {
+            BuyOrderDetailResp buyOrderDetailResp = JSONObject.parseObject(l.getChangeLog(), BuyOrderDetailResp.class);
+            buyOrderDetailResp.setChangeTime(l.getCtime());
+            return buyOrderDetailResp;
+        }).collect(Collectors.toList());
+        return collect;
+    }
 
 
 

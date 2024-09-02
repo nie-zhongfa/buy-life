@@ -15,6 +15,8 @@ import java.util.List;
  */
 @Data
 public class BuyOrderDetailResp {
+
+    private LocalDateTime changeTime;
     /**
      * 创建时间
      */

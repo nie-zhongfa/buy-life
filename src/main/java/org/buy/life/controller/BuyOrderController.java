@@ -49,5 +49,10 @@ public class BuyOrderController {
         String userId = TtlUtils.getSPCtx().getUserId();
         return JSONData.success(buyOrderService.orderDetail(orderId, userId));
     }
+
+    @GetMapping("/orderHisDetails")
+    public JSONData<List<BuyOrderDetailResp>> orderHisDetails(@RequestParam("orderId") String orderId){
+        return JSONData.success(buyOrderService.orderHis(orderId));
+    }
 }
 
