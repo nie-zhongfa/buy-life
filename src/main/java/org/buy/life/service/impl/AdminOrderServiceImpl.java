@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.buy.life.constant.OrderStatusEnum;
 import org.buy.life.entity.*;
+import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.filter.CurrentAdminUser;
@@ -59,6 +60,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
     private IBuySkuDictService buySkuDictService;
     @Resource
     private IBuyOrderChangeLogService buyOrderChangeLogService;
+    @Resource
+    private IBuyOrderService buyOrderService;
 
     @Override
     public SimplePage<AdminOrderResponse> queryOrderPage(AdminOrderRequest adminOrderRequest) {
@@ -218,8 +221,9 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             //更新订单总金额
             updateOrderAmt(updateOrderDetailRequest.get(0).getOrderId());
         }
-        //save changeLog
-        saveChangeLog(updateOrderDetailRequest, orderDetailMap);
+        //保存变更前订单记录
+        List<BuyOrderDetailEntity> detailEntities = BeanUtil.copyToList(updateOrderDetailRequest, BuyOrderDetailEntity.class);
+        saveChangeLog(updateOrderDetailRequest.get(0).getOrderId(), detailEntities, orderDetailMap);
     }
 
     @Override
@@ -286,11 +290,12 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             }
             entities.add(entity);
         });
+        //保存变更前订单记录
+        List<BuyOrderDetailEntity> detailEntities = BeanUtil.copyToList(doReadSync, BuyOrderDetailEntity.class);
+        saveChangeLog(orderIds.get(0), detailEntities, orderDetailMap);
         buyOrderDetailService.saveOrUpdateBatch(entities);
         //更新订单总金额
         updateOrderAmt(orderIds.get(0));
-        //save changeLog
-        saveImportChangeLog(doReadSync, orderDetailMap);
     }
 
     private void updateOrderAmt(String orderId) {
@@ -379,70 +384,47 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         }
     }
 
-    private void saveChangeLog(List<UpdateOrderDetailRequest> updateOrderDetailRequest, Map<String, BuyOrderDetailEntity> orderDetailMap) {
-        List<BuyOrderChangeLogEntity> logEntityList = new ArrayList<>();
-        updateOrderDetailRequest.forEach(newOrder -> {
-            BuyOrderDetailEntity newOrderEntity = BeanUtil.copyProperties(newOrder, BuyOrderDetailEntity.class);
+
+    private void saveChangeLog(String orderId, List<BuyOrderDetailEntity> newOrderList, Map<String, BuyOrderDetailEntity> orderDetailMap) {
+        boolean hasDiff = false;
+        for (BuyOrderDetailEntity newOrder : newOrderList) {
+            if (newOrder == null) {
+                continue;
+            }
             BuyOrderDetailEntity oldOrderEntity = orderDetailMap.get(newOrder.getSkuId());
-            buildChangeLog(logEntityList, oldOrderEntity, newOrderEntity);
-        });
-        if (!CollectionUtils.isEmpty(logEntityList)) {
-            buyOrderChangeLogService.saveBatch(logEntityList);
+            //过滤数量为0的数据
+            if (newOrder.getSkuNum() == 0 && oldOrderEntity == null) {
+                continue;
+            }
+            if (hsDiff(oldOrderEntity, newOrder)) {
+                hasDiff = true;
+                break;
+            }
+        }
+        if (hasDiff) {
+            BuyOrderDetailResp detailResp = buyOrderService.orderDetail(orderId, null);
+            BuyOrderChangeLogEntity changeLogEntity = BuyOrderChangeLogEntity
+                    .builder()
+                    .orderId(orderId).changeLog(JSON.toJSONString(detailResp))
+                    .creator(CurrentAdminUser.getUserId())
+                    .build();
+            buyOrderChangeLogService.save(changeLogEntity);
         }
     }
 
-    private void saveImportChangeLog(List<ImportOrderDto> doReadSync, Map<String, BuyOrderDetailEntity> orderDetailMap) {
-        List<BuyOrderChangeLogEntity> logEntityList = new ArrayList<>();
-        doReadSync.forEach(newOrder -> {
-            BuyOrderDetailEntity newOrderEntity = BeanUtil.copyProperties(newOrder, BuyOrderDetailEntity.class);
-            BuyOrderDetailEntity oldOrderEntity = orderDetailMap.get(newOrder.getSkuId());
-            buildChangeLog(logEntityList, oldOrderEntity, newOrderEntity);
-        });
-        if (!CollectionUtils.isEmpty(logEntityList)) {
-            buyOrderChangeLogService.saveBatch(logEntityList);
-        }
-    }
-
-    private void buildChangeLog(List<BuyOrderChangeLogEntity> logEntityList, BuyOrderDetailEntity oldOrderEntity, BuyOrderDetailEntity newOrderEntity) {
-        if (newOrderEntity.getSkuNum() == 0 && oldOrderEntity == null) {
-            return;
-        }
-        BuyOrderChangeLogEntity changeLog = new BuyOrderChangeLogEntity();
-        changeLog.setOrderId(newOrderEntity.getOrderId());
-        changeLog.setSkuId(newOrderEntity.getSkuId());
-        changeLog.setCreator(CurrentAdminUser.getUserId());
-        //diff
-        Map<String, ChangeValueDto> changeLogMap = diffOrder(oldOrderEntity, newOrderEntity);
-        changeLog.setChangeLog(JSON.toJSONString(changeLogMap));
-        //新增
-        if (oldOrderEntity == null || StringUtils.isBlank(oldOrderEntity.getSkuId())) {
-            changeLog.setChangeType("ADD");
-        }
-        //删除
-        else if (newOrderEntity.getSkuNum() == 0) {
-            changeLog.setChangeType("DELETE");
-        }
-        //修改
-        else if (changeLogMap.size() > 0) {
-            changeLog.setChangeType("UPDATE");
-        }
-        logEntityList.add(changeLog);
-    }
-
-    private Map<String, ChangeValueDto> diffOrder(BuyOrderDetailEntity oldOrder, BuyOrderDetailEntity newOrder) {
-        Map<String, ChangeValueDto> changeLogMap = new HashMap<>();
+    private boolean hsDiff(BuyOrderDetailEntity oldOrder, BuyOrderDetailEntity newOrder) {
         if (oldOrder == null) {
-            oldOrder = new BuyOrderDetailEntity();
+            return true;
         }
         if (StringUtils.isNotBlank(newOrder.getPrice()) && !newOrder.getPrice().equals(oldOrder.getPrice())) {
-            changeLogMap.put("price", ChangeValueDto.builder().oldValue(oldOrder.getPrice()).newValue(newOrder.getPrice()).build());
+            return true;
         }
         if (newOrder.getSkuNum() != null && !newOrder.getSkuNum().equals(oldOrder.getSkuNum())) {
-            changeLogMap.put("skuNum", ChangeValueDto.builder().oldValue(String.valueOf(oldOrder.getSkuNum())).newValue(String.valueOf(newOrder.getSkuNum())).build());
+            return true;
         }
         if (StringUtils.isNotBlank(newOrder.getCurrency()) && !newOrder.getCurrency().equals(oldOrder.getCurrency())) {
-            changeLogMap.put("currency", ChangeValueDto.builder().oldValue(oldOrder.getCurrency()).newValue(newOrder.getCurrency()).build());
+            return true;
         }
-        return changeLogMap;
+        return false;
     }
 }

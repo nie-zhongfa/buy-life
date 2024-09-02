@@ -9,6 +9,7 @@ import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.service.IBuyOrderService;
 import org.buy.life.utils.JSONData;
+import org.buy.life.utils.TtlUtils;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
@@ -45,7 +46,8 @@ public class BuyOrderController {
 
     @GetMapping("/orderDetail")
     public JSONData<BuyOrderDetailResp> orderDetail(@RequestParam("orderId") String orderId){
-        return JSONData.success(buyOrderService.orderDetail(orderId));
+        String userId = TtlUtils.getSPCtx().getUserId();
+        return JSONData.success(buyOrderService.orderDetail(orderId, userId));
     }
 }
 

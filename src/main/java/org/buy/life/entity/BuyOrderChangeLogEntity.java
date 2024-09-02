@@ -64,19 +64,9 @@ public class BuyOrderChangeLogEntity extends Model<BuyOrderChangeLogEntity> {
     private String orderId;
 
     /**
-     * sku_id
-     */
-    private String skuId;
-
-    /**
      * 变更json
      */
     private String changeLog;
-
-    /**
-     * 变更类型：ADD、UPDATE、DELETE
-     */
-    private String changeType;
 
     /**
      * 保留域

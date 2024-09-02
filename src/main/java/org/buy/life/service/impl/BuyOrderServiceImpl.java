@@ -15,6 +15,7 @@ import org.buy.life.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
 import org.buy.life.utils.TtlUtils;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -157,11 +158,11 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
 
 
     @Override
-    public BuyOrderDetailResp orderDetail(String orderId){
-        String userId = TtlUtils.getSPCtx().getUserId();
+    public BuyOrderDetailResp orderDetail(String orderId, String userId){
         LambdaQueryWrapper<BuyOrderEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(BuyOrderEntity::getUserId,userId)
-                .eq(BuyOrderEntity::getIsDeleted,0).eq(BuyOrderEntity::getOrderId,orderId);
+        wrapper.eq(StringUtils.isNotBlank(userId), BuyOrderEntity::getUserId,userId)
+                .eq(BuyOrderEntity::getIsDeleted,0)
+                .eq(BuyOrderEntity::getOrderId,orderId);
 
         BuyOrderEntity orderEntity = getOne(wrapper);
 

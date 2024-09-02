@@ -21,5 +21,5 @@ public interface IBuyOrderService extends IService<BuyOrderEntity> {
 
     List<BuyOrderDetailResp> orderList();
 
-    BuyOrderDetailResp orderDetail(String orderId);
+    BuyOrderDetailResp orderDetail(String orderId, String userId);
 }
