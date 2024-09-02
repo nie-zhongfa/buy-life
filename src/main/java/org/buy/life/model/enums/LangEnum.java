@@ -14,10 +14,10 @@ import lombok.Getter;
 public enum LangEnum {
 
     ZH_CN("zh_cn", "中文"),
-    EN("en", "英语"),
-    ES("es", "西班牙语"),
-    FR("fr", "法语"),
-    DE("de", "德语");
+    EN("en", "english"),
+    ES("es", "Español"),
+    FR("fr", "Français"),
+    DE("de", "Deutsch");
 
     private final String code;
     private final String desc;
