@@ -59,6 +59,21 @@ public class BuyCartResp {
 
         private String batchKey;
 
+        /**
+         * 主体：genshin_impact、star_rail、zenless_zone_zero
+         */
+        private String classification;
+
+        /**
+         * sku类型
+         */
+        private String skuType;
+
+        /**
+         * sku品类
+         */
+        private String skuCategory;
+
     }
 
 }

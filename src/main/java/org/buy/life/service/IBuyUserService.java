@@ -19,7 +19,7 @@ public interface IBuyUserService extends IService<BuyUserEntity> {
 
     BuyUserEntity findByToken(String token);
 
-    BuyUserEntity findByAccount(String userId);
+    BuyUserEntity findByAccount();
 
     BuyUserEntity doLogin(LoginInfoReq loginInfoReq);
 

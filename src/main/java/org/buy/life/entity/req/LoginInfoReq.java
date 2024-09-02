@@ -12,4 +12,5 @@ import lombok.Data;
 public class LoginInfoReq {
     private String account;
     private String password;
+    private String token;
 }

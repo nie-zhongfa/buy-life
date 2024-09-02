@@ -14,6 +14,7 @@ import org.buy.life.mapper.BuyUserMapper;
 import org.buy.life.service.IBuyUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
+import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -44,9 +45,10 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
     }
 
     @Override
-    public  BuyUserEntity findByAccount(String userId){
+    public  BuyUserEntity findByAccount(){
+        String token = TtlUtils.getSPCtx().getToken();
         LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
-        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getUserId,userId);
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).eq(BuyUserEntity::getToken,token);
         return getOne(queryWrapper);
     }
 
