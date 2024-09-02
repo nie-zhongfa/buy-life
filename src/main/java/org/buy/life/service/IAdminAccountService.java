@@ -18,5 +18,7 @@ public interface IAdminAccountService extends IService<BuyUserEntity> {
 
     SimplePage<AccountResponse> queryAccountPage(QueryAccountRequest queryAccountRequest);
 
+    void confirmRegister(String userId);
+
     void updateAccount(UpdateAccountRequest updateAccountRequest);
 }

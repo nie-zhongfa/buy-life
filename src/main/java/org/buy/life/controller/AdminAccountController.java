@@ -8,10 +8,7 @@ import org.buy.life.model.response.AccountResponse;
 import org.buy.life.service.IAdminAccountService;
 import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -38,6 +35,18 @@ public class AdminAccountController {
     public JSONData<SimplePage<AccountResponse>> queryAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
         SimplePage<AccountResponse> pageInfo = iAdminAccountService.queryAccountPage(queryAccountRequest);
         return JSONData.success(pageInfo);
+    }
+
+    /**
+     * 确认注册完成
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/confirmRegister")
+    public JSONData<Boolean> confirmRegister(@RequestParam("userId") String userId) {
+        iAdminAccountService.confirmRegister(userId);
+        return JSONData.success(true);
     }
 
     /**
