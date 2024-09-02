@@ -13,7 +13,7 @@ import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyOrderMapper;
-import org.buy.life.model.dto.ChangeKeyValueDto;
+import org.buy.life.model.dto.ChangeValueDto;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
 import org.buy.life.model.enums.ActionEnum;
@@ -412,7 +412,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         changeLog.setSkuId(newOrderEntity.getSkuId());
         changeLog.setCreator(CurrentAdminUser.getUserId());
         //diff
-        Map<String, ChangeKeyValueDto> changeLogMap = diffOrder(oldOrderEntity, newOrderEntity);
+        Map<String, ChangeValueDto> changeLogMap = diffOrder(oldOrderEntity, newOrderEntity);
         changeLog.setChangeLog(JSON.toJSONString(changeLogMap));
         //新增
         if (oldOrderEntity == null || StringUtils.isBlank(oldOrderEntity.getSkuId())) {
@@ -429,19 +429,19 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         logEntityList.add(changeLog);
     }
 
-    private Map<String, ChangeKeyValueDto> diffOrder(BuyOrderDetailEntity oldOrder, BuyOrderDetailEntity newOrder) {
-        Map<String, ChangeKeyValueDto> changeLogMap = new HashMap<>();
+    private Map<String, ChangeValueDto> diffOrder(BuyOrderDetailEntity oldOrder, BuyOrderDetailEntity newOrder) {
+        Map<String, ChangeValueDto> changeLogMap = new HashMap<>();
         if (oldOrder == null) {
             oldOrder = new BuyOrderDetailEntity();
         }
         if (StringUtils.isNotBlank(newOrder.getPrice()) && !newOrder.getPrice().equals(oldOrder.getPrice())) {
-            changeLogMap.put("price", ChangeKeyValueDto.builder().oldValue(oldOrder.getPrice()).newValue(newOrder.getPrice()).build());
+            changeLogMap.put("price", ChangeValueDto.builder().oldValue(oldOrder.getPrice()).newValue(newOrder.getPrice()).build());
         }
         if (newOrder.getSkuNum() != null && !newOrder.getSkuNum().equals(oldOrder.getSkuNum())) {
-            changeLogMap.put("skuNum", ChangeKeyValueDto.builder().oldValue(String.valueOf(oldOrder.getSkuNum())).newValue(String.valueOf(newOrder.getSkuNum())).build());
+            changeLogMap.put("skuNum", ChangeValueDto.builder().oldValue(String.valueOf(oldOrder.getSkuNum())).newValue(String.valueOf(newOrder.getSkuNum())).build());
         }
         if (StringUtils.isNotBlank(newOrder.getCurrency()) && !newOrder.getCurrency().equals(oldOrder.getCurrency())) {
-            changeLogMap.put("currency", ChangeKeyValueDto.builder().oldValue(oldOrder.getCurrency()).newValue(newOrder.getCurrency()).build());
+            changeLogMap.put("currency", ChangeValueDto.builder().oldValue(oldOrder.getCurrency()).newValue(newOrder.getCurrency()).build());
         }
         return changeLogMap;
     }

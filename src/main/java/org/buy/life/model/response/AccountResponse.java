@@ -41,4 +41,8 @@ public class AccountResponse implements Serializable {
      * 密码
      */
     private String pwd;
+    /**
+     * 状态
+     */
+    private String status;
 }

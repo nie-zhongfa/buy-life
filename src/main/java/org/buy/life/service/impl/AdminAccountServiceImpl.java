@@ -1,18 +1,15 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.buy.life.constant.UserStatusEnum;
 import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyUserMapper;
-import org.buy.life.model.enums.CountryEnum;
-import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.response.AccountResponse;
@@ -44,8 +41,6 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
         if (!CollectionUtils.isEmpty(accountPage.getRecords())) {
             accountPage.getRecords().forEach(r -> {
                 AccountResponse accountResponse = BeanUtil.copyProperties(r, AccountResponse.class);
-//                accountResponse.setCountry(CountryEnum.getDescByCode(r.getCountry()));
-//                accountResponse.setCurrency(CurrencyEnum.getDescByCode(r.getCurrency()));
                 responses.add(accountResponse);
             });
         }
@@ -58,6 +53,14 @@ public class AdminAccountServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserE
         BuyUserEntity buyUserEntity = BeanUtil.copyProperties(updateAccountRequest, BuyUserEntity.class);
         buyUserEntity.setUpdater(CurrentAdminUser.getUserId());
         this.updateById(buyUserEntity);
+    }
+
+    @Override
+    public void confirmRegister(String userId) {
+       lambdaUpdate()
+               .set(BuyUserEntity::getStatus, UserStatusEnum.COMPLETE.getCode())
+               .eq(BuyUserEntity::getUserId, userId)
+               .update();
     }
 
     public IPage<BuyUserEntity> getAccountPage(QueryAccountRequest queryAccountRequest) {
