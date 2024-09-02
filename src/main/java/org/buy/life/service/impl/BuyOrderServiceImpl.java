@@ -27,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -132,12 +133,21 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
 
         List<String> orderIds = orderEntityList.stream().map(BuyOrderEntity::getOrderId).collect(Collectors.toList());
 
+        if(CollectionUtils.isEmpty(orderEntityList)){
+            return new ArrayList<>();
+        }
+
         LambdaQueryWrapper<BuyOrderDetailEntity> orderDetalWrapper = new LambdaQueryWrapper<>();
         orderDetalWrapper.in(BuyOrderDetailEntity::getOrderId,orderIds)
                 .eq(BuyOrderDetailEntity::getIsDeleted,0);
         List<BuyOrderDetailEntity> orderDetails = buyOrderDetailService.list(orderDetalWrapper);
 
         List<String> skus = orderDetails.stream().map(BuyOrderDetailEntity::getSkuId).collect(Collectors.toList());
+
+        if(CollectionUtils.isEmpty(skus)){
+            return new ArrayList<>();
+        }
+
         LambdaQueryWrapper<BuySkuEntity> skuWrapper = new LambdaQueryWrapper<>();
         skuWrapper.in(BuySkuEntity::getSkuId,skus);
         List<BuySkuEntity> skuEntitys = skuService.list(skuWrapper);
@@ -183,6 +193,10 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
                 .eq(BuyOrderEntity::getOrderId,orderId);
 
         BuyOrderEntity orderEntity = getOne(wrapper);
+
+        if(Objects.isNull(orderEntity)){
+            return new BuyOrderDetailResp();
+        }
 
         LambdaQueryWrapper<BuyOrderDetailEntity> orderDetailWrapper = new LambdaQueryWrapper<>();
         orderDetailWrapper.eq(BuyOrderDetailEntity::getOrderId,orderEntity.getOrderId())
