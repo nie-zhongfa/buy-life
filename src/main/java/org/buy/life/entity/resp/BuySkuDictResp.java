@@ -34,6 +34,7 @@ public class BuySkuDictResp{
 
     private List<CurrencyDict> currencyDicts;
 
+    private List<UserStatusDict> userStatusDict;
 
     @Data
     public static class TitleDict{
@@ -96,4 +97,12 @@ public class BuySkuDictResp{
         private String lang;
 
     }
+
+    @Data
+    public static class UserStatusDict{
+        private String code;
+
+        private String desc;
+    }
+
 }

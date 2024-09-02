@@ -71,7 +71,8 @@ public class BuyLifeFilter implements Filter {
         }
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
         if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
-                request.getRequestURI().contains("/buyUser/create")||request.getRequestURI().contains("/buySkuDict/dict")){
+                request.getRequestURI().contains("/buyUser/create")||request.getRequestURI().contains("/buySkuDict/dict")
+                ||request.getRequestURI().contains("/buyUser/resendPwd")){
             filterChain.doFilter(request, response);
         }else {
             try {

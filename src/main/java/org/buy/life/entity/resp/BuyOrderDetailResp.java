@@ -38,6 +38,12 @@ public class BuyOrderDetailResp {
 
     private String userRemark;
 
+
+    /**
+     * 状态
+     */
+    private String status;
+
     @Data
     public static class OrderDetail{
         /**

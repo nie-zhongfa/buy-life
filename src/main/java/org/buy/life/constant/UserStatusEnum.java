@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UserStatusEnum {
-    CREATE("CREATE", "已申请注册"),
+    CREATE("CREATE", "已申请注册/未发送密码"),
 
-    COMPLETE("COMPLETE", "注册完成");
+    COMPLETE("COMPLETE", "注册完成/已发送密码");
     /**
      * 后端code
      */
