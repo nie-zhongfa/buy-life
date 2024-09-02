@@ -46,9 +46,9 @@ public class BuyUserController {
     }
 
 
-    @PostMapping("/getTokenInfo")
-    public JSONData<BuyUserEntity> getTokenInfo(@RequestBody LoginInfoReq loginInfoReq){
-        return JSONData.success(buyUserService.findByAccount(loginInfoReq.getAccount()));
+    @GetMapping("/getTokenInfo")
+    public JSONData<BuyUserEntity> getTokenInfo(){
+        return JSONData.success(buyUserService.findByAccount());
     }
 
     @PostMapping("/removeToken")
