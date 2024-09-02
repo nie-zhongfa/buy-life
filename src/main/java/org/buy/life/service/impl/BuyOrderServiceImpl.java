@@ -8,7 +8,9 @@ import org.buy.life.entity.*;
 import org.buy.life.entity.req.BuyOrderDetailReq;
 import org.buy.life.entity.resp.BuyOrderDetailResp;
 import org.buy.life.exception.BusinessException;
+import org.buy.life.exception.ServerCodeEnum;
 import org.buy.life.mapper.BuyOrderMapper;
+import org.buy.life.model.request.SkuPrice;
 import org.buy.life.service.*;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -63,6 +66,10 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
     @Transactional
     public String joinOrder(BuyOrderDetailReq req){
 
+        if(StringUtils.isBlank(TtlUtils.getSPCtx().getCurrency())){
+            throw  new BusinessException(ServerCodeEnum.NO_CURRENCY);
+        }
+
         List<String> skus = req.getOrderDetails().stream().map(BuyOrderDetailReq.OrderDetail::getSkuId).collect(Collectors.toList());
         LambdaQueryWrapper<BuySkuEntity> skuWrapper = new LambdaQueryWrapper<>();
         skuWrapper.in(BuySkuEntity::getSkuId,skus);
@@ -80,15 +87,21 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
                 userRemark(req.getUserRemark()).currency(TtlUtils.getSPCtx().getCurrency()).build();
         
         List<BuyOrderDetailEntity> buyOrderDetailEntityList=new ArrayList<>();
-
+        BigDecimal orderAmt=new BigDecimal(0);
         for (BuyOrderDetailReq.OrderDetail orderDetail:req.getOrderDetails()){
+            BuySkuEntity buySkuEntity = skuMap.get(orderDetail.getSkuId());
+            if(StringUtils.isBlank(buySkuEntity.getPrice())||orderDetail.getSkuNum()==0l){
+                continue;
+            }
+            String skuPrice = SkuPrice.getSkuPrice(buySkuEntity.getPrice(), TtlUtils.getSPCtx().getCurrency());
+            BigDecimal amt = new BigDecimal(skuPrice).multiply(new BigDecimal(orderDetail.getSkuNum()));
+
             BuyOrderDetailEntity orderDetailEntity = BuyOrderDetailEntity.builder().orderId(orderId).skuId(orderDetail.getSkuId())
-                    .price(orderDetail.getPrice()).skuNum(orderDetail.getSkuNum()).isDeleted(0)
-                    .status(OrderStatusEnum.NEED_CONFIRM.getCode()).totalAmt(orderDetail.getTotalAmt())
+                    .price(skuPrice).skuNum(orderDetail.getSkuNum()).isDeleted(0)
+                    .status(OrderStatusEnum.NEED_CONFIRM.getCode()).totalAmt(amt.toString())
                     .ctime(LocalDateTime.now()).creator(TtlUtils.getSPCtx().getUserId()).currency(TtlUtils.getSPCtx().getCurrency()).build();
             buyOrderDetailEntityList.add(orderDetailEntity);
             //校验库存是否满足
-            BuySkuEntity buySkuEntity = skuMap.get(orderDetail.getSkuId());
             if (Long.parseLong(buySkuEntity.getStock())<orderDetail.getSkuNum()) {
                 throw new BusinessException(9999, "【" + buySkuEntity.getSkuName() + "】" + "库存不足");
             }
@@ -97,7 +110,9 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             if (!b) {
                 throw new BusinessException(9999, "【" + buySkuEntity.getSkuName() + "】" + "库存不足");
             }
+            orderAmt=amt.add(orderAmt);
         }
+        buyOrder.setOrderAmt(orderAmt.toString());
         //更新库存
         save(buyOrder);
         buyOrderDetailService.saveBatch(buyOrderDetailEntityList);
