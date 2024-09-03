@@ -105,9 +105,6 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
         if(Objects.isNull(user)){
             throw  new BusinessException(ServerCodeEnum.NO_ACCOUNT);
         }
-        if(StringUtils.isEmpty(loginInfoReq.getPassword())||!loginInfoReq.getPassword().equals(user.getPwd())){
-            throw  new BusinessException(ServerCodeEnum.PWD_ERROR);
-        }
         user.setLstLoginTime(LocalDateTime.now());
         user.setPwd(loginInfoReq.getPassword());
         user.setStatus(UserStatusEnum.CREATE.getCode());
