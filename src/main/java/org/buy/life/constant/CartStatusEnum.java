@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum CartStatusEnum {
-    REMOVED("REMOVED", "已提交"),
+    REMOVED("REMOVED", "{\"zh_cn\": \"已提交\",\"en\": \"submitted\",\"es\": \"Presentado\",\"fr\": \"Soumis\",\"de\": \"Eingereicht\"}"),
 
-    JOINED("JOINED", "已添加");
+    JOINED("JOINED", "{\"zh_cn\": \"已添加\",\"en\": \"added\",\"es\": \"Se ha añadido\",\"fr\": \"A été ajouté\",\"de\": \"Hinzugefügt\"}");
     /**
      * 后端code
      */
