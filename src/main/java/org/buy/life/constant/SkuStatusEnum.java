@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Getter
 public enum SkuStatusEnum {
-    REMOVED("REMOVED", "已下架"),
+    REMOVED("REMOVED", "{\"zh_cn\": \"已下架\",\"en\": \"Removed\",\"es\": \"Ha sido retirado de los estantes\",\"fr\": \"Est descendu de l'étagère\",\"de\": \"Entfernt\"}"),
 
-    LISTED("LISTED", "已上架");
+    LISTED("LISTED", "{\"zh_cn\": \"已上架\",\"en\": \"Already listed\",\"es\": \"En los estantes\",\"fr\": \"Déjà sur les étagères\",\"de\": \"Bereits aufgeführt\"}");
     /**
      * 后端code
      */

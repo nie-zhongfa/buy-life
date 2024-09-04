@@ -69,10 +69,11 @@ public class BuyLifeFilter implements Filter {
         } catch (Exception e) {
             log.error("get mdc buyTraceId fail", e);
         }
+        //buySku/skuList
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
         if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
                 request.getRequestURI().contains("/buyUser/create")||request.getRequestURI().contains("/buySkuDict/dict")
-                ||request.getRequestURI().contains("/buyUser/resendPwd")){
+                ||request.getRequestURI().contains("/buyUser/resendPwd")||request.getRequestURI().contains("/buySku/skuList")){
             filterChain.doFilter(request, response);
         }else {
             try {

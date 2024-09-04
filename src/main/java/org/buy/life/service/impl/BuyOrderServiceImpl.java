@@ -24,10 +24,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -179,7 +176,8 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             buyOrderDetailResp.setOrderDetails(orderDetails1);
             buyOrderDetailResps.add(buyOrderDetailResp);
         }
-        return buyOrderDetailResps;
+        List<BuyOrderDetailResp> collect = buyOrderDetailResps.stream().sorted(Comparator.comparing(BuyOrderDetailResp::getSubmitTime).reversed()).collect(Collectors.toList());
+        return collect;
     }
 
 
