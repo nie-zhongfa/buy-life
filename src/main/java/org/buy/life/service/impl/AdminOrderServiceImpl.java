@@ -391,6 +391,9 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             if (newOrder == null) {
                 continue;
             }
+            if (StringUtils.isBlank(newOrder.getSkuId())) {
+                continue;
+            }
             BuyOrderDetailEntity oldOrderEntity = orderDetailMap.get(newOrder.getSkuId());
             //过滤数量为0的数据
             if (newOrder.getSkuNum() == 0 && oldOrderEntity == null) {
