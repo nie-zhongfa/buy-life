@@ -116,7 +116,7 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
         }
         user.setLstLoginTime(LocalDateTime.now());
         user.setPwd(loginInfoReq.getPassword());
-        user.setStatus(UserStatusEnum.CREATE.getCode());
+        //user.setStatus(UserStatusEnum.CREATE.getCode());
         updateById(user);
         return user;
     }
