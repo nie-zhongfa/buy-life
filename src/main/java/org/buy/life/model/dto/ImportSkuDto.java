@@ -28,23 +28,23 @@ public class ImportSkuDto {
     private String skuTypeZh_cn;
     @ExcelProperty(value = "人物款式英文",index = 4)
     private String skuTypeEn;
-    @ExcelProperty(value = "人物款式西班牙语",index = 5)
-    private String skuTypeEs;
-    @ExcelProperty(value = "人物款式法语",index = 6)
-    private String skuTypeFr;
-    @ExcelProperty(value = "人物款式德语",index = 7)
-    private String skuTypeDe;
+//    @ExcelProperty(value = "人物款式西班牙语",index = 5)
+//    private String skuTypeEs;
+//    @ExcelProperty(value = "人物款式法语",index = 6)
+//    private String skuTypeFr;
+//    @ExcelProperty(value = "人物款式德语",index = 7)
+//    private String skuTypeDe;
 
     @ExcelProperty(value = "商品名称中文",index = 8)
     private String skuNameZh_cn;
     @ExcelProperty(value = "商品名称英文",index = 9)
     private String skuNameEn;
-    @ExcelProperty(value = "商品名称西班牙语",index = 10)
-    private String skuNameEs;
-    @ExcelProperty(value = "商品名称法语",index = 11)
-    private String skuNameFr;
-    @ExcelProperty(value = "商品名称德语",index = 12)
-    private String skuNameDe;
+//    @ExcelProperty(value = "商品名称西班牙语",index = 10)
+//    private String skuNameEs;
+//    @ExcelProperty(value = "商品名称法语",index = 11)
+//    private String skuNameFr;
+//    @ExcelProperty(value = "商品名称德语",index = 12)
+//    private String skuNameDe;
 
     @ExcelProperty(value = "成本价",index = 13)
     private String costPrice;

@@ -41,8 +41,8 @@ public class SkuName
     public static void buildSkuNameList(ImportSkuDto importSkuDto, List<SkuName> skuNames) {
         SkuName.buildSkuName(importSkuDto.getSkuNameZh_cn(), LangEnum.ZH_CN.getCode(), skuNames);
         SkuName.buildSkuName(importSkuDto.getSkuNameEn(), LangEnum.EN.getCode(), skuNames);
-        SkuName.buildSkuName(importSkuDto.getSkuNameEs(), LangEnum.ES.getCode(), skuNames);
-        SkuName.buildSkuName(importSkuDto.getSkuNameFr(), LangEnum.FR.getCode(), skuNames);
-        SkuName.buildSkuName(importSkuDto.getSkuNameDe(), LangEnum.DE.getCode(), skuNames);
+//        SkuName.buildSkuName(importSkuDto.getSkuNameEs(), LangEnum.ES.getCode(), skuNames);
+//        SkuName.buildSkuName(importSkuDto.getSkuNameFr(), LangEnum.FR.getCode(), skuNames);
+//        SkuName.buildSkuName(importSkuDto.getSkuNameDe(), LangEnum.DE.getCode(), skuNames);
     }
 }

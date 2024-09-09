@@ -40,9 +40,9 @@ public class SkuType
     public static void buildSkuTypeList(ImportSkuDto importSkuDto, List<SkuType> skuTypes) {
         SkuType.buildSkuType(importSkuDto.getSkuTypeZh_cn(), LangEnum.ZH_CN.getCode(), skuTypes);
         SkuType.buildSkuType(importSkuDto.getSkuTypeEn(), LangEnum.EN.getCode(), skuTypes);
-        SkuType.buildSkuType(importSkuDto.getSkuTypeEs(), LangEnum.ES.getCode(), skuTypes);
-        SkuType.buildSkuType(importSkuDto.getSkuTypeFr(), LangEnum.FR.getCode(), skuTypes);
-        SkuType.buildSkuType(importSkuDto.getSkuTypeDe(), LangEnum.DE.getCode(), skuTypes);
+//        SkuType.buildSkuType(importSkuDto.getSkuTypeEs(), LangEnum.ES.getCode(), skuTypes);
+//        SkuType.buildSkuType(importSkuDto.getSkuTypeFr(), LangEnum.FR.getCode(), skuTypes);
+//        SkuType.buildSkuType(importSkuDto.getSkuTypeDe(), LangEnum.DE.getCode(), skuTypes);
     }
 
 

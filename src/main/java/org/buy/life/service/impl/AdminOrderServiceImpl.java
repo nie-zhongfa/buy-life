@@ -217,13 +217,14 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             list.add(entity);
         });
         if (!CollectionUtils.isEmpty(list)) {
+            //保存变更前订单记录
+            List<BuyOrderDetailEntity> detailEntities = BeanUtil.copyToList(updateOrderDetailRequest, BuyOrderDetailEntity.class);
+            saveChangeLog(updateOrderDetailRequest.get(0).getOrderId(), detailEntities, orderDetailMap);
+            //保存或更新订单明细
             buyOrderDetailService.updateBatchById(list);
             //更新订单总金额
             updateOrderAmt(updateOrderDetailRequest.get(0).getOrderId());
         }
-        //保存变更前订单记录
-        List<BuyOrderDetailEntity> detailEntities = BeanUtil.copyToList(updateOrderDetailRequest, BuyOrderDetailEntity.class);
-        saveChangeLog(updateOrderDetailRequest.get(0).getOrderId(), detailEntities, orderDetailMap);
     }
 
     @Override
@@ -293,6 +294,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         //保存变更前订单记录
         List<BuyOrderDetailEntity> detailEntities = BeanUtil.copyToList(doReadSync, BuyOrderDetailEntity.class);
         saveChangeLog(orderIds.get(0), detailEntities, orderDetailMap);
+        //保存或更新订单明细
         buyOrderDetailService.saveOrUpdateBatch(entities);
         //更新订单总金额
         updateOrderAmt(orderIds.get(0));
