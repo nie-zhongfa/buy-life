@@ -25,14 +25,5 @@ public class ImportCategoryDto {
     @ExcelProperty(value = "英文",index = 3)
     private String en;
 
-    @ExcelProperty(value = "西班牙语",index = 4)
-    private String es;
-
-    @ExcelProperty(value = "法语",index = 5)
-    private String fr;
-
-    @ExcelProperty(value = "德语",index = 6)
-    private String de;
-
 
 }

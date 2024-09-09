@@ -12,22 +12,6 @@ import lombok.Data;
 @Data
 public class ImportOrderDto {
 
-//    @ExcelProperty(value = "订单号",index = 0)
-//    private String orderId;
-//
-//    @ExcelProperty(value = "商品编码",index = 1)
-//    private String skuId;
-//
-//    @ExcelProperty(value = "零售价", index = 2)
-//    private String price;
-//
-//    @ExcelProperty(value = "币种", index = 3)
-//    private String currency;
-//
-//    @ExcelProperty(value = "数量",index = 4)
-//    private Long skuNum;
-
-
     /**
      * 订单号
      */

@@ -185,9 +185,6 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             for (ImportCategoryDto categoryDto : doReadSync) {
                 buildCategory(list, LangEnum.ZH_CN.getCode(), categoryDto.getZh_cn(), categoryDto, skuDictMap);
                 buildCategory(list, LangEnum.EN.getCode(), categoryDto.getEn(), categoryDto, skuDictMap);
-                buildCategory(list, LangEnum.ES.getCode(), categoryDto.getEs(), categoryDto, skuDictMap);
-                buildCategory(list, LangEnum.FR.getCode(), categoryDto.getFr(), categoryDto, skuDictMap);
-                buildCategory(list, LangEnum.DE.getCode(), categoryDto.getDe(), categoryDto, skuDictMap);
             }
             buySkuDictService.saveOrUpdateBatch(list);
         } catch (Exception ex) {
