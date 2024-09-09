@@ -180,7 +180,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 return;
             }
             List<BuySkuDictEntity> skuDictList = buySkuDictService.getSkuDictList();
-            Map<String, BuySkuDictEntity> skuDictMap = skuDictList.stream().collect(Collectors.toMap(BuySkuDictEntity::getCode, contract -> contract, (a, b) -> a));
+            Map<String, List<BuySkuDictEntity>> skuDictMap = skuDictList.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
             List<BuySkuDictEntity> list = new ArrayList<>();
             for (ImportCategoryDto categoryDto : doReadSync) {
                 buildCategory(list, LangEnum.ZH_CN.getCode(), categoryDto.getZh_cn(), categoryDto, skuDictMap);
@@ -205,18 +205,21 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                                            String lang,
                                            String skuCategory,
                                            ImportCategoryDto categoryDto,
-                                           Map<String, BuySkuDictEntity> skuDictMap) {
+                                           Map<String, List<BuySkuDictEntity>> skuDictMap) {
         BuySkuDictEntity buySkuDictEntity = new BuySkuDictEntity();
         buySkuDictEntity.setCode(categoryDto.getCategoryCode().trim());
         buySkuDictEntity.setSkuCategory(skuCategory.trim());
         buySkuDictEntity.setLang(lang);
-        buySkuDictEntity.setTitle(ClassificationEnum.getCodeByDesc(categoryDto.getIp().trim()));
+        buySkuDictEntity.setTitle(categoryDto.getIp().trim());
         buySkuDictEntity.setCreator(CurrentAdminUser.getUserId());
         buySkuDictEntity.setUpdater(CurrentAdminUser.getUserId());
-        BuySkuDictEntity entity = skuDictMap.get(categoryDto.getCategoryCode().trim());
+        List<BuySkuDictEntity> entity = skuDictMap.get(categoryDto.getCategoryCode().trim());
         if (entity != null) {
-            buySkuDictEntity.setId(entity.getId());
-            buySkuDictEntity.setCreator(entity.getCreator());
+            List<BuySkuDictEntity> dictEntities = entity.stream().filter(e -> e.getLang().equals(lang)).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(dictEntities)) {
+                buySkuDictEntity.setId(dictEntities.get(0).getId());
+                buySkuDictEntity.setCreator(dictEntities.get(0).getCreator());
+            }
         }
         list.add(buySkuDictEntity);
     }
