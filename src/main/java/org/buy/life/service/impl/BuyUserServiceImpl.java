@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.buy.life.constant.UserStatusEnum;
+import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.BuyUserEntity;
 import org.buy.life.entity.req.BuyUserReq;
 import org.buy.life.entity.req.LoginInfoReq;
@@ -73,6 +74,14 @@ public class BuyUserServiceImpl extends ServiceImpl<BuyUserMapper, BuyUserEntity
 
     @Override
     public  void create(BuyUserReq buyUserReq){
+        LambdaQueryWrapper<BuyUserEntity> queryWrapper=new QueryWrapper<BuyUserEntity>().lambda();
+        queryWrapper.eq(BuyUserEntity::getIsDeleted,0).and(StringUtils.isNoneBlank(buyUserReq.getMail()),
+                r->r.eq(BuyUserEntity::getMail,buyUserReq.getMail()).
+                or().eq(BuyUserEntity::getCompanyName,buyUserReq.getCompanyName()));
+        List<BuyUserEntity> users = list(queryWrapper);
+        if(!CollectionUtils.isEmpty(users)){
+            throw  new BusinessException(ServerCodeEnum.MAIL_COMPANY_REPEAT);
+        }
         BuyUserEntity buyUser = BeanCopiesUtils.copy(buyUserReq, BuyUserEntity.class);
         buyUser.setUserId(random()+"");
         buyUser.setPwd(randomPwd(8));

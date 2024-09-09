@@ -39,7 +39,7 @@ public enum ServerCodeEnum {
     PASSWORD_IS_NULL(2050, "密码不能为空"),
     USERNAME_OR_PWD_IS_VAIL(2051, "用户名或密码错误"),
     NO_CURRENCY(2052, "未配置该区域的币种"),
-
+    MAIL_COMPANY_REPEAT(2053,"邮箱或公司名称重复"),
     ;
     private Integer code;
     private String msg;

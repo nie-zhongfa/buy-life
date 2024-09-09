@@ -37,7 +37,7 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
             wrapper.eq(BuySkuEntity::getIsDeleted,0).in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED));
         }else {
             wrapper.eq(BuySkuEntity::getIsDeleted,0)
-                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getClassification()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getClassification())
+                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getClassification()),BuySkuEntity::getClassification,buySkuReq.getCondition().getClassification())
                     .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuCategory()),BuySkuEntity::getSkuCategory,buySkuReq.getCondition().getSkuCategory())
                     .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSkuType()),BuySkuEntity::getSkuType,buySkuReq.getCondition().getSkuType())
                     .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED))
