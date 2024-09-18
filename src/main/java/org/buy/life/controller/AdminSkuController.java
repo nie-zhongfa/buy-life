@@ -68,7 +68,7 @@ public class AdminSkuController {
      * @return
      */
     @PostMapping("/upAndSownSku")
-    public JSONData<Boolean> UpAndSownShelves(@RequestBody UpAndDownSkuRequest upAndDownSkuRequest) {
+    public JSONData<Boolean> upAndSownSku(@RequestBody UpAndDownSkuRequest upAndDownSkuRequest) {
         adminSkuService.upAndSownShelves(upAndDownSkuRequest);
         return JSONData.success(true);
     }
