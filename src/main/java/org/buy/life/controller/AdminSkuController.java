@@ -7,13 +7,11 @@ import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.utils.JSONData;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @menu 商品管理
@@ -73,5 +71,25 @@ public class AdminSkuController {
     public JSONData<Boolean> UpAndSownShelves(@RequestBody UpAndDownSkuRequest upAndDownSkuRequest) {
         adminSkuService.upAndSownShelves(upAndDownSkuRequest);
         return JSONData.success(true);
+    }
+
+    /**
+     * 下载商品导入模版
+     *
+     * @return
+     */
+    @GetMapping("/downloadSkuTemplate")
+    public void downloadSkuTemplate(HttpServletResponse response) {
+        adminSkuService.downloadSkuTemplate(response);
+    }
+
+    /**
+     * 下载品类导入模版
+     *
+     * @return
+     */
+    @GetMapping("/downloadCategoryTemplate")
+    public void downloadCategoryTemplate(HttpServletResponse response) {
+        adminSkuService.downloadCategoryTemplate(response);
     }
 }

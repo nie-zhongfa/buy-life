@@ -8,6 +8,7 @@ import org.buy.life.model.request.UpAndDownSkuRequest;
 import org.buy.life.model.response.AdminSkuResponse;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -31,4 +32,8 @@ public interface IAdminSkuService extends IService<BuySkuEntity> {
     void importCategory(MultipartFile file);
 
     void upAndSownShelves(UpAndDownSkuRequest upAndDownSkuRequest);
+
+    void downloadSkuTemplate(HttpServletResponse response);
+
+    void downloadCategoryTemplate(HttpServletResponse response);
 }

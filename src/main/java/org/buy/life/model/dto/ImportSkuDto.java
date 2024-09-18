@@ -2,7 +2,10 @@ package org.buy.life.model.dto;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.InputStream;
 
@@ -13,6 +16,9 @@ import java.io.InputStream;
  * I am a code man ^_^ !!
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImportSkuDto {
 
     @ExcelProperty(value = "商品编码",index = 0)

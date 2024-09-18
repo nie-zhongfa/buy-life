@@ -1,7 +1,10 @@
 package org.buy.life.model.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -11,6 +14,9 @@ import lombok.Data;
  * I am a code man ^_^ !!
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImportCategoryDto {
 
     @ExcelProperty(value = "品类编码",index = 0)
