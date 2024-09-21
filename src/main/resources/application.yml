@@ -17,9 +17,9 @@ spring:
         min-idle: 0 #jedis最小等待连接数
 
   datasource:
-    url: jdbc:mysql://101.132.155.114:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
+    url: jdbc:mysql://44.229.246.124:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
     username: root
-    password: xiguatianbutian
+    password: Yeyayo@1234
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 数据库访问配置, 使用druid数据源(默认数据源是HikariDataSource)
     type: com.alibaba.druid.pool.DruidDataSource
@@ -107,5 +107,5 @@ logging:
   config: classpath:logback.xml
 fdfs:
   tracker-list:
-    - 101.132.155.114:22122
-  fileUrl: 101.132.155.114:8888
+    - 35.161.90.21:22122
+  fileUrl: 35.161.90.21:80
