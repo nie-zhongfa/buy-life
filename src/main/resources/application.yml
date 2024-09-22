@@ -108,4 +108,4 @@ logging:
 fdfs:
   tracker-list:
     - 35.161.90.21:22122
-  fileUrl: 35.161.90.21:80
+  fileUrl: ec2-35-161-90-21.us-west-2.compute.amazonaws.com:80
