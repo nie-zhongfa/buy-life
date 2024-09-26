@@ -38,7 +38,7 @@ public enum ServerCodeEnum {
     USERNAME_IS_NULL(2050, "用户名不能为空"),
     PASSWORD_IS_NULL(2050, "密码不能为空"),
     USERNAME_OR_PWD_IS_VAIL(2051, "用户名或密码错误"),
-    NO_CURRENCY(2052, "未配置该区域的币种"),
+    NO_CURRENCY(2052, "用户信息未完善，请联系客服完成注册"),
     MAIL_COMPANY_REPEAT(2053,"邮箱或公司名称重复"),
     ;
     private Integer code;
