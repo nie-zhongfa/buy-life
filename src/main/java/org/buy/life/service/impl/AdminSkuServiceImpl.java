@@ -209,7 +209,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     public void downloadSkuTemplate(HttpServletResponse response) {
         ImportSkuDto importSkuDto = ImportSkuDto.builder()
                 .skuId("6976068148784")
-                .classification("star_rail、genshin_impact、zenless_zone_zero(选择其中一个)")
+                .classification("star_rail、genshin_impact、zenless_zone_zero、tears_of_themis(选择其中一个)")
                 .skuCategory("2007(需提前导入品类，传品类编码)")
                 .skuTypeZh_cn("多人")
                 .skuTypeEn("Multiple people")
@@ -230,7 +230,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     public void downloadCategoryTemplate(HttpServletResponse response) {
         ImportCategoryDto categoryDto = ImportCategoryDto.builder()
                 .categoryCode("1001")
-                .ip("star_rail、genshin_impact、zenless_zone_zero(选择其中一个)")
+                .ip("star_rail、genshin_impact、zenless_zone_zero、tears_of_themis(选择其中一个)")
                 .zh_cn("金属徽章/相卡")
                 .en("Badges/Photo Cards")
                 .build();
