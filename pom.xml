@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.buy</groupId>
     <artifactId>buy-life</artifactId>
-    <version>0.0.1.1-SNAPSHOT</version>
+    <version>0.0.1.2-SNAPSHOT</version>
     <name>buy-life</name>
     <packaging>jar</packaging>
     <description>project for Spring Boot</description>

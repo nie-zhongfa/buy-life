@@ -16,10 +16,10 @@ public enum ClassificationEnum {
     /**
      * 分类：genshin_impact、star_rail、zenless_zone_zero
      */
-    GENSHIN_IMPACT("genshin_impact", "{\"zh_cn\": \"原神\",\"en\": \"GenshinImpact\",\"es\": \"原神\",\"fr\": \"原神\",\"de\": \"原神\"}"),
-    STAR_RAIL("star_rail", "{\"zh_cn\": \"崩坏星穹铁道\",\"en\": \"Honkai:StarRail\",\"es\": \"崩坏星穹铁道\",\"fr\": \"崩坏星穹铁道\",\"de\": \"崩坏星穹铁道\"}"),
-    ZENLESS_ZONE_ZERO("zenless_zone_zero", "{\"zh_cn\": \"绝区零\",\"en\": \"ZenlessZoneZero\",\"es\": \"绝区零\",\"fr\": \"绝区零\",\"de\": \"绝区零\"}"),
-    tears_of_themis("tears_of_themis", "{\"zh_cn\": \"未定事件簿\",\"en\": \"TearsOfThemis\",\"es\": \"未定事件簿\",\"fr\": \"未定事件簿\",\"de\": \"未定事件簿\"}");
+    GENSHIN_IMPACT("genshin_impact", "{\"zh_cn\": \"原神\",\"en\": \"Genshin Impact\",\"es\": \"原神\",\"fr\": \"原神\",\"de\": \"原神\"}"),
+    STAR_RAIL("star_rail", "{\"zh_cn\": \"崩坏星穹铁道\",\"en\": \"Honkai:Star Rail\",\"es\": \"崩坏星穹铁道\",\"fr\": \"崩坏星穹铁道\",\"de\": \"崩坏星穹铁道\"}"),
+    ZENLESS_ZONE_ZERO("zenless_zone_zero", "{\"zh_cn\": \"绝区零\",\"en\": \"Zenless Zone Zero\",\"es\": \"绝区零\",\"fr\": \"绝区零\",\"de\": \"绝区零\"}"),
+    tears_of_themis("tears_of_themis", "{\"zh_cn\": \"未定事件簿\",\"en\": \"Tears Of Themis\",\"es\": \"未定事件簿\",\"fr\": \"未定事件簿\",\"de\": \"未定事件簿\"}");
 
     private final String code;
     private final String desc;
