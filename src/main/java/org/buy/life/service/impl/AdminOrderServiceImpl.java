@@ -174,11 +174,20 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
 
     @Override
     public void addRemark(AddOrderRemarkRequest addOrderRemarkRequest) {
-        lambdaUpdate()
-                .set(StringUtils.isNotBlank(addOrderRemarkRequest.getAdminRemark()), BuyOrderEntity::getAdminRemark, addOrderRemarkRequest.getAdminRemark())
-                .set(BuyOrderEntity::getUpdater, CurrentAdminUser.getUserId())
-                .eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId())
-                .update();
+        List<BuyOrderEntity> list = lambdaQuery().eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId()).list();
+        if (!CollectionUtils.isEmpty(list) && StringUtils.isNotBlank(addOrderRemarkRequest.getAdminRemark())) {
+            BuyOrderEntity buyOrderEntity = list.get(0);
+            String remark = addOrderRemarkRequest.getAdminRemark();
+            if (StringUtils.isNotBlank(buyOrderEntity.getAdminRemark())) {
+                remark = buyOrderEntity.getAdminRemark() + "; 【追加】" +addOrderRemarkRequest.getAdminRemark();
+            }
+            lambdaUpdate()
+                    .set(BuyOrderEntity::getAdminRemark, remark)
+                    .set(BuyOrderEntity::getUpdater, CurrentAdminUser.getUserId())
+                    .eq(BuyOrderEntity::getOrderId, addOrderRemarkRequest.getOrderId())
+                    .update();
+        }
+
     }
 
     @Override

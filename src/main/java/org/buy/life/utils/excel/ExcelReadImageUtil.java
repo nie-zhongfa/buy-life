@@ -37,37 +37,47 @@ public class ExcelReadImageUtil {
                     XSSFDrawing drawing = (XSSFDrawing) part;
                     List<XSSFShape> shapes = drawing.getShapes();
                     for (XSSFShape shape : shapes) {
-                        XSSFPicture picture = (XSSFPicture) shape;
-                        XSSFClientAnchor anchor = picture.getPreferredSize();
-                        CTMarker marker = anchor.getFrom();
-                        int row = marker.getRow();
-//                        int col = marker.getCol();
-                        // 从第2行开始
-                        if (row > 0 && row <= size) {
-                            PictureData pictureData = picture.getPictureData();
+                        try {
+                            XSSFPicture picture = (XSSFPicture) shape;
+                            XSSFClientAnchor anchor = picture.getPreferredSize();
+                            CTMarker marker = anchor.getFrom();
+                            int row = marker.getRow();
+                            // 从第2行开始
+                            if (row > 0 && row <= size) {
+                                log.info("开始执行第【{}】行数据", row);
+                                PictureData pictureData = picture.getPictureData();
 
-                            int pictureType = pictureData.getPictureType();
-                            org.apache.poi.sl.usermodel.PictureData.PictureType pictureTypeEum = org.apache.poi.sl.usermodel.PictureData.PictureType.forNativeID(pictureType);
+                                int pictureType = pictureData.getPictureType();
+                                org.apache.poi.sl.usermodel.PictureData.PictureType pictureTypeEum = org.apache.poi.sl.usermodel.PictureData.PictureType.forNativeID(pictureType);
 
-                            byte[] bytes = pictureData.getData();
-                            InputStream imageInputStream = new ByteArrayInputStream(bytes);
-                            T item = list.get(row - 1);
-                            Field[] fields = item.getClass().getDeclaredFields();
-                            for (Field field : fields) {
-                                if (field.isAnnotationPresent(ExcelSuffixProperty.class)) {
-                                    field.setAccessible(true);
-                                    field.set(item, pictureTypeEum.extension);
-                                }
-                                if (field.isAnnotationPresent(ExcelImageProperty.class)) {
-                                    field.setAccessible(true);
-                                    field.set(item, imageInputStream);
+                                byte[] bytes = pictureData.getData();
+                                InputStream imageInputStream = new ByteArrayInputStream(bytes);
+                                T item = list.get(row - 1);
+                                Field[] fields = item.getClass().getDeclaredFields();
+                                for (Field field : fields) {
+                                    String name = field.getName();
+                                    if (name.equals("skuId")) {
+                                        field.setAccessible(true);
+                                        log.info("skuId>>>>> {}", field.get(item));
+                                    }
+                                    if (field.isAnnotationPresent(ExcelSuffixProperty.class)) {
+                                        field.setAccessible(true);
+                                        field.set(item, pictureTypeEum.extension);
+                                    }
+                                    if (field.isAnnotationPresent(ExcelImageProperty.class)) {
+                                        field.setAccessible(true);
+                                        field.set(item, imageInputStream);
+                                    }
                                 }
                             }
+                        } catch (Exception ex) {
+                            log.error("图片文件读取失败", ex);
                         }
+
                     }
                 }
             }
-        } catch (IOException | IllegalAccessException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             log.error("read image error",e);
         }

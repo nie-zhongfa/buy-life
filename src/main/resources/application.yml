@@ -20,6 +20,9 @@ spring:
     url: jdbc:mysql://44.229.246.124:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
     username: root
     password: Yeyayo@1234
+#    url: jdbc:mysql://101.132.155.114:3306/buy_life?useUnicode=true&useSSL=false&charset=utf8mb4&serverTimezone=GMT%2b8
+#    username: root
+#    password: xiguatianbutian
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 数据库访问配置, 使用druid数据源(默认数据源是HikariDataSource)
     type: com.alibaba.druid.pool.DruidDataSource

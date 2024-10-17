@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.service.IAdminFileService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;

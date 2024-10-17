@@ -1,11 +1,13 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.buy.life.constant.SkuStatusEnum;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
@@ -24,11 +26,17 @@ import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminFileService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.service.IBuySkuDictService;
+import org.buy.life.service.excel.ReadSkuImageUtil;
+import org.buy.life.service.excel.SkuDataListener;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.buy.life.utils.excel.ExcelUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -39,6 +47,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -55,9 +66,11 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     private IAdminFileService adminFileService;
     @Resource
     private IBuySkuDictService buySkuDictService;
-
     @Resource
     private BuySkuMapper buySkuMapper;
+    @Autowired
+    @Qualifier("thirdThreadPoolExecutor")
+    private ThreadPoolTaskExecutor thirdThreadPoolExecutor;
 
     @Override
     public SimplePage<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
@@ -92,41 +105,50 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
     @Override
     public void importSku(MultipartFile file) {
+        log.info("开始导入商品信息， 文件大小：{}", file.getSize() / (1024.0 * 1024.0) + "M");
         try {
             InputStream inputStream = file.getInputStream();
             List<ImportSkuDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportSkuDto.class).sheet().doReadSync();
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySkuEntity> buySkuEntities = new ArrayList<>();
-
+            CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSkuDto importSkuDto : doReadSync) {
-                String fileUrl = uploadSkuImg(importSkuDto);
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        //上传图片
+                        String fileUrl = uploadSkuImg(importSkuDto);
 
-                List<SkuPrice> prices = new ArrayList<>();
-                SkuPrice.buildPriceList(importSkuDto, prices);
+                        List<SkuPrice> prices = new ArrayList<>();
+                        SkuPrice.buildPriceList(importSkuDto, prices);
 
-                List<SkuType> skuTypes = new ArrayList<>();
-                SkuType.buildSkuTypeList(importSkuDto, skuTypes);
+                        List<SkuType> skuTypes = new ArrayList<>();
+                        SkuType.buildSkuTypeList(importSkuDto, skuTypes);
 
-                List<SkuName> skuNames = new ArrayList<>();
-                SkuName.buildSkuNameList(importSkuDto, skuNames);
+                        List<SkuName> skuNames = new ArrayList<>();
+                        SkuName.buildSkuNameList(importSkuDto, skuNames);
 
-                BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
-                buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
-                buySkuEntity.setPrice(JSON.toJSONString(prices));
-                buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
-                buySkuEntity.setBatchKey(fileUrl);
-                buySkuEntity.setStatus(importSkuDto.getSkuStatus());
-                buySkuEntity.setCreator(CurrentAdminUser.getUserId());
-                buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
-                buySkuEntity.setClassification(importSkuDto.getClassification());
+                        BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
+                        buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
+                        buySkuEntity.setPrice(JSON.toJSONString(prices));
+                        buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
+                        buySkuEntity.setBatchKey(fileUrl);
+                        buySkuEntity.setStatus(importSkuDto.getSkuStatus());
+                        buySkuEntity.setCreator(CurrentAdminUser.getUserId());
+                        buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
+                        buySkuEntity.setClassification(importSkuDto.getClassification());
 
-                List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
-                if (!CollectionUtils.isEmpty(list)) {
-                    buySkuEntity.setId(list.get(0).getId());
-                    buySkuEntity.setCreator(list.get(0).getCreator());
-                }
-                buySkuEntities.add(buySkuEntity);
+                        List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
+                        if (!CollectionUtils.isEmpty(list)) {
+                            buySkuEntity.setId(list.get(0).getId());
+                            buySkuEntity.setCreator(list.get(0).getCreator());
+                        }
+                        buySkuEntities.add(buySkuEntity);
+                    } finally {
+                        latch.countDown();
+                    }
+                }, thirdThreadPoolExecutor);
             }
+            latch.await();
             this.saveOrUpdateBatch(buySkuEntities);
         } catch (Exception ex) {
             log.error("importSku fail", ex);
@@ -144,6 +166,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     }
 
     public String uploadSkuImg(ImportSkuDto importSkuDto) {
+        if (importSkuDto.getFile() == null) {
+            return null;
+        }
         try {
             String fileName = importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix();
             MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", importSkuDto.getFile());
