@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.CurrencyEnum;
 
@@ -20,6 +21,9 @@ public class SkuPrice {
     private String skuPrice;
 
     public static String getSkuPrice(String json, String currency) {
+        if (StringUtils.isBlank(json)) {
+            return "0.00";
+        }
         List<SkuPrice> skuPrices = JSON.parseArray(json, SkuPrice.class);
         SkuPrice skuPrice = skuPrices.stream().filter(s -> currency.equals(s.getCurrency())).findFirst().get();
         return skuPrice.getSkuPrice();
