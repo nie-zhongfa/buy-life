@@ -89,6 +89,11 @@ public class BuySkuEntity extends Model<BuySkuEntity> {
     private String price;
 
     /**
+     * 零售价
+     */
+    private String retailPrice;
+
+    /**
      * 多地区价格
      */
     private String langPrice;

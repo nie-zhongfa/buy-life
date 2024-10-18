@@ -38,17 +38,29 @@ public class AdminSkuResponse implements Serializable {
      */
     private String costPrice;
     /**
-     * 人民币零售价
+     * 人民币单价
      */
     private String priceCNY;
     /**
-     * 美元零售价
+     * 美元单价
      */
     private String priceUSD;
     /**
-     * 欧元零售价
+     * 欧元单价
      */
     private String priceEUR;
+    /**
+     * 人民币零售价
+     */
+    private String retailPriceCNY;
+    /**
+     * 美元零售价
+     */
+    private String retailPriceUSD;
+    /**
+     * 欧元零售价
+     */
+    private String retailPriceEUR;
     /**
      * 库存
      */

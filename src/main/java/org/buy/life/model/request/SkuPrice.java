@@ -40,4 +40,10 @@ public class SkuPrice {
         SkuPrice.buildPrice(importSkuDto.getPriceUSD(), CurrencyEnum.USD.getCode(), skuPrices);
         SkuPrice.buildPrice(importSkuDto.getPriceEUR(), CurrencyEnum.EUR.getCode(), skuPrices);
     }
+
+    public static void buildRetailPriceList(ImportSkuDto importSkuDto, List<SkuPrice> skuPrices) {
+        SkuPrice.buildPrice(importSkuDto.getRetailPriceCNY(), CurrencyEnum.CNY.getCode(), skuPrices);
+        SkuPrice.buildPrice(importSkuDto.getRetailPriceUSD(), CurrencyEnum.USD.getCode(), skuPrices);
+        SkuPrice.buildPrice(importSkuDto.getRetailPriceEUR(), CurrencyEnum.EUR.getCode(), skuPrices);
+    }
 }

@@ -1,24 +1,20 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.buy.life.constant.SkuStatusEnum;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuySkuMapper;
-import org.buy.life.model.dto.ExportOrderDetailInfoDto;
 import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportSkuDto;
-import org.buy.life.model.enums.ClassificationEnum;
 import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.*;
@@ -26,8 +22,6 @@ import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminFileService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.service.IBuySkuDictService;
-import org.buy.life.service.excel.ReadSkuImageUtil;
-import org.buy.life.service.excel.SkuDataListener;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.buy.life.utils.excel.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +30,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -49,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -92,9 +84,14 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 adminSkuResponse.setSkuName(skuName);
                 adminSkuResponse.setSkuCategory(r.getSkuCategory());
                 adminSkuResponse.setSkuType(skuType);
+                //单价
                 adminSkuResponse.setPriceCNY(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.CNY.getCode()));
                 adminSkuResponse.setPriceUSD(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.USD.getCode()));
                 adminSkuResponse.setPriceEUR(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.EUR.getCode()));
+                //零售价
+                adminSkuResponse.setRetailPriceCNY(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.CNY.getCode()));
+                adminSkuResponse.setRetailPriceUSD(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.USD.getCode()));
+                adminSkuResponse.setRetailPriceEUR(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.EUR.getCode()));
 
                 responses.add(adminSkuResponse);
             });
@@ -121,6 +118,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         List<SkuPrice> prices = new ArrayList<>();
                         SkuPrice.buildPriceList(importSkuDto, prices);
 
+                        List<SkuPrice> retailPrices = new ArrayList<>();
+                        SkuPrice.buildRetailPriceList(importSkuDto, retailPrices);
+
                         List<SkuType> skuTypes = new ArrayList<>();
                         SkuType.buildSkuTypeList(importSkuDto, skuTypes);
 
@@ -130,6 +130,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
                         buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
                         buySkuEntity.setPrice(JSON.toJSONString(prices));
+                        buySkuEntity.setRetailPrice(JSON.toJSONString(retailPrices));
                         buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
                         buySkuEntity.setBatchKey(fileUrl);
                         buySkuEntity.setStatus(importSkuDto.getSkuStatus());
@@ -160,6 +161,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         Page<BuySkuEntity> page = new Page<>(adminSkuRequest.getPageNum(), adminSkuRequest.getPageSize());
         return lambdaQuery()
                 .eq(BuySkuEntity::getClassification, adminSkuRequest.getClassification())
+                .eq(StringUtils.isNotBlank(adminSkuRequest.getStatus()), BuySkuEntity::getStatus, adminSkuRequest.getStatus())
                 .eq(BuySkuEntity::getIsDeleted, false)
                 .orderByDesc(BuySkuEntity::getMtime)
                 .page(page);
@@ -244,6 +246,9 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 .priceCNY("1.00")
                 .priceUSD("1.00")
                 .priceEUR("1.00")
+                .retailPriceCNY("1.00")
+                .retailPriceUSD("1.00")
+                .retailPriceEUR("1.00")
                 .file(null)
                 .stock("1000")
                 .skuStatus("LISTED、REMOVED(上架、下架选择其中一个)")
