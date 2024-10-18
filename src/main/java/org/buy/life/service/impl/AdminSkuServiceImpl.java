@@ -161,7 +161,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         Page<BuySkuEntity> page = new Page<>(adminSkuRequest.getPageNum(), adminSkuRequest.getPageSize());
         return lambdaQuery()
                 .eq(BuySkuEntity::getClassification, adminSkuRequest.getClassification())
-                .eq(StringUtils.isNotBlank(adminSkuRequest.getStatus()), BuySkuEntity::getStatus, adminSkuRequest.getStatus())
+                .in(!CollectionUtils.isEmpty(adminSkuRequest.getStatus()), BuySkuEntity::getStatus, adminSkuRequest.getStatus())
                 .eq(BuySkuEntity::getIsDeleted, false)
                 .orderByDesc(BuySkuEntity::getMtime)
                 .page(page);

@@ -3,6 +3,7 @@ package org.buy.life.model.request;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @menu TODO
@@ -18,5 +19,5 @@ public class AdminSkuRequest extends BaseRequest implements Serializable {
      */
     private String classification;
 
-    private String status;
+    private List<String> status;
 }
