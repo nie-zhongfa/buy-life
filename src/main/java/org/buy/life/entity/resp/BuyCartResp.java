@@ -48,6 +48,8 @@ public class BuyCartResp {
 
         private String price;
 
+        private String retailPrice;
+
         private String skuName;
 
         private String skuAmt;

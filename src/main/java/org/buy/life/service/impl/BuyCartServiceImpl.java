@@ -95,7 +95,9 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
             String skuAmt = new BigDecimal(price).multiply(new BigDecimal(cart.getSkuNum())).setScale(2, RoundingMode.HALF_UP) + "";
 
             BuyCartResp.CartSku build = BuyCartResp.CartSku.builder().skuId(cart.getSkuId())
-                    .stock(buySkuEntity.getStock()).skuName(buySkuEntity.getSkuName()).price(buySkuEntity.getPrice())
+                    .stock(buySkuEntity.getStock()).skuName(buySkuEntity.getSkuName())
+                    .price(buySkuEntity.getPrice())
+                    .retailPrice(buySkuEntity.getRetailPrice())
                     .skuNum(cart.getSkuNum()).skuAmt(skuAmt).batchKey(buySkuEntity.getBatchKey()).skuCategory(buySkuEntity.getSkuCategory())
                     .skuType(buySkuEntity.getSkuType()).classification(buySkuEntity.getClassification())
                     .build();
