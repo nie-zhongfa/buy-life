@@ -128,6 +128,16 @@ public class BuySkuEntity extends Model<BuySkuEntity> {
      */
     private String costPrice;
 
+    /**
+     * 类别编码
+     */
+    private String categoryCode;
+
+    /**
+     * 系列编码
+     */
+    private String seriesCode;
+
     @Override
     protected Serializable pkVal() {
         return this.id;
