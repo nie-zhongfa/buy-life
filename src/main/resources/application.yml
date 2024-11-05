@@ -111,4 +111,4 @@ logging:
 fdfs:
   tracker-list:
     - 35.161.90.21:22122
-  fileUrl: ec2-35-161-90-21.us-west-2.compute.amazonaws.com:80
+  fileUrl: dz1uxl9fi3d4o.cloudfront.net
