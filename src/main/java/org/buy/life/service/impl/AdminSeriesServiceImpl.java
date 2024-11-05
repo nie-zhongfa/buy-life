@@ -103,6 +103,19 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
     }
 
     @Override
+    public List<BuySeriesEntity> getSeriesListByCode(List<String> seriesCodeList) {
+        List<BuySeriesEntity> list = lambdaQuery()
+                .in(BuySeriesEntity::getSeriesCode, seriesCodeList)
+                .eq(BuySeriesEntity::getIsDeleted, false)
+                .orderByDesc(BuySeriesEntity::getMtime)
+                .list();
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+        return list;
+    }
+
+    @Override
     public void importSeriesInfo(MultipartFile file) {
         try {
             InputStream inputStream = file.getInputStream();
