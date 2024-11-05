@@ -28,9 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Enumeration;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @Author: kavin
@@ -71,6 +69,11 @@ public class BuyLifeFilter implements Filter {
         }
         //buySku/skuList
         log.info("buyTraceId doFilter url is {}", request.getRequestURL());
+        // 检查是否是swagger相关路径
+        if (isSwaggerPath(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
                 request.getRequestURI().contains("/buyUser/create")||request.getRequestURI().contains("/buySkuDict/dict")
                 ||request.getRequestURI().contains("/buyUser/resendPwd")||request.getRequestURI().contains("/buySku/skuList")){
@@ -142,6 +145,19 @@ public class BuyLifeFilter implements Filter {
             log.info("getToken>>>>>>>>2 :{}", token);
         }
         return token;
+    }
+
+    private static final List<String> SWAGGER_URLS = Arrays.asList(
+            "/buy-life/swagger-ui.html",
+            "/buy-life/swagger-resources",
+            "/buy-life/v2/api-docs",
+            "/buy-life/webjars/springfox-swagger-ui",
+            "/buy-life/swagger-resources/configuration/ui",
+            "/buy-life/swagger-resources/configuration/security"
+    );
+
+    private boolean isSwaggerPath(String path) {
+        return SWAGGER_URLS.stream().anyMatch(path::startsWith);
     }
 }
 
