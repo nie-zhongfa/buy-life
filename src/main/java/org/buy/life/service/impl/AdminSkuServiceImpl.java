@@ -161,6 +161,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         buySkuEntity.setCreator(CurrentAdminUser.getUserId());
                         buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
                         buySkuEntity.setClassification(importSkuDto.getClassification());
+                        buySkuEntity.setSeriesCode(importSkuDto.getSeriesCode());
+                        buySkuEntity.setCategoryCode(importSkuDto.getCategoryCode());
 
                         List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                         if (!CollectionUtils.isEmpty(list)) {
