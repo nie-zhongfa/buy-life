@@ -3,6 +3,8 @@ package org.buy.life.service;
 import org.buy.life.entity.BuySeriesEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 系列 服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBuySeriesService extends IService<BuySeriesEntity> {
 
+    List<BuySeriesEntity> getSeriesList(String categoryCode);
 }

@@ -1,10 +1,13 @@
 package org.buy.life.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.buy.life.entity.BuyCategoryEntity;
 import org.buy.life.mapper.BuyCategoryMapper;
 import org.buy.life.service.IBuyCategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BuyCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, BuyCategoryEntity> implements IBuyCategoryService {
+
+    @Override
+    public List<BuyCategoryEntity> getCategoryList(String classification){
+        if(StringUtils.isNotEmpty(classification)){
+            return lambdaQuery().eq(BuyCategoryEntity::getClassification,classification).eq(BuyCategoryEntity::getIsDeleted, false).list();
+        }
+        return lambdaQuery().eq(BuyCategoryEntity::getIsDeleted, false).list();
+    }
 
 }

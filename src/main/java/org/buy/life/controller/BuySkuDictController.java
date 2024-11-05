@@ -30,7 +30,7 @@ public class BuySkuDictController {
     IBuySkuDictService buySkuDictService;
 
     @GetMapping("/dict")
-    public JSONData<BuySkuDictResp> orderList(){
+    public JSONData<BuySkuDictResp> dict(){
         return JSONData.success(buySkuDictService.getAllDict());
     }
 

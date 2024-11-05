@@ -33,8 +33,14 @@ public class BuySkuController {
     private IBuySkuService buySkuService;
 
     @PostMapping("/skuList")
-    public JSONData<SimplePage<BuySkuEntity>> doLogin(@RequestBody PageBasicReq<BuySkuReq> req){
+    public JSONData<SimplePage<BuySkuEntity>> skuList(@RequestBody PageBasicReq<BuySkuReq> req){
         return JSONData.success(buySkuService.pageList(req));
+    }
+
+
+    @PostMapping("/skuBySeriesCode")
+    public JSONData<SimplePage<BuySkuEntity>> skuBySeriesCode(@RequestBody PageBasicReq<BuySkuReq> req){
+        return JSONData.success(buySkuService.pageSeriesList(req));
     }
 
 

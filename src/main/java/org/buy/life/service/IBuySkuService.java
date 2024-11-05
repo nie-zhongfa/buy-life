@@ -17,4 +17,6 @@ import org.buy.life.entity.resp.SimplePage;
 public interface IBuySkuService extends IService<BuySkuEntity> {
 
     SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq);
+
+    SimplePage<BuySkuEntity> pageSeriesList(PageBasicReq<BuySkuReq> buySkuReq);
 }

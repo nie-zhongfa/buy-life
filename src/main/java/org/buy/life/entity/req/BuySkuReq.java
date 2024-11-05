@@ -41,4 +41,9 @@ public class BuySkuReq{
      * 主体
      */
     private String classification;
+
+    /**
+     * 系列编号
+     */
+    private String seriesCode;
 }
