@@ -4,7 +4,9 @@ import org.buy.life.entity.BuyCategoryEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminCategoryRequest;
 import org.buy.life.model.response.AdminCategoryResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -18,4 +20,8 @@ public interface IAdminCategoryService {
     SimplePage<AdminCategoryResponse> queryCategoryPage(AdminCategoryRequest adminCategoryRequest);
 
     List<BuyCategoryEntity> getCategoryListByCode(List<String> categoryCodeList);
+
+    void importCategoryInfo(MultipartFile file);
+
+    void downloadCategoryInfoTemplate(HttpServletResponse response);
 }

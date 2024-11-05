@@ -113,7 +113,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 CompletableFuture.runAsync(() -> {
                     try {
                         //上传图片
-                        String fileUrl = uploadSkuImg(importSkuDto);
+                        String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
 
                         List<SkuPrice> prices = new ArrayList<>();
                         SkuPrice.buildPriceList(importSkuDto, prices);
@@ -167,13 +167,13 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 .page(page);
     }
 
-    public String uploadSkuImg(ImportSkuDto importSkuDto) {
-        if (importSkuDto.getFile() == null) {
+    @Override
+    public String uploadImg(String fileName, InputStream file) {
+        if (file == null) {
             return null;
         }
         try {
-            String fileName = importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix();
-            MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", importSkuDto.getFile());
+            MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", file);
             return adminFileService.uploadFile(imgFile);
         } catch (IOException e) {
             log.error("上传文件失败", e);

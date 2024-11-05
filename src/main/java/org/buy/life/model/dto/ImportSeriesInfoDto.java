@@ -25,7 +25,7 @@ import java.io.InputStream;
 @AllArgsConstructor
 @HeadRowHeight(30)
 @ContentRowHeight(20)
-public class ImportCategoryInfoDto {
+public class ImportSeriesInfoDto {
 
 
     @ColumnWidth(30)
@@ -33,19 +33,23 @@ public class ImportCategoryInfoDto {
     private String ip;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "类别编码",index = 1)
+    @ExcelProperty(value = "系列编码",index = 1)
+    private String seriesCode;
+
+    @ColumnWidth(30)
+    @ExcelProperty(value = "类别编码",index = 2)
     private String categoryCode;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "中文",index = 2)
+    @ExcelProperty(value = "中文",index = 3)
     private String zh_cn;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "英文",index = 3)
+    @ExcelProperty(value = "英文",index = 4)
     private String en;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "封面",index = 4)
+    @ExcelProperty(value = "封面",index = 5)
     @ExcelImageProperty(value = "表明这是一个图片字段")
     private InputStream file;
 

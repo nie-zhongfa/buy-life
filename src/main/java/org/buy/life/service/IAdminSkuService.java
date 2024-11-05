@@ -9,6 +9,7 @@ import org.buy.life.model.response.AdminSkuResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -36,4 +37,6 @@ public interface IAdminSkuService extends IService<BuySkuEntity> {
     void downloadSkuTemplate(HttpServletResponse response);
 
     void downloadCategoryTemplate(HttpServletResponse response);
+
+    String uploadImg(String fileName, InputStream file);
 }

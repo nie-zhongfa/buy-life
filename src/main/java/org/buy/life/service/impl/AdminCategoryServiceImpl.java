@@ -6,25 +6,27 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.entity.BuyCategoryEntity;
-import org.buy.life.entity.BuySkuDictEntity;
-import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuyCategoryMapper;
 import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportCategoryInfoDto;
-import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminCategoryResponse;
-import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminCategoryService;
-import org.buy.life.service.IBuyCategoryService;
+import org.buy.life.service.IAdminSkuService;
+import org.buy.life.utils.excel.ExcelReadImageUtil;
+import org.buy.life.utils.excel.ExcelUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +42,8 @@ import java.util.stream.Collectors;
 @Service
 public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, BuyCategoryEntity> implements IAdminCategoryService {
 
+    @Resource
+    private IAdminSkuService iAdminSkuService;
 
     /**
      * 查询类别列表
@@ -89,39 +93,55 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
                 .page(page);
     }
 
+    @Override
     public void importCategoryInfo(MultipartFile file) {
         try {
+            InputStream inputStream = file.getInputStream();
             List<ImportCategoryInfoDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportCategoryInfoDto.class).sheet().doReadSync();
             if (CollectionUtils.isEmpty(doReadSync)) {
                 return;
             }
+            ExcelReadImageUtil.readImage(inputStream, doReadSync);
 
             List<String> categoryCodeList = doReadSync.stream().map(ImportCategoryInfoDto::getCategoryCode).collect(Collectors.toList());
             List<BuyCategoryEntity> categoryListByCode = getCategoryListByCode(categoryCodeList);
-
             Map<String, BuyCategoryEntity> categoryEntityMap = categoryListByCode.stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, c -> c, (a, b) -> a));
-
-
             List<BuyCategoryEntity> buyCategoryEntities = new ArrayList<>();
-
             for (ImportCategoryInfoDto categoryDto : doReadSync) {
+
+                String img = iAdminSkuService.uploadImg(categoryDto.getZh_cn() + categoryDto.getImgSuffix(), categoryDto.getFile());
 
                 BuyCategoryEntity buyCategoryEntity = new BuyCategoryEntity();
                 buyCategoryEntity.setClassification(categoryDto.getIp());
                 buyCategoryEntity.setCategoryCode(categoryDto.getCategoryCode());
+                buyCategoryEntity.setCover(img);
 
                 List<CategoryName> categoryNames = new ArrayList<>();
                 CategoryName.buildCategoryNameList(categoryDto, categoryNames);
                 buyCategoryEntity.setCategoryName(JSON.toJSONString(categoryNames));
 
-//                if (!CollectionUtils.isEmpty(list)) {
-//                    buyCategoryEntity.setId(list.get(0).getId());
-//                }
+                if (categoryEntityMap.get(categoryDto.getCategoryCode()) != null) {
+                    BuyCategoryEntity buyCategory = categoryEntityMap.get(categoryDto.getCategoryCode());
+                    buyCategoryEntity.setId(buyCategory.getId());
+                }
+                buyCategoryEntities.add(buyCategoryEntity);
             }
-//            buySkuDictService.saveOrUpdateBatch(list);
+            this.saveOrUpdateBatch(buyCategoryEntities);
         } catch (Exception ex) {
-            log.error("importCategory fail", ex);
+            log.error("importCategoryInfo fail", ex);
             throw new BusinessException(9999, "导入失败");
         }
+    }
+
+    @Override
+    public void downloadCategoryInfoTemplate(HttpServletResponse response) {
+        ImportCategoryInfoDto categoryInfoDto = ImportCategoryInfoDto.builder()
+                .ip("star_rail、genshin_impact、zenless_zone_zero、tears_of_themis(选择其中一个)")
+                .categoryCode("1001")
+                .zh_cn("金属徽章")
+                .en("Badges")
+                .file(null)
+                .build();
+        ExcelUtil.writeExcel(response, "category_template", ImportCategoryDto.class, Arrays.asList(categoryInfoDto));
     }
 }

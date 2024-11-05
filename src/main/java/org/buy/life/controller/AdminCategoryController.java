@@ -2,18 +2,14 @@ package org.buy.life.controller;
 
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.AdminCategoryRequest;
-import org.buy.life.model.request.AdminSkuRequest;
 import org.buy.life.model.response.AdminCategoryResponse;
-import org.buy.life.model.response.AdminSkuResponse;
 import org.buy.life.service.IAdminCategoryService;
 import org.buy.life.utils.JSONData;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @menu 类别管理
@@ -40,15 +36,25 @@ public class AdminCategoryController {
         return JSONData.success(pageInfo);
     }
 
-//    /**
-//     * 导入商品
-//     *
-//     * @param file
-//     * @return
-//     */
-//    @PostMapping("/import")
-//    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
-//        adminSkuService.importSku(file);
-//        return JSONData.success(true);
-//    }
+    /**
+     * 导入类别
+     *
+     * @param file
+     * @return
+     */
+    @PostMapping("/import")
+    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
+        iAdminCategoryService.importCategoryInfo(file);
+        return JSONData.success(true);
+    }
+
+    /**
+     * 下载类别导入模版
+     *
+     * @return
+     */
+    @GetMapping("/downloadCategoryInfoTemplate")
+    public void downloadCategoryInfoTemplate(HttpServletResponse response) {
+        iAdminCategoryService.downloadCategoryInfoTemplate(response);
+    }
 }
