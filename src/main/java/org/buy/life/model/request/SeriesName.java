@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.buy.life.model.dto.ImportSeriesInfoDto;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.LangEnum;
 
@@ -38,8 +39,8 @@ public class SeriesName
         seriesNames.add(seriesNameDto);
     }
 
-    public static void buildSeriesNameList(ImportSkuDto importSkuDto, List<SeriesName> seriesNames) {
-        SeriesName.buildSeriesName(importSkuDto.getSkuNameZh_cn(), LangEnum.ZH_CN.getCode(), seriesNames);
-        SeriesName.buildSeriesName(importSkuDto.getSkuNameEn(), LangEnum.EN.getCode(), seriesNames);
+    public static void buildSeriesNameList(ImportSeriesInfoDto importSeriesInfoDto, List<SeriesName> seriesNames) {
+        SeriesName.buildSeriesName(importSeriesInfoDto.getZh_cn(), LangEnum.ZH_CN.getCode(), seriesNames);
+        SeriesName.buildSeriesName(importSeriesInfoDto.getEn(), LangEnum.EN.getCode(), seriesNames);
     }
 }

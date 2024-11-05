@@ -40,8 +40,8 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("buy-lift（买卖人生）") // 标题
-                .description("买卖人生接口文档") //描述
+                .title("buy-lift（吃喝玩乐）") // 标题
+                .description("吃喝玩乐接口文档") //描述
                 .version("v1.0") // 版本
                 .build();
     }

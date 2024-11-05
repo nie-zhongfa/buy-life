@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.buy.life.entity.BuyCategoryEntity;
+import org.buy.life.entity.BuySeriesEntity;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
@@ -19,9 +21,7 @@ import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminSkuResponse;
-import org.buy.life.service.IAdminFileService;
-import org.buy.life.service.IAdminSkuService;
-import org.buy.life.service.IBuySkuDictService;
+import org.buy.life.service.*;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.buy.life.utils.excel.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +63,10 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     @Autowired
     @Qualifier("thirdThreadPoolExecutor")
     private ThreadPoolTaskExecutor thirdThreadPoolExecutor;
+    @Resource
+    private IAdminCategoryService iAdminCategoryService;
+    @Resource
+    private IAdminSeriesService iAdminSeriesService;
 
     @Override
     public SimplePage<AdminSkuResponse> querySkuPage(AdminSkuRequest adminSkuRequest) {
@@ -74,6 +78,15 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
         List<AdminSkuResponse> responses = new ArrayList<>();
         if (!CollectionUtils.isEmpty(adminSkuPage.getRecords())) {
+            List<String> categoryCodeList = adminSkuPage.getRecords().stream().map(BuySkuEntity::getCategoryCode).collect(Collectors.toList());
+            List<String> seriesCodeList = adminSkuPage.getRecords().stream().map(BuySkuEntity::getSeriesCode).collect(Collectors.toList());
+
+            List<BuyCategoryEntity> categoryListByCode = iAdminCategoryService.getCategoryListByCode(categoryCodeList);
+            List<BuySeriesEntity> seriesListByCode = iAdminSeriesService.getSeriesListByCode(seriesCodeList);
+
+            Map<String, BuyCategoryEntity> categoryEntityMap = categoryListByCode.stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, c -> c, (a, b) -> a));
+            Map<String, BuySeriesEntity> seriesEntityMap = seriesListByCode.stream().collect(Collectors.toMap(BuySeriesEntity::getSeriesCode, c -> c, (a, b) -> a));
+
             adminSkuPage.getRecords().forEach(r -> {
                 AdminSkuResponse adminSkuResponse = BeanUtil.copyProperties(r, AdminSkuResponse.class);
 
@@ -92,6 +105,17 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 adminSkuResponse.setRetailPriceCNY(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.CNY.getCode()));
                 adminSkuResponse.setRetailPriceUSD(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.USD.getCode()));
                 adminSkuResponse.setRetailPriceEUR(SkuPrice.getSkuPrice(r.getRetailPrice(), CurrencyEnum.EUR.getCode()));
+
+                BuyCategoryEntity buyCategoryEntity = categoryEntityMap.get(r.getCategoryCode());
+                if (buyCategoryEntity != null) {
+                    String categoryName = CategoryName.getCategoryName(buyCategoryEntity.getCategoryName(), LangEnum.ZH_CN.getCode());
+                    adminSkuResponse.setCategoryName(categoryName);
+                }
+                BuySeriesEntity buySeriesEntity = seriesEntityMap.get(r.getSeriesCode());
+                if (buySeriesEntity != null) {
+                    String seriesName = SeriesName.getSeriesName(buySeriesEntity.getSeriesName(), LangEnum.ZH_CN.getCode());
+                    adminSkuResponse.setSeriesName(seriesName);
+                }
 
                 responses.add(adminSkuResponse);
             });
@@ -113,7 +137,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 CompletableFuture.runAsync(() -> {
                     try {
                         //上传图片
-                        String fileUrl = uploadSkuImg(importSkuDto);
+                        String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
 
                         List<SkuPrice> prices = new ArrayList<>();
                         SkuPrice.buildPriceList(importSkuDto, prices);
@@ -137,6 +161,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         buySkuEntity.setCreator(CurrentAdminUser.getUserId());
                         buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
                         buySkuEntity.setClassification(importSkuDto.getClassification());
+                        buySkuEntity.setSeriesCode(importSkuDto.getSeriesCode());
+                        buySkuEntity.setCategoryCode(importSkuDto.getCategoryCode());
 
                         List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
                         if (!CollectionUtils.isEmpty(list)) {
@@ -167,13 +193,13 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 .page(page);
     }
 
-    public String uploadSkuImg(ImportSkuDto importSkuDto) {
-        if (importSkuDto.getFile() == null) {
+    @Override
+    public String uploadImg(String fileName, InputStream file) {
+        if (file == null) {
             return null;
         }
         try {
-            String fileName = importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix();
-            MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", importSkuDto.getFile());
+            MultipartFile imgFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", file);
             return adminFileService.uploadFile(imgFile);
         } catch (IOException e) {
             log.error("上传文件失败", e);

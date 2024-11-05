@@ -74,4 +74,24 @@ public class AdminSkuResponse implements Serializable {
      * LISTED 已上下，REMOVED 已下架
      */
     private String status;
+
+    /**
+     * 类别编码
+     */
+    private String categoryCode;
+
+    /**
+     * 类别名称
+     */
+    private String categoryName;
+
+    /**
+     * 系列编码
+     */
+    private String seriesCode;
+
+    /**
+     * 系列名称
+     */
+    private String seriesName;
 }
