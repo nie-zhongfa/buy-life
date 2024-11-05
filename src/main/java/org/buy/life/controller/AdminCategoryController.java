@@ -43,7 +43,7 @@ public class AdminCategoryController {
      * @return
      */
     @PostMapping("/import")
-    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
+    public JSONData<Boolean> importCategoryInfo(@RequestBody MultipartFile file) {
         iAdminCategoryService.importCategoryInfo(file);
         return JSONData.success(true);
     }

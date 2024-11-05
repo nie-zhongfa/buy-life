@@ -43,7 +43,7 @@ public class AdminSeriesController {
      * @return
      */
     @PostMapping("/import")
-    public JSONData<Boolean> export(@RequestBody MultipartFile file) {
+    public JSONData<Boolean> importSeriesInfo(@RequestBody MultipartFile file) {
         iAdminSeriesService.importSeriesInfo(file);
         return JSONData.success(true);
     }
