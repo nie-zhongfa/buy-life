@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * <p>
@@ -39,7 +40,7 @@ public class BuySkuController {
 
 
     @PostMapping("/skuBySeriesCode")
-    public JSONData<SimplePage<BuySkuEntity>> skuBySeriesCode(@RequestBody PageBasicReq<BuySkuReq> req){
+    public JSONData<List<BuySkuEntity>> skuBySeriesCode(@RequestBody BuySkuReq req){
         return JSONData.success(buySkuService.pageSeriesList(req));
     }
 

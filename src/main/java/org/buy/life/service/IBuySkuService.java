@@ -6,6 +6,8 @@ import org.buy.life.entity.req.BuySkuReq;
 import org.buy.life.entity.req.PageBasicReq;
 import org.buy.life.entity.resp.SimplePage;
 
+import java.util.List;
+
 /**
  * <p>
  * sku 服务类
@@ -18,5 +20,5 @@ public interface IBuySkuService extends IService<BuySkuEntity> {
 
     SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq);
 
-    SimplePage<BuySkuEntity> pageSeriesList(PageBasicReq<BuySkuReq> buySkuReq);
+    List<BuySkuEntity> pageSeriesList(BuySkuReq buySkuReq);
 }

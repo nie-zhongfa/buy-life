@@ -84,17 +84,16 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
 
 
     @Override
-    public SimplePage<BuySkuEntity> pageSeriesList(PageBasicReq<BuySkuReq> buySkuReq){
+    public List<BuySkuEntity> pageSeriesList(BuySkuReq buySkuReq){
         LambdaQueryWrapper<BuySkuEntity> wrapper = new LambdaQueryWrapper<>();
-        if(Objects.isNull(buySkuReq.getCondition())){
+        if(Objects.isNull(buySkuReq)){
             wrapper.eq(BuySkuEntity::getIsDeleted,0).in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED.getCode()));
         }else {
             wrapper.eq(BuySkuEntity::getIsDeleted,0)
-                    .eq(StringUtils.isNoneBlank(buySkuReq.getCondition().getSeriesCode()),BuySkuEntity::getSeriesCode,buySkuReq.getCondition().getSeriesCode())
+                    .eq(StringUtils.isNoneBlank(buySkuReq.getSeriesCode()),BuySkuEntity::getSeriesCode,buySkuReq.getSeriesCode())
                     .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED.getCode()));
         }
-        Page<BuySkuEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), wrapper);
-        return  getSimplePage(buySkuReq,page);
+        return list(wrapper);
     }
 
 }
