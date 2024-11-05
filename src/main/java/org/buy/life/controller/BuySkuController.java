@@ -33,12 +33,21 @@ public class BuySkuController {
     @Resource
     private IBuySkuService buySkuService;
 
+    /**
+     * 根据关键字搜索keyWord 分页
+     * @param req
+     * @return
+     */
     @PostMapping("/skuList")
     public JSONData<SimplePage<BuySkuEntity>> skuList(@RequestBody PageBasicReq<BuySkuReq> req){
         return JSONData.success(buySkuService.pageList(req));
     }
 
-
+    /**
+     * 根据seriesCode搜索，不分页
+     * @param req
+     * @return
+     */
     @PostMapping("/skuBySeriesCode")
     public JSONData<List<BuySkuEntity>> skuBySeriesCode(@RequestBody BuySkuReq req){
         return JSONData.success(buySkuService.pageSeriesList(req));
