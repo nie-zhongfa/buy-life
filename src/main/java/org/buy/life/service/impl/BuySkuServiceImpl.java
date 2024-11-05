@@ -3,6 +3,7 @@ package org.buy.life.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.buy.life.constant.SkuStatusEnum;
@@ -22,7 +23,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -69,7 +73,45 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
             skuWrapper.eq(BuySkuEntity::getIsDeleted, 0);
         }
         Page<BuySkuEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), skuWrapper);
+        buildResp(page.getRecords());
         return  getSimplePage(buySkuReq,page);
+    }
+
+
+    private void buildResp(List<BuySkuEntity> buySkuEntities){
+        List<String> categoryCode = buySkuEntities.stream().map(BuySkuEntity::getCategoryCode).collect(Collectors.toList());
+        if(!CollectionUtils.isEmpty(categoryCode)){
+            LambdaQueryWrapper<BuyCategoryEntity> categoryWrapper = new LambdaQueryWrapper<>();
+            categoryWrapper.eq(BuyCategoryEntity::getIsDeleted, 0).
+                    in(BuyCategoryEntity::getCategoryCode,categoryCode);
+            List<BuyCategoryEntity> categoryEntityList = buyCategoryService.list(categoryWrapper);
+            Map<String, BuyCategoryEntity> categoryMap = ListUtils.emptyIfNull(categoryEntityList).stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, Function.identity(), (k1, k2) -> k2));
+            buySkuEntities.forEach(b->{
+                if(!categoryMap.containsKey(b.getCategoryCode())){
+                    return;
+                }
+                b.setCategoryName(categoryMap.get(b.getCategoryCode()).getCategoryName());
+                b.setCategoryCover(categoryMap.get(b.getCategoryCode()).getCover());
+            });
+        }
+
+        List<String> seriesCode = buySkuEntities.stream().map(BuySkuEntity::getSeriesCode).collect(Collectors.toList());
+        if(CollectionUtils.isNotEmpty(seriesCode)){
+            LambdaQueryWrapper<BuySeriesEntity> seriesWrapper = new LambdaQueryWrapper<>();
+            seriesWrapper.eq(BuySeriesEntity::getIsDeleted, 0).
+                    in(BuySeriesEntity::getSeriesCode,seriesCode);
+            List<BuySeriesEntity> seriesEntityList = buySeriesService.list(seriesWrapper);
+            Map<String, BuySeriesEntity> seriesMap = ListUtils.emptyIfNull(seriesEntityList).stream().collect(Collectors.toMap(BuySeriesEntity::getSeriesCode, Function.identity(), (k1, k2) -> k2));
+            buySkuEntities.forEach(b->{
+                if(!seriesMap.containsKey(b.getSeriesCode())){
+                    return;
+                }
+                b.setSeriesName(seriesMap.get(b.getSeriesCode()).getSeriesName());
+                b.setSeriesCover(seriesMap.get(b.getSeriesCode()).getCover());
+            });
+        }
+
+
     }
 
 
@@ -93,7 +135,9 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
                     .eq(StringUtils.isNoneBlank(buySkuReq.getSeriesCode()),BuySkuEntity::getSeriesCode,buySkuReq.getSeriesCode())
                     .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED.getCode()));
         }
-        return list(wrapper);
+        List<BuySkuEntity> list = list(wrapper);
+        buildResp(list);
+        return list;
     }
 
 }

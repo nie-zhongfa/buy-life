@@ -69,7 +69,7 @@ public class MybatisGenerator {
         strategy.setRestControllerStyle(false);
         mpg.setStrategy(strategy);
 
-        mpg.execute();
+      //  mpg.execute();
     }
 
 }

@@ -1,5 +1,6 @@
 package org.buy.life.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -137,6 +138,32 @@ public class BuySkuEntity extends Model<BuySkuEntity> {
      * 系列编码
      */
     private String seriesCode;
+
+
+    /**
+     * 类别名称
+     */
+    @TableField(exist = false)
+    private String categoryName;
+
+    /**
+     * 封面地址
+     */
+    @TableField(exist = false)
+    private String categoryCover;
+
+
+    /**
+     * 系列名称
+     */
+    @TableField(exist = false)
+    private String seriesName;
+
+    /**
+     * 系列封面
+     */
+    @TableField(exist = false)
+    private String seriesCover;
 
     @Override
     protected Serializable pkVal() {

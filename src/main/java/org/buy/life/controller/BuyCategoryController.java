@@ -30,11 +30,7 @@ public class BuyCategoryController {
     @Resource
     private IBuyCategoryService buyCategoryService;
 
-    /**
-     * 查询ip下的所有类别，如果ip为空则查询所有ip的类别
-     * @param classification
-     * @return
-     */
+    //查询ip下的所有类别，如果ip为空则查询所有ip的类别
     @GetMapping("/categoryList")
     public JSONData<List<BuyCategoryEntity>> categoryList(@RequestParam("classification") String classification){
         return JSONData.success(buyCategoryService.getCategoryList(classification));

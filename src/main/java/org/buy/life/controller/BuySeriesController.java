@@ -31,11 +31,7 @@ public class BuySeriesController {
     @Resource
     private IBuySeriesService iBuySeriesService;
 
-    /**
-     * 查询类别下的所有系列，如果系列为空则查询所有系列
-     * @param categoryCode
-     * @return
-     */
+    //查询类别下的所有系列，如果系列为空则查询所有系列
     @GetMapping("/seriesList")
     public JSONData<List<BuySeriesEntity>> seriesList(@RequestParam("categoryCode") String categoryCode){
         return JSONData.success(iBuySeriesService.getSeriesList(categoryCode));
