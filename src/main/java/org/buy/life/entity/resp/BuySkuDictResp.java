@@ -38,7 +38,7 @@ public class BuySkuDictResp{
 
     private List<UserStatusDict> userStatusDict;
 
-    private Map<String, BuyCategoryEntity> categoryMap;
+    private Map<String, List<BuyCategoryEntity>> categoryMap;
 
     @Data
     public static class TitleDict{

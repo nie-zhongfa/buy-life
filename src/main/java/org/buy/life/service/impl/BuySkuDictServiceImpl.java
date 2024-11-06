@@ -66,7 +66,7 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
 
         List<BuyCategoryEntity> categoryList = buyCategoryService.getCategoryList(null);
 
-        Map<String, BuyCategoryEntity> categoryMap = categoryList.stream().collect(Collectors.toMap(BuyCategoryEntity::getClassification, Function.identity(), (k1, k2) -> k2));
+        Map<String, List<BuyCategoryEntity>> categoryMap = categoryList.stream().collect(Collectors.groupingBy(BuyCategoryEntity::getClassification));
 
         //List<BuySkuDictEntity> skuDictList = getSkuDictList();
         //List<BuySkuDictResp.SkuDict> skuDicts = BeanCopiesUtils.copyList(skuDictList, BuySkuDictResp.SkuDict.class);
