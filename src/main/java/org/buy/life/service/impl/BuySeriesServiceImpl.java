@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -32,9 +33,8 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
     public SimplePage<BuySeriesEntity> getSeriesList(PageBasicReq<BuySkuReq> buySkuReq) {
         LambdaQueryWrapper<BuySeriesEntity> seriesWrapper = new LambdaQueryWrapper<>();
         seriesWrapper.eq(BuySeriesEntity::getIsDeleted, false);
-        if(StringUtils.isNotEmpty(buySkuReq.getCondition().getCategoryCode())){
+        if(Objects.nonNull(buySkuReq.getCondition())&&StringUtils.isNotEmpty(buySkuReq.getCondition().getCategoryCode())){
             seriesWrapper.eq(BuySeriesEntity::getCategoryCode,buySkuReq.getCondition().getCategoryCode());
-
         }
         Page<BuySeriesEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), seriesWrapper);
         return getSimplePage(buySkuReq,page);
