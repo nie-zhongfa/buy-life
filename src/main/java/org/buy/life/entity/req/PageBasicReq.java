@@ -38,7 +38,6 @@ public class PageBasicReq<T> {
      * 查询条件
      */
     @Valid
-    @NotNull(message = "condition不能为空")
     private T condition;
 
 
