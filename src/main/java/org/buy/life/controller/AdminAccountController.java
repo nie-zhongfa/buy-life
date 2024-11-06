@@ -1,13 +1,14 @@
 package org.buy.life.controller;
 
-import com.github.pagehelper.PageInfo;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
+import org.buy.life.model.request.UpdateAdminAccountRequest;
 import org.buy.life.model.response.AccountResponse;
+import org.buy.life.model.response.AdminAccountResponse;
 import org.buy.life.service.IAdminAccountService;
+import org.buy.life.service.IBuyAdminService;
 import org.buy.life.utils.JSONData;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,6 +25,8 @@ public class AdminAccountController {
 
     @Resource
     private IAdminAccountService iAdminAccountService;
+    @Resource
+    private IBuyAdminService iBuyAdminService;
 
     /**
      * 查询账号列表
@@ -59,5 +62,41 @@ public class AdminAccountController {
     public JSONData<Boolean> updateAccount(@RequestBody UpdateAccountRequest updateAccountRequest) {
         iAdminAccountService.updateAccount(updateAccountRequest);
         return JSONData.success(true);
+    }
+
+    /**
+     * 查询系统后台账号列表
+     *
+     * @param queryAccountRequest
+     * @return
+     */
+    @PostMapping("/queryAdminPage")
+    public JSONData<SimplePage<AdminAccountResponse>> queryAdminAccountPage(@RequestBody QueryAccountRequest queryAccountRequest) {
+        SimplePage<AdminAccountResponse> pageInfo = iBuyAdminService.queryAdminAccountPage(queryAccountRequest);
+        return JSONData.success(pageInfo);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param updateAdminAccountRequest
+     * @return
+     */
+    @PostMapping("/updatePwd")
+    public JSONData<Void> updatePwd(@RequestBody UpdateAdminAccountRequest updateAdminAccountRequest) {
+        iBuyAdminService.updatePwd(updateAdminAccountRequest);
+        return JSONData.success();
+    }
+
+    /**
+     * 配置表头
+     *
+     * @param updateAdminAccountRequest
+     * @return
+     */
+    @PostMapping("/updateField")
+    public JSONData<Void> updateField(@RequestBody UpdateAdminAccountRequest updateAdminAccountRequest) {
+        iBuyAdminService.updateField(updateAdminAccountRequest);
+        return JSONData.success();
     }
 }

@@ -95,6 +95,10 @@ public class BuyAdminEntity extends Model<BuyAdminEntity> {
      */
     private LocalDateTime lstTokenExpire;
 
+    private String role;
+
+    private String showField;
+
     @Override
     protected Serializable pkVal() {
         return this.id;
