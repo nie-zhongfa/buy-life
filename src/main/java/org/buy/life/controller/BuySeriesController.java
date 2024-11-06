@@ -34,7 +34,7 @@ public class BuySeriesController {
 
     //查询类别下的所有系列，如果系列为空则查询所有系列
     @PostMapping("/seriesList")
-    public JSONData<SimplePage<BuySeriesEntity>> seriesList(PageBasicReq<BuySkuReq> buySkuReq){
+    public JSONData<SimplePage<BuySeriesEntity>> seriesList(@RequestBody PageBasicReq<BuySkuReq> buySkuReq){
         return JSONData.success(iBuySeriesService.getSeriesList(buySkuReq));
     }
 }
