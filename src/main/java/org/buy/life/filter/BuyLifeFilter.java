@@ -76,7 +76,9 @@ public class BuyLifeFilter implements Filter {
         }
         if(request.getRequestURI().contains("/buyUser/doLogin") || request.getRequestURI().contains("/admin/login")||
                 request.getRequestURI().contains("/buyUser/create")||request.getRequestURI().contains("/buySkuDict/dict")
-                ||request.getRequestURI().contains("/buyUser/resendPwd")||request.getRequestURI().contains("/buySku/skuList")){
+                ||request.getRequestURI().contains("/buyUser/resendPwd")||request.getRequestURI().contains("/buySku/skuList")||
+                request.getRequestURI().contains("/buySeries/seriesList")||request.getRequestURI().contains("/buySku/skuBySeriesCode")||
+                request.getRequestURI().contains("/buyCategory/categoryList")){
             filterChain.doFilter(request, response);
         }else {
             try {

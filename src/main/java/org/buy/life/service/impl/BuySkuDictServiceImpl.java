@@ -3,6 +3,7 @@ package org.buy.life.service.impl;
 import org.buy.life.constant.OrderStatusEnum;
 import org.buy.life.constant.UserStatusEnum;
 import org.buy.life.entity.BuyCategoryEntity;
+import org.buy.life.entity.BuySeriesEntity;
 import org.buy.life.entity.BuySkuDictEntity;
 import org.buy.life.entity.resp.BuySkuDictResp;
 import org.buy.life.mapper.BuySkuDictMapper;
@@ -11,6 +12,7 @@ import org.buy.life.model.enums.CountryEnum;
 import org.buy.life.model.enums.CurrencyEnum;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.service.IBuyCartService;
+import org.buy.life.service.IBuyCategoryService;
 import org.buy.life.service.IBuySkuDictService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.utils.BeanCopiesUtils;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +36,8 @@ import java.util.stream.Collectors;
 @Service
 public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuDictEntity> implements IBuySkuDictService {
 
+    @Resource
+    private IBuyCategoryService buyCategoryService;
 
     @Override
     public List<BuySkuDictEntity> getSkuDictByCode(String code) {
@@ -57,8 +63,15 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
     @Override
     public BuySkuDictResp getAllDict(){
         BuySkuDictResp buySkuDictResp=new BuySkuDictResp();
-        List<BuySkuDictEntity> skuDictList = getSkuDictList();
-        List<BuySkuDictResp.SkuDict> skuDicts = BeanCopiesUtils.copyList(skuDictList, BuySkuDictResp.SkuDict.class);
+
+        List<BuyCategoryEntity> categoryList = buyCategoryService.getCategoryList(null);
+
+        List<BuySkuDictResp.Category> categories = BeanCopiesUtils.copyList(categoryList, BuySkuDictResp.Category.class);
+
+        Map<String, List<BuySkuDictResp.Category>> categoryMap = categories.stream().collect(Collectors.groupingBy(BuySkuDictResp.Category::getClassification));
+
+        //List<BuySkuDictEntity> skuDictList = getSkuDictList();
+        //List<BuySkuDictResp.SkuDict> skuDicts = BeanCopiesUtils.copyList(skuDictList, BuySkuDictResp.SkuDict.class);
         List<BuySkuDictResp.OrderStatusDict> orderStatus = Arrays.stream(OrderStatusEnum.values()).map(o -> {
             BuySkuDictResp.OrderStatusDict orderStatusDict = new BuySkuDictResp.OrderStatusDict();
             orderStatusDict.setCode(o.getCode());
@@ -74,7 +87,8 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
         }).collect(Collectors.toList());
 
         buySkuDictResp.setTitleDicts(titleDicts);
-        buySkuDictResp.setSkuDicts(skuDicts);
+        //buySkuDictResp.setSkuDicts(skuDicts);
+        buySkuDictResp.setCategoryMap(categoryMap);
         buySkuDictResp.setOrderStatusDicts(orderStatus);
         buySkuDictResp.setCountryDicts(Arrays.stream(CountryEnum.values()).map(o -> {
             BuySkuDictResp.CountryDict dict = new BuySkuDictResp.CountryDict();
