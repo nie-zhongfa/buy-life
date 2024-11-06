@@ -59,6 +59,18 @@ public class BuyLifeFilter implements Filter {
         String buyTraceId = "";
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization,BUY-TOKEN");
+
+        // 处理预检请求
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
+
         try {
             buyTraceId = UUID.randomUUID().toString().replace("-", "");
             //增加mdc日志
