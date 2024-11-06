@@ -26,4 +26,6 @@ public interface IBuyAdminService extends IService<BuyAdminEntity> {
     void updatePwd(UpdateAdminAccountRequest updateAdminAccountRequest);
 
     void updateField(UpdateAdminAccountRequest updateAdminAccountRequest);
+
+    void addAdminAccount(BuyAdminEntity adminEntity);
 }

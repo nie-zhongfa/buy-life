@@ -1,5 +1,6 @@
 package org.buy.life.controller;
 
+import org.buy.life.entity.BuyAdminEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
@@ -97,6 +98,18 @@ public class AdminAccountController {
     @PostMapping("/updateField")
     public JSONData<Void> updateField(@RequestBody UpdateAdminAccountRequest updateAdminAccountRequest) {
         iBuyAdminService.updateField(updateAdminAccountRequest);
+        return JSONData.success();
+    }
+
+    /**
+     * 添加系统账号
+     *
+     * @param adminEntity
+     * @return
+     */
+    @PostMapping("/addAdminAccount")
+    public JSONData<Void> addAdminAccount(@RequestBody BuyAdminEntity adminEntity) {
+        iBuyAdminService.addAdminAccount(adminEntity);
         return JSONData.success();
     }
 }

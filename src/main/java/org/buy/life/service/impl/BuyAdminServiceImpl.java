@@ -160,4 +160,9 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
                 .eq(BuyAdminEntity::getUserId, updateAdminAccountRequest.getUserId())
                 .update();
     }
+
+    @Override
+    public void addAdminAccount(BuyAdminEntity adminEntity) {
+        this.save(adminEntity);
+    }
 }
