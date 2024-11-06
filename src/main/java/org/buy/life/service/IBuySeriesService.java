@@ -2,6 +2,9 @@ package org.buy.life.service;
 
 import org.buy.life.entity.BuySeriesEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.buy.life.entity.req.BuySkuReq;
+import org.buy.life.entity.req.PageBasicReq;
+import org.buy.life.entity.resp.SimplePage;
 
 import java.util.List;
 
@@ -15,5 +18,5 @@ import java.util.List;
  */
 public interface IBuySeriesService extends IService<BuySeriesEntity> {
 
-    List<BuySeriesEntity> getSeriesList(String categoryCode);
+    SimplePage<BuySeriesEntity> getSeriesList(PageBasicReq<BuySkuReq> buySkuReqPageBasicReq);
 }
