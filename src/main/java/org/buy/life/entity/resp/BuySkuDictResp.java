@@ -6,10 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.buy.life.entity.BuyCategoryEntity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -35,6 +37,8 @@ public class BuySkuDictResp{
     private List<CurrencyDict> currencyDicts;
 
     private List<UserStatusDict> userStatusDict;
+
+    private Map<String, BuyCategoryEntity> categoryMap;
 
     @Data
     public static class TitleDict{
