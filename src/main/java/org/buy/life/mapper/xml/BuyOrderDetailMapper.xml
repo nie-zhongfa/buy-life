@@ -24,4 +24,5 @@
         id, is_deleted, ctime, mtime, creator, updater, order_id, sku_id, sku_num, price, total_amt, status, ext
     </sql>
 
+
 </mapper>

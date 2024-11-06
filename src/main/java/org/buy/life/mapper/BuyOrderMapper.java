@@ -2,6 +2,10 @@ package org.buy.life.mapper;
 
 import org.buy.life.entity.BuyOrderEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.buy.life.model.dto.ExportOrderDetailInfoDto;
+import org.buy.life.model.request.GetOrderRequest;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface BuyOrderMapper extends BaseMapper<BuyOrderEntity> {
 
+    List<ExportOrderDetailInfoDto> exportOrderInfo(GetOrderRequest getOrderRequest);
 }

@@ -441,4 +441,53 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         }
         return false;
     }
+
+    @Override
+    public void exportOrder(GetOrderRequest getOrderRequest, HttpServletResponse response) {
+        List<ExportOrderDetailInfoDto> orderDetails =this.baseMapper.exportOrderInfo(getOrderRequest);
+        if (CollectionUtils.isEmpty(orderDetails)) {
+            throw new BusinessException(9999, "未查询到数据");
+        }
+        //品类
+        List<String> skuCategoryCodeList = orderDetails.stream().map(ExportOrderDetailInfoDto::getSkuCategory).distinct().collect(Collectors.toList());
+        List<BuySkuDictEntity> skuDictByCodes = buySkuDictService.getSkuDictByCodes(skuCategoryCodeList);
+        Map<String, List<BuySkuDictEntity>> skuCategoryMap = skuDictByCodes.stream().collect(Collectors.groupingBy(BuySkuDictEntity::getCode));
+        orderDetails.forEach(o -> {
+            //商品名称
+            String skuName = SkuName.getSkuName(o.getSkuName(), LangEnum.ZH_CN.getCode());
+            //品类名称
+            List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(o.getSkuCategory());
+            String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
+            String skuType = SkuType.getSkuType(o.getSkuType(), LangEnum.ZH_CN.getCode());
+            o.setSkuName(skuName);
+            o.setSkuCategory(skuCategory);
+            o.setSkuType(skuType);
+        });
+        if (!getOrderRequest.isDownLoadDetail()) {
+            Map<String, List<ExportOrderDetailInfoDto>> orderMap = orderDetails.stream().collect(Collectors.groupingBy(ExportOrderDetailInfoDto::getOrderId));
+            List<ExportOrderDetailInfoDto> groupOrderList = new ArrayList<>();
+            orderMap.forEach((orderId, list) -> {
+                BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
+                Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
+                ExportOrderDetailInfoDto exportOrderDetailInfoDto = list.get(0);
+                ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
+                        .orderId(orderId)
+                        .userId(exportOrderDetailInfoDto.getUserId())
+                        .mail(exportOrderDetailInfoDto.getMail())
+                        .skuId("")
+                        .skuName("")
+                        .skuCategory("")
+                        .skuType("")
+                        .price("")
+                        .totalAmt(String.valueOf(orderAmt))
+                        .currency(exportOrderDetailInfoDto.getCurrency())
+                        .skuNum(totalSkuNum)
+                        .build();
+                groupOrderList.add(detailInfoDto);
+            });
+            ExcelUtil.writeExcel(response, "order", ExportOrderDetailInfoDto.class, groupOrderList);
+            return;
+        }
+        ExcelUtil.writeExcel(response, "order", ExportOrderDetailInfoDto.class, orderDetails);
+    }
 }

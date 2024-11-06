@@ -3,10 +3,7 @@ package org.buy.life.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.buy.life.entity.BuyOrderEntity;
 import org.buy.life.entity.resp.SimplePage;
-import org.buy.life.model.request.AdminOrderConfirmRequest;
-import org.buy.life.model.request.AdminOrderRequest;
-import org.buy.life.model.request.AddOrderRemarkRequest;
-import org.buy.life.model.request.UpdateOrderDetailRequest;
+import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,4 +32,6 @@ public interface IAdminOrderService  extends IService<BuyOrderEntity> {
     void importOrder(String orderId, MultipartFile file);
 
     void export(String orderId, HttpServletResponse response);
+
+    void exportOrder(GetOrderRequest getOrderRequest, HttpServletResponse response);
 }

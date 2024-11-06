@@ -32,4 +32,41 @@
         order by o.ctime desc
     </select>
 
+    <select id="exportOrderInfo" resultType="org.buy.life.model.dto.ExportOrderDetailInfoDto">
+        select
+        o.order_id orderId,
+        o.user_id user_id,
+        u.mail,
+        d.sku_id skuId,
+        s.sku_name skuName,
+        s.sku_category skuCategory,
+        s.sku_type skuType,
+        d.price,
+        d.total_amt totalAmt,
+        d.currency,
+        d.sku_num skuNum
+
+        from buy_order o
+        left join buy_order_detail d  on o.order_id = d.order_id
+        left join buy_user u on o.user_id = u.user_id
+        left join buy_sku s on d.sku_id = s.sku_id
+        where
+        o.is_deleted = 0 and d.is_deleted = 0
+        <if test="startCtime != null">
+            and o.ctime >= #{startCtime} and o.ctime <![CDATA[<=]]> #{endCtime}
+        </if>
+        <if test="ip != null and ip.size > 0">
+            and s.classification in
+            <foreach collection="ip" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="status != null and status.size > 0">
+            and s.status = in
+            <foreach collection="status" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by o.ctime, o.order_id desc
+    </select>
 </mapper>

@@ -1,10 +1,7 @@
 package org.buy.life.controller;
 
 import org.buy.life.entity.resp.SimplePage;
-import org.buy.life.model.request.AdminOrderConfirmRequest;
-import org.buy.life.model.request.AdminOrderRequest;
-import org.buy.life.model.request.AddOrderRemarkRequest;
-import org.buy.life.model.request.UpdateOrderDetailRequest;
+import org.buy.life.model.request.*;
 import org.buy.life.model.response.AdminOrderDetailResponse;
 import org.buy.life.model.response.AdminOrderResponse;
 import org.buy.life.service.IAdminOrderService;
@@ -110,5 +107,16 @@ public class AdminOrderController {
     @GetMapping("/export")
     public void export(@RequestParam("orderId") String orderId, HttpServletResponse response) {
         adminOrderService.export(orderId, response);
+    }
+
+    /**
+     * 按条件导出订单
+     *
+     * @param getOrderRequest
+     * @param response
+     */
+    @PostMapping("/exportOrder")
+    public void export(@RequestBody GetOrderRequest getOrderRequest, HttpServletResponse response) {
+        adminOrderService.exportOrder(getOrderRequest, response);
     }
 }
