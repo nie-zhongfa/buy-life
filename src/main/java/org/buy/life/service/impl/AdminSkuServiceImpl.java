@@ -128,6 +128,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     public void importSku(MultipartFile file) {
         log.info("开始导入商品信息， 文件大小：{}", file.getSize() / (1024.0 * 1024.0) + "M");
         try {
+            long t = System.currentTimeMillis();
+            log.info("start time ~~~~");
             InputStream inputStream = file.getInputStream();
             List<ImportSkuDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportSkuDto.class).sheet().doReadSync();
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
@@ -177,6 +179,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             }
             latch.await();
             this.saveOrUpdateBatch(buySkuEntities);
+            log.info("end time ~~~~:{}", System.currentTimeMillis() - t);
         } catch (Exception ex) {
             log.error("importSku fail", ex);
             throw new BusinessException(9999, "导入失败");
