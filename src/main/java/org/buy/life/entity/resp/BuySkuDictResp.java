@@ -38,7 +38,7 @@ public class BuySkuDictResp{
 
     private List<UserStatusDict> userStatusDict;
 
-    private Map<String, List<BuyCategoryEntity>> categoryMap;
+    private Map<String, List<Category>> categoryMap;
 
     @Data
     public static class TitleDict{
@@ -107,6 +107,26 @@ public class BuySkuDictResp{
         private String code;
 
         private String desc;
+    }
+
+
+    @Data
+    public  static  class Category{
+
+        /**
+         * 类别编码
+         */
+        private String categoryCode;
+
+        /**
+         * 类别名称
+         */
+        private String categoryName;
+
+        /**
+         * IP
+         */
+        private String classification;
     }
 
 }
