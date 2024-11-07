@@ -19,5 +19,5 @@ public class UpdateAdminAccountRequest {
 
     private String pwd;
 
-    private List<String> filedList;
+    private List<String> fieldList;
 }

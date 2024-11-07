@@ -39,5 +39,5 @@ public class AdminAccountResponse {
     /**
      * 可见字段
      */
-    private List<String> filedList;
+    private List<String> fieldList;
 }
