@@ -28,4 +28,6 @@ public interface IBuyAdminService extends IService<BuyAdminEntity> {
     void updateField(UpdateAdminAccountRequest updateAdminAccountRequest);
 
     void addAdminAccount(BuyAdminEntity adminEntity);
+
+    BuyAdminEntity getAdminInfo(String userId);
 }

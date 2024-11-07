@@ -2,6 +2,7 @@ package org.buy.life.controller;
 
 import org.buy.life.entity.BuyAdminEntity;
 import org.buy.life.entity.resp.SimplePage;
+import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.model.request.QueryAccountRequest;
 import org.buy.life.model.request.UpdateAccountRequest;
 import org.buy.life.model.request.UpdateAdminAccountRequest;
@@ -111,5 +112,17 @@ public class AdminAccountController {
     public JSONData<Void> addAdminAccount(@RequestBody BuyAdminEntity adminEntity) {
         iBuyAdminService.addAdminAccount(adminEntity);
         return JSONData.success();
+    }
+
+    /**
+     * 获取系统用户信息
+     *
+     * @return
+     */
+    @GetMapping("/getAdminInfo")
+    public JSONData<BuyAdminEntity> getAdminInfo() {
+        String userId = CurrentAdminUser.getUserId();
+        BuyAdminEntity adminInfo = iBuyAdminService.getAdminInfo(userId);
+        return JSONData.success(adminInfo);
     }
 }
