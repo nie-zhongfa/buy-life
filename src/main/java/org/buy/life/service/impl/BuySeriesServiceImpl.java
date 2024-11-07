@@ -118,7 +118,7 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
                 }
             })).orElse("0.00");
 
-            String retailMax = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
+            String retailMax = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getRetailPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).max(Comparator.comparing(m -> {
                 try {
@@ -128,24 +128,10 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
                 }
             })).orElse("0.00");
 
-
-            SkuPrice skuPrice1=new SkuPrice();
-            skuPrice1.setCurrency(currencyEnum.getCode());
-            skuPrice1.setSkuPrice(min);
-            minList.add(skuPrice1);
-            SkuPrice skuPrice3=new SkuPrice();
-            skuPrice3.setCurrency(currencyEnum.getCode());
-            skuPrice3.setSkuPrice(retailMin);
-            retailMinList.add(skuPrice3);
-
-            SkuPrice skuPrice2=new SkuPrice();
-            skuPrice2.setCurrency(currencyEnum.getCode());
-            skuPrice2.setSkuPrice(max);
-            maxList.add(skuPrice2);
-            SkuPrice skuPrice4=new SkuPrice();
-            skuPrice4.setCurrency(currencyEnum.getCode());
-            skuPrice4.setSkuPrice(retailMax);
-            retailMaxList.add(skuPrice4);
+            minList.add(SkuPrice.builder().currency(currencyEnum.getCode()).skuPrice(min).build());
+            retailMinList.add(SkuPrice.builder().currency(currencyEnum.getCode()).skuPrice(retailMin).build());
+            maxList.add(SkuPrice.builder().currency(currencyEnum.getCode()).skuPrice(max).build());
+            retailMaxList.add(SkuPrice.builder().currency(currencyEnum.getCode()).skuPrice(retailMax).build());
         }
         buySeriesEntity.setMinPrice(JSONObject.toJSONString(minList));
         buySeriesEntity.setMaxPrice(JSONObject.toJSONString(maxList));
