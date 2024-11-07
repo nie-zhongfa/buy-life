@@ -117,5 +117,5 @@ fdfs:
   pool:
     max-total: 300   # 连接池最大数量
     max-total-per-key: 100  # 单个tracker最大连接数
-    max-wait-millis: 15000 # 连接耗尽最大等待时间 毫秒
+    max-wait-millis: 1500000 # 连接耗尽最大等待时间 毫秒
 
