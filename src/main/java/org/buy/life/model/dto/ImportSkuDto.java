@@ -26,6 +26,9 @@ import java.io.InputStream;
 @ContentRowHeight(20)
 public class ImportSkuDto {
 
+    @ExcelIgnore
+    private Long id;
+
     @ColumnWidth(30)
     @ExcelProperty(value = "商品编码",index = 0)
     private String skuId;

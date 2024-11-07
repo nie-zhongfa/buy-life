@@ -13,7 +13,9 @@ import java.util.stream.Collectors;
 public enum SkuStatusEnum {
     REMOVED("REMOVED", "{\"zh_cn\": \"已下架\",\"en\": \"Removed\",\"es\": \"Ha sido retirado de los estantes\",\"fr\": \"Est descendu de l'étagère\",\"de\": \"Entfernt\"}"),
 
-    LISTED("LISTED", "{\"zh_cn\": \"已上架\",\"en\": \"Already listed\",\"es\": \"En los estantes\",\"fr\": \"Déjà sur les étagères\",\"de\": \"Bereits aufgeführt\"}");
+    LISTED("LISTED", "{\"zh_cn\": \"已上架\",\"en\": \"Already listed\",\"es\": \"En los estantes\",\"fr\": \"Déjà sur les étagères\",\"de\": \"Bereits aufgeführt\"}"),
+
+    UPLOADING("UPLOADING", "{\"zh_cn\": \"上传中\",\"en\": \"upload ing\",\"es\": \"upload ing\",\"fr\": \"upload ing\",\"de\": \"upload ing\"}");
     /**
      * 后端code
      */
