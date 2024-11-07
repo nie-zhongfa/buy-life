@@ -80,6 +80,18 @@ public class BuySeriesEntity extends Model<BuySeriesEntity> {
     private String maxPrice;
 
     /**
+     * 最低价
+     */
+    @TableField(exist = false)
+    private String retailMinPrice;
+
+    /**
+     * 最高价
+     */
+    @TableField(exist = false)
+    private String retailMaxPrice;
+
+    /**
      * 类别名称
      */
     @TableField(exist = false)
