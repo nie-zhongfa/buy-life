@@ -462,8 +462,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(o.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
             String skuType = SkuType.getSkuType(o.getSkuType(), LangEnum.ZH_CN.getCode());
-            LocalDateTime dateTime = LocalDateTimeUtil.parse(o.getCtime());
-            o.setCtime(LocalDateTimeUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss"));
+//            LocalDateTime dateTime = LocalDateTimeUtil.parse(o.getCtime());
+//            o.setCtime(o.getCtime());
             o.setSkuName(skuName);
             o.setSkuCategory(skuCategory);
             o.setSkuType(skuType);
@@ -475,10 +475,10 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                 BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
                 Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
                 ExportOrderDetailInfoDto exportOrderDetailInfoDto = list.get(0);
-                LocalDateTime dateTime = LocalDateTimeUtil.parse(exportOrderDetailInfoDto.getCtime());
+//                LocalDateTime dateTime = LocalDateTimeUtil.parse(exportOrderDetailInfoDto.getCtime());
                 ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                         .orderId(orderId)
-                        .ctime(LocalDateTimeUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss"))
+                        .ctime(exportOrderDetailInfoDto.getCtime())
                         .userId(exportOrderDetailInfoDto.getUserId())
                         .mail(exportOrderDetailInfoDto.getMail())
                         .skuId("")
