@@ -90,26 +90,42 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
             String min = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).min(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
 
             String max = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).max(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
 
 
             String retailMin = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getRetailPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).min(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
 
             String retailMax = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).max(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
 
 
