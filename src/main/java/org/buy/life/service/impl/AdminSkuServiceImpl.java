@@ -138,8 +138,11 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             for (ImportSkuDto importSkuDto : doReadSync) {
                 CompletableFuture.runAsync(() -> {
                     try {
+                        long t1 = System.currentTimeMillis();
+                        log.info("start upload ~~~");
                         //上传图片
                         String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
+                        log.info("end upload ~~~ :{}", System.currentTimeMillis() - t1);
 
                         List<SkuPrice> prices = new ArrayList<>();
                         SkuPrice.buildPriceList(importSkuDto, prices);
