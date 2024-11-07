@@ -35,6 +35,7 @@
     <select id="exportOrderInfo" resultType="org.buy.life.model.dto.ExportOrderDetailInfoDto">
         select
         o.order_id orderId,
+        o.ctime,
         o.user_id user_id,
         u.mail,
         d.sku_id skuId,
@@ -62,7 +63,7 @@
             </foreach>
         </if>
         <if test="status != null and status.size > 0">
-            and s.status = in
+            and s.status in
             <foreach collection="status" item="item" open="(" separator="," close=")">
                 #{item}
             </foreach>

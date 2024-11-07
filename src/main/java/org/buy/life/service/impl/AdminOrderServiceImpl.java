@@ -1,6 +1,7 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
@@ -34,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -359,6 +361,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             String skuType = SkuType.getSkuType(buySkuEntity.getSkuType(), LangEnum.ZH_CN.getCode());
             ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                     .orderId(orderId)
+                    .ctime(LocalDateTimeUtil.format(o.getCtime(), "yyyy-MM-dd HH:mm:ss"))
                     .userId(user.getUserId())
                     .mail(user.getMail())
                     .skuId(buySkuEntity.getSkuId())
@@ -459,6 +462,8 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
             List<BuySkuDictEntity> skuCategoryList = skuCategoryMap.get(o.getSkuCategory());
             String skuCategory = BuySkuDictEntity.getSkuCategoryName(skuCategoryList, LangEnum.ZH_CN.getCode());
             String skuType = SkuType.getSkuType(o.getSkuType(), LangEnum.ZH_CN.getCode());
+            LocalDateTime dateTime = LocalDateTimeUtil.parse(o.getCtime());
+            o.setCtime(LocalDateTimeUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss"));
             o.setSkuName(skuName);
             o.setSkuCategory(skuCategory);
             o.setSkuType(skuType);
@@ -470,8 +475,10 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                 BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
                 Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
                 ExportOrderDetailInfoDto exportOrderDetailInfoDto = list.get(0);
+                LocalDateTime dateTime = LocalDateTimeUtil.parse(exportOrderDetailInfoDto.getCtime());
                 ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
                         .orderId(orderId)
+                        .ctime(LocalDateTimeUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss"))
                         .userId(exportOrderDetailInfoDto.getUserId())
                         .mail(exportOrderDetailInfoDto.getMail())
                         .skuId("")
