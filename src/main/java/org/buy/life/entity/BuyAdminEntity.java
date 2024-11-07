@@ -1,11 +1,14 @@
 package org.buy.life.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -98,6 +101,12 @@ public class BuyAdminEntity extends Model<BuyAdminEntity> {
     private String role;
 
     private String showField;
+
+    /**
+     * 可见字段
+     */
+    @TableField(exist = false)
+    private List<String> fieldList;
 
     @Override
     protected Serializable pkVal() {

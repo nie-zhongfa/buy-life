@@ -1,5 +1,7 @@
 package org.buy.life.controller;
 
+import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.buy.life.entity.BuyAdminEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.filter.CurrentAdminUser;
@@ -124,6 +126,9 @@ public class AdminAccountController {
         String userId = CurrentAdminUser.getUserId();
         BuyAdminEntity adminInfo = iBuyAdminService.getAdminInfo(userId);
         adminInfo.setPwd("");
+        if (StringUtils.isNotBlank(adminInfo.getShowField())) {
+            adminInfo.setFieldList(JSON.parseArray(adminInfo.getShowField(), String.class));
+        }
         return JSONData.success(adminInfo);
     }
 }
