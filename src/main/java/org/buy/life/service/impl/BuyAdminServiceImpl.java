@@ -95,9 +95,9 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
                 accountResponse.setRoleDesc(roleDesc);
                 //可见字段
                 if (!StringUtils.isBlank(r.getShowField())) {
-                    accountResponse.setFiledList(JSON.parseArray(r.getShowField(), String.class));
+                    accountResponse.setFieldList(JSON.parseArray(r.getShowField(), String.class));
                 } else {
-                    accountResponse.setFiledList(new ArrayList<>());
+                    accountResponse.setFieldList(new ArrayList<>());
                 }
                 responses.add(accountResponse);
             });
@@ -156,7 +156,7 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
             throw new BusinessException(9999, "非超级管理员不能进行此操作");
         }
         lambdaUpdate()
-                .set(BuyAdminEntity::getShowField, JSON.toJSONString(updateAdminAccountRequest.getFiledList()))
+                .set(BuyAdminEntity::getShowField, JSON.toJSONString(updateAdminAccountRequest.getFieldList()))
                 .eq(BuyAdminEntity::getUserId, updateAdminAccountRequest.getUserId())
                 .update();
     }

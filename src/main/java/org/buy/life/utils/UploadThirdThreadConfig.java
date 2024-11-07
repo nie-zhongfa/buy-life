@@ -15,7 +15,7 @@ public class UploadThirdThreadConfig {
     @Bean("uploadThirdThreadPoolExecutor")
     public ThreadPoolTaskExecutor thirdThreadPoolExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setCorePoolSize(100);
+        threadPoolTaskExecutor.setCorePoolSize(50);
         threadPoolTaskExecutor.setMaxPoolSize(200);
         threadPoolTaskExecutor.setKeepAliveSeconds(60);
         threadPoolTaskExecutor.initialize();
