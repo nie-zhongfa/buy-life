@@ -132,8 +132,16 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             log.info("start time ~~~~");
             InputStream inputStream = file.getInputStream();
             List<ImportSkuDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportSkuDto.class).sheet().doReadSync();
+            if (CollectionUtils.isEmpty(doReadSync)) {
+                return;
+            }
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySkuEntity> buySkuEntities = new ArrayList<>();
+
+            List<String> skuIdList = doReadSync.stream().map(ImportSkuDto::getSkuId).distinct().collect(Collectors.toList());
+            List<BuySkuEntity> skuList = lambdaQuery().in(BuySkuEntity::getSkuId, skuIdList).eq(BuySkuEntity::getIsDeleted, false).list();
+            Map<String, BuySkuEntity> skuEntityMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, c -> c, (a, b) -> a));
+
             CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSkuDto importSkuDto : doReadSync) {
                 CompletableFuture.runAsync(() -> {
@@ -169,10 +177,11 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         buySkuEntity.setSeriesCode(importSkuDto.getSeriesCode());
                         buySkuEntity.setCategoryCode(importSkuDto.getCategoryCode());
 
-                        List<BuySkuEntity> list = lambdaQuery().eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId()).eq(BuySkuEntity::getIsDeleted, false).list();
-                        if (!CollectionUtils.isEmpty(list)) {
-                            buySkuEntity.setId(list.get(0).getId());
-                            buySkuEntity.setCreator(list.get(0).getCreator());
+                        BuySkuEntity buySku = skuEntityMap.get(importSkuDto.getSkuId());
+
+                        if (buySku != null) {
+                            buySkuEntity.setId(buySku.getId());
+                            buySkuEntity.setCreator(buySku.getCreator());
                         }
                         buySkuEntities.add(buySkuEntity);
                     } finally {
