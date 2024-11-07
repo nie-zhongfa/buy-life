@@ -1,5 +1,6 @@
 package org.buy.life.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.time.LocalDateTime;
@@ -36,7 +37,6 @@ public class BuySeriesEntity extends Model<BuySeriesEntity> {
      * 类别编码
      */
     private String categoryCode;
-
     /**
      * 系列编码
      */
@@ -66,6 +66,24 @@ public class BuySeriesEntity extends Model<BuySeriesEntity> {
      * 更新时间
      */
     private LocalDateTime mtime;
+
+    /**
+     * 最低价
+     */
+    @TableField(exist = false)
+    private String minPrice;
+
+    /**
+     * 最高价
+     */
+    @TableField(exist = false)
+    private String maxPrice;
+
+    /**
+     * 类别名称
+     */
+    @TableField(exist = false)
+    private String categoryName;
 
 
     @Override
