@@ -63,7 +63,7 @@
             </foreach>
         </if>
         <if test="status != null and status.size > 0">
-            and s.status in
+            and o.status in
             <foreach collection="status" item="item" open="(" separator="," close=")">
                 #{item}
             </foreach>
