@@ -22,6 +22,9 @@ import org.buy.life.service.IAdminSeriesService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.buy.life.utils.excel.ExcelUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +55,9 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
     private IAdminCategoryService iAdminCategoryService;
     @Resource
     private IAdminSkuService iAdminSkuService;
+    @Autowired
+    @Qualifier("thirdThreadPoolExecutor")
+    private ThreadPoolTaskExecutor thirdThreadPoolExecutor;
 
     /**
      * 查询类别列表
@@ -125,27 +133,34 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
             }
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySeriesEntity> buySeriesEntityList = new ArrayList<>();
+            CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSeriesInfoDto seriesInfoDto : doReadSync) {
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        String img = iAdminSkuService.uploadImg(seriesInfoDto.getZh_cn() + seriesInfoDto.getImgSuffix(), seriesInfoDto.getFile());
 
-                String img = iAdminSkuService.uploadImg(seriesInfoDto.getZh_cn() + seriesInfoDto.getImgSuffix(), seriesInfoDto.getFile());
+                        BuySeriesEntity buySeriesEntity = new BuySeriesEntity();
+                        buySeriesEntity.setClassification(seriesInfoDto.getIp());
+                        buySeriesEntity.setSeriesCode(seriesInfoDto.getSeriesCode());
+                        buySeriesEntity.setCategoryCode(seriesInfoDto.getCategoryCode());
 
-                BuySeriesEntity buySeriesEntity = new BuySeriesEntity();
-                buySeriesEntity.setClassification(seriesInfoDto.getIp());
-                buySeriesEntity.setSeriesCode(seriesInfoDto.getSeriesCode());
-                buySeriesEntity.setCategoryCode(seriesInfoDto.getCategoryCode());
+                        buySeriesEntity.setCover(img);
 
-                buySeriesEntity.setCover(img);
+                        List<SeriesName> seriesNames = new ArrayList<>();
+                        SeriesName.buildSeriesNameList(seriesInfoDto, seriesNames);
+                        buySeriesEntity.setSeriesName(JSON.toJSONString(seriesNames));
 
-                List<SeriesName> seriesNames = new ArrayList<>();
-                SeriesName.buildSeriesNameList(seriesInfoDto, seriesNames);
-                buySeriesEntity.setSeriesName(JSON.toJSONString(seriesNames));
-
-                List<BuySeriesEntity> seriesEntityList = getSeriesByCode(seriesInfoDto.getSeriesCode(), seriesInfoDto.getCategoryCode());
-                if (!CollectionUtils.isEmpty(seriesEntityList)) {
-                    buySeriesEntity.setId(seriesEntityList.get(0).getId());
-                }
-                buySeriesEntityList.add(buySeriesEntity);
+                        List<BuySeriesEntity> seriesEntityList = getSeriesByCode(seriesInfoDto.getSeriesCode(), seriesInfoDto.getCategoryCode());
+                        if (!CollectionUtils.isEmpty(seriesEntityList)) {
+                            buySeriesEntity.setId(seriesEntityList.get(0).getId());
+                        }
+                        buySeriesEntityList.add(buySeriesEntity);
+                    } finally {
+                        latch.countDown();
+                    }
+                }, thirdThreadPoolExecutor);
             }
+            latch.await();
             this.saveOrUpdateBatch(buySeriesEntityList);
         } catch (Exception ex) {
             log.error("importSeriesInfo fail", ex);

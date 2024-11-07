@@ -6,8 +6,10 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.buy.life.entity.BuyCategoryEntity;
+import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
+import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyCategoryMapper;
 import org.buy.life.model.dto.ImportCategoryDto;
 import org.buy.life.model.dto.ImportCategoryInfoDto;
@@ -18,6 +20,9 @@ import org.buy.life.service.IAdminCategoryService;
 import org.buy.life.service.IAdminSkuService;
 import org.buy.life.utils.excel.ExcelReadImageUtil;
 import org.buy.life.utils.excel.ExcelUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +51,9 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
 
     @Resource
     private IAdminSkuService iAdminSkuService;
+    @Autowired
+    @Qualifier("thirdThreadPoolExecutor")
+    private ThreadPoolTaskExecutor thirdThreadPoolExecutor;
 
     /**
      * 查询类别列表
@@ -107,25 +117,35 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
             List<BuyCategoryEntity> categoryListByCode = getCategoryListByCode(categoryCodeList);
             Map<String, BuyCategoryEntity> categoryEntityMap = categoryListByCode.stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, c -> c, (a, b) -> a));
             List<BuyCategoryEntity> buyCategoryEntities = new ArrayList<>();
+
+            CountDownLatch latch = new CountDownLatch(doReadSync.size());
+
             for (ImportCategoryInfoDto categoryDto : doReadSync) {
 
-                String img = iAdminSkuService.uploadImg(categoryDto.getZh_cn() + categoryDto.getImgSuffix(), categoryDto.getFile());
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        String img = iAdminSkuService.uploadImg(categoryDto.getZh_cn() + categoryDto.getImgSuffix(), categoryDto.getFile());
 
-                BuyCategoryEntity buyCategoryEntity = new BuyCategoryEntity();
-                buyCategoryEntity.setClassification(categoryDto.getIp());
-                buyCategoryEntity.setCategoryCode(categoryDto.getCategoryCode());
-                buyCategoryEntity.setCover(img);
+                        BuyCategoryEntity buyCategoryEntity = new BuyCategoryEntity();
+                        buyCategoryEntity.setClassification(categoryDto.getIp());
+                        buyCategoryEntity.setCategoryCode(categoryDto.getCategoryCode());
+                        buyCategoryEntity.setCover(img);
 
-                List<CategoryName> categoryNames = new ArrayList<>();
-                CategoryName.buildCategoryNameList(categoryDto, categoryNames);
-                buyCategoryEntity.setCategoryName(JSON.toJSONString(categoryNames));
+                        List<CategoryName> categoryNames = new ArrayList<>();
+                        CategoryName.buildCategoryNameList(categoryDto, categoryNames);
+                        buyCategoryEntity.setCategoryName(JSON.toJSONString(categoryNames));
 
-                if (categoryEntityMap.get(categoryDto.getCategoryCode()) != null) {
-                    BuyCategoryEntity buyCategory = categoryEntityMap.get(categoryDto.getCategoryCode());
-                    buyCategoryEntity.setId(buyCategory.getId());
-                }
-                buyCategoryEntities.add(buyCategoryEntity);
+                        if (categoryEntityMap.get(categoryDto.getCategoryCode()) != null) {
+                            BuyCategoryEntity buyCategory = categoryEntityMap.get(categoryDto.getCategoryCode());
+                            buyCategoryEntity.setId(buyCategory.getId());
+                        }
+                        buyCategoryEntities.add(buyCategoryEntity);
+                    } finally {
+                        latch.countDown();
+                    }
+                }, thirdThreadPoolExecutor);
             }
+            latch.await();
             this.saveOrUpdateBatch(buyCategoryEntities);
         } catch (Exception ex) {
             log.error("importCategoryInfo fail", ex);
