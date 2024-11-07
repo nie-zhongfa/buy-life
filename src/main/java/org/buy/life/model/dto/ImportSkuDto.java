@@ -35,16 +35,16 @@ public class ImportSkuDto {
     private String classification;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "系列(编码)",index = 2)
+    @ExcelProperty(value = "材质品类",index = 2)
+    private String skuCategory;
+
+    @ColumnWidth(30)
+    @ExcelProperty(value = "系列(编码)",index = 3)
     private String seriesCode;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "类别(编码)",index = 3)
+    @ExcelProperty(value = "类别(编码)",index = 4)
     private String categoryCode;
-
-    @ColumnWidth(30)
-    @ExcelProperty(value = "材质品类",index = 4)
-    private String skuCategory;
 
     @ColumnWidth(30)
     @ExcelProperty(value = "人物款式中文",index = 5)
