@@ -1,6 +1,7 @@
 package org.buy.life.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.ListUtil;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +65,11 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     @Autowired
     @Qualifier("thirdThreadPoolExecutor")
     private ThreadPoolTaskExecutor thirdThreadPoolExecutor;
+
+    @Autowired
+    @Qualifier("uploadThirdThreadPoolExecutor")
+    private ThreadPoolTaskExecutor uploadThirdThreadPoolExecutor;
+
     @Resource
     private IAdminCategoryService iAdminCategoryService;
     @Resource
@@ -129,19 +136,60 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         log.info("开始导入商品信息， 文件大小：{}", file.getSize() / (1024.0 * 1024.0) + "M");
         try {
             long t = System.currentTimeMillis();
-            log.info("start time ~~~~");
+            log.info("importSku start time ~~~~");
             InputStream inputStream = file.getInputStream();
             List<ImportSkuDto> doReadSync = EasyExcelFactory.read(file.getInputStream()).head(ImportSkuDto.class).sheet().doReadSync();
             if (CollectionUtils.isEmpty(doReadSync)) {
                 return;
             }
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
-            List<BuySkuEntity> buySkuEntities = new ArrayList<>();
 
             List<String> skuIdList = doReadSync.stream().map(ImportSkuDto::getSkuId).distinct().collect(Collectors.toList());
             List<BuySkuEntity> skuList = lambdaQuery().in(BuySkuEntity::getSkuId, skuIdList).eq(BuySkuEntity::getIsDeleted, false).list();
             Map<String, BuySkuEntity> skuEntityMap = skuList.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, c -> c, (a, b) -> a));
 
+            List<List<ImportSkuDto>> splitList = ListUtil.split(doReadSync, 100);
+
+            cfUpload(splitList, skuEntityMap);
+
+            log.info("importSku end time ~~~~:{}", System.currentTimeMillis() - t);
+        } catch (Exception ex) {
+            log.error("importSku fail", ex);
+            throw new BusinessException(9999, "导入失败");
+        }
+    }
+
+    private void cfUpload(List<List<ImportSkuDto>> doReadSyncs, Map<String, BuySkuEntity> skuEntityMap) {
+        try {
+            CountDownLatch latch = new CountDownLatch(doReadSyncs.size());
+            AtomicInteger counter = new AtomicInteger(0);
+            for (List<ImportSkuDto> doReadSync : doReadSyncs) {
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        long t1 = System.currentTimeMillis();
+                        log.info("cfUpload start upload ~~~");
+                        if (counter.incrementAndGet() % 2 > 0) {
+                            syncUpload(doReadSync, skuEntityMap, uploadThirdThreadPoolExecutor);
+                        } else {
+                            syncUpload(doReadSync, skuEntityMap, thirdThreadPoolExecutor);
+                        }
+                        //上传图片
+                        log.info("cfUpload end upload ~~~ :{}", System.currentTimeMillis() - t1);
+                    } finally {
+                        latch.countDown();
+                    }
+                }, uploadThirdThreadPoolExecutor);
+            }
+            latch.await();
+        } catch (Exception ex) {
+            log.error("cfUpload importSku fail", ex);
+            throw new BusinessException(9999, "导入失败");
+        }
+    }
+
+    private void syncUpload(List<ImportSkuDto> doReadSync, Map<String, BuySkuEntity> skuEntityMap, ThreadPoolTaskExecutor thirdThreadPoolExecutor) {
+        try {
+            List<BuySkuEntity> buySkuEntities = new ArrayList<>();
             CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSkuDto importSkuDto : doReadSync) {
                 CompletableFuture.runAsync(() -> {
@@ -191,7 +239,6 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             }
             latch.await();
             this.saveOrUpdateBatch(buySkuEntities);
-            log.info("end time ~~~~:{}", System.currentTimeMillis() - t);
         } catch (Exception ex) {
             log.error("importSku fail", ex);
             throw new BusinessException(9999, "导入失败");
@@ -331,4 +378,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         list.add(buySkuDictEntity);
     }
 
+    public static void main(String[] args) {
+        System.out.println(4%2);
+    }
 }
