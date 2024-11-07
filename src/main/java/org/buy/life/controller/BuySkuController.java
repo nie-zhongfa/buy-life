@@ -33,7 +33,7 @@ public class BuySkuController {
     @Resource
     private IBuySkuService buySkuService;
 
-    //
+    //模糊搜索
     @PostMapping("/skuList")
     public JSONData<SimplePage<BuySkuEntity>> skuList(@RequestBody PageBasicReq<BuySkuReq> req){
         return JSONData.success(buySkuService.pageList(req));

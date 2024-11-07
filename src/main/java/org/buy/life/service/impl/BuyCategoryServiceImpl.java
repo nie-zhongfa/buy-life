@@ -1,5 +1,6 @@
 package org.buy.life.service.impl;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.buy.life.entity.BuyCategoryEntity;
 import org.buy.life.mapper.BuyCategoryMapper;
@@ -28,4 +29,12 @@ public class BuyCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, BuyCa
         return lambdaQuery().eq(BuyCategoryEntity::getIsDeleted, false).list();
     }
 
+
+    @Override
+    public List<BuyCategoryEntity> getCategoryList(List<String> classifications){
+        if(CollectionUtils.isNotEmpty(classifications)){
+            return lambdaQuery().in(BuyCategoryEntity::getClassification,classifications).eq(BuyCategoryEntity::getIsDeleted, false).list();
+        }
+        return lambdaQuery().eq(BuyCategoryEntity::getIsDeleted, false).list();
+    }
 }

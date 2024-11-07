@@ -21,4 +21,6 @@ public interface IBuySkuService extends IService<BuySkuEntity> {
     SimplePage<BuySkuEntity> pageList(PageBasicReq<BuySkuReq> buySkuReq);
 
     List<BuySkuEntity> pageSeriesList(BuySkuReq buySkuReq);
+
+    List<BuySkuEntity>  getBySeriesCodes(List<String> seriesCodes);
 }

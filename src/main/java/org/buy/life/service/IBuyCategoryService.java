@@ -16,4 +16,6 @@ import java.util.List;
 public interface IBuyCategoryService extends IService<BuyCategoryEntity> {
 
     List<BuyCategoryEntity> getCategoryList(String classification);
+
+    List<BuyCategoryEntity> getCategoryList(List<String> classifications);
 }

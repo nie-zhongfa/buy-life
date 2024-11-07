@@ -140,4 +140,14 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
         return list;
     }
 
+
+    @Override
+    public List<BuySkuEntity>  getBySeriesCodes(List<String> seriesCodes){
+        LambdaQueryWrapper<BuySkuEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(BuySkuEntity::getIsDeleted,0)
+                .in(CollectionUtils.isNotEmpty(seriesCodes),BuySkuEntity::getSeriesCode,seriesCodes)
+                .in(BuySkuEntity::getStatus, Lists.newArrayList(SkuStatusEnum.LISTED.getCode()));
+        return  list(wrapper);
+    }
+
 }
