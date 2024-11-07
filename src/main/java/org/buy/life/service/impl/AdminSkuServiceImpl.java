@@ -161,26 +161,18 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
 
     private void cfUpload(List<List<ImportSkuDto>> doReadSyncs, Map<String, BuySkuEntity> skuEntityMap) {
         try {
-            CountDownLatch latch = new CountDownLatch(doReadSyncs.size());
             AtomicInteger counter = new AtomicInteger(0);
             for (List<ImportSkuDto> doReadSync : doReadSyncs) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        long t1 = System.currentTimeMillis();
-                        log.info("cfUpload start upload ~~~");
-                        if (counter.incrementAndGet() % 2 > 0) {
-                            syncUpload(doReadSync, skuEntityMap, uploadThirdThreadPoolExecutor);
-                        } else {
-                            syncUpload(doReadSync, skuEntityMap, thirdThreadPoolExecutor);
-                        }
-                        //上传图片
-                        log.info("cfUpload end upload ~~~ :{}", System.currentTimeMillis() - t1);
-                    } finally {
-                        latch.countDown();
-                    }
-                }, uploadThirdThreadPoolExecutor);
+                long t1 = System.currentTimeMillis();
+                log.info("cfUpload start upload ~~~");
+                if (counter.incrementAndGet() % 2 > 0) {
+                    syncUpload(doReadSync, skuEntityMap, uploadThirdThreadPoolExecutor);
+                } else {
+                    syncUpload(doReadSync, skuEntityMap, thirdThreadPoolExecutor);
+                }
+                //上传图片
+                log.info("cfUpload end upload ~~~ :{}", System.currentTimeMillis() - t1);
             }
-            latch.await();
         } catch (Exception ex) {
             log.error("cfUpload importSku fail", ex);
             throw new BusinessException(9999, "导入失败");
