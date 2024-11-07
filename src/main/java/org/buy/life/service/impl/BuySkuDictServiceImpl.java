@@ -64,7 +64,7 @@ public class BuySkuDictServiceImpl extends ServiceImpl<BuySkuDictMapper, BuySkuD
     public BuySkuDictResp getAllDict(){
         BuySkuDictResp buySkuDictResp=new BuySkuDictResp();
 
-        List<BuyCategoryEntity> categoryList = buyCategoryService.getCategoryList(null);
+        List<BuyCategoryEntity> categoryList = buyCategoryService.getCategory(null);
 
         List<BuySkuDictResp.Category> categories = BeanCopiesUtils.copyList(categoryList, BuySkuDictResp.Category.class);
 

@@ -22,7 +22,7 @@ import java.util.List;
 public class BuyCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, BuyCategoryEntity> implements IBuyCategoryService {
 
     @Override
-    public List<BuyCategoryEntity> getCategoryList(String classification){
+    public List<BuyCategoryEntity> getCategory(String classification){
         if(StringUtils.isNotEmpty(classification)){
             return lambdaQuery().eq(BuyCategoryEntity::getClassification,classification).eq(BuyCategoryEntity::getIsDeleted, false).list();
         }

@@ -33,7 +33,7 @@ public class BuyCategoryController {
     //查询ip下的所有类别，如果ip为空则查询所有ip的类别
     @GetMapping("/categoryList")
     public JSONData<List<BuyCategoryEntity>> categoryList(@RequestParam("classification") String classification){
-        return JSONData.success(buyCategoryService.getCategoryList(classification));
+        return JSONData.success(buyCategoryService.getCategory(classification));
     }
 }
 
