@@ -123,6 +123,7 @@ public class AdminAccountController {
     public JSONData<BuyAdminEntity> getAdminInfo() {
         String userId = CurrentAdminUser.getUserId();
         BuyAdminEntity adminInfo = iBuyAdminService.getAdminInfo(userId);
+        adminInfo.setPwd("");
         return JSONData.success(adminInfo);
     }
 }
