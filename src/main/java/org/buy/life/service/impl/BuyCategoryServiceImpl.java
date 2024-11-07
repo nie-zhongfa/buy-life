@@ -8,6 +8,7 @@ import org.buy.life.service.IBuyCategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,9 +33,11 @@ public class BuyCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, BuyCa
 
     @Override
     public List<BuyCategoryEntity> getCategoryList(List<String> categoryLists){
+
+
         if(CollectionUtils.isNotEmpty(categoryLists)){
             return lambdaQuery().in(BuyCategoryEntity::getCategoryCode,categoryLists).eq(BuyCategoryEntity::getIsDeleted, false).list();
         }
-        return lambdaQuery().eq(BuyCategoryEntity::getIsDeleted, false).list();
+        return new ArrayList<>();
     }
 }
