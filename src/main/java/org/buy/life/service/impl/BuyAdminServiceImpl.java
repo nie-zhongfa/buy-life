@@ -109,7 +109,8 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
     public IPage<BuyAdminEntity> getAccountPage(QueryAccountRequest queryAccountRequest) {
         return lambdaQuery()
                 .eq(BuyAdminEntity::getIsDeleted, false)
-                .orderByDesc(BuyAdminEntity::getMtime)
+                .orderByDesc(BuyAdminEntity::getRole)
+                .orderByAsc(BuyAdminEntity::getId)
                 .page(new Page<>(queryAccountRequest.getPageNum(), queryAccountRequest.getPageSize()));
     }
 
