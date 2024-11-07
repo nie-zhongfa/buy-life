@@ -84,29 +84,73 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
     private void calculate(List<BuySkuEntity> skuEntities,BuySeriesEntity buySeriesEntity){
         List<SkuPrice> minList=new ArrayList<>();
         List<SkuPrice> maxList=new ArrayList<>();
+        List<SkuPrice> retailMinList=new ArrayList<>();
+        List<SkuPrice> retailMaxList=new ArrayList<>();
         for (CurrencyEnum currencyEnum : CurrencyEnum.values()) {
             String min = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).min(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
 
             String max = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
                 return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
             }).max(Comparator.comparing(m -> {
-                return Double.parseDouble(m);
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
             })).orElse("0.00");
+
+
+            String retailMin = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getRetailPrice())).map(k -> {
+                return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
+            }).min(Comparator.comparing(m -> {
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
+            })).orElse("0.00");
+
+            String retailMax = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getPrice())).map(k -> {
+                return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
+            }).max(Comparator.comparing(m -> {
+                try {
+                    return  Double.parseDouble(m);
+                }catch (Exception e){
+                    return new Double(0.00);
+                }
+            })).orElse("0.00");
+
 
             SkuPrice skuPrice1=new SkuPrice();
             skuPrice1.setCurrency(currencyEnum.getCode());
             skuPrice1.setSkuPrice(min);
             minList.add(skuPrice1);
+            SkuPrice skuPrice3=new SkuPrice();
+            skuPrice3.setCurrency(currencyEnum.getCode());
+            skuPrice3.setSkuPrice(retailMin);
+            retailMinList.add(skuPrice3);
+
             SkuPrice skuPrice2=new SkuPrice();
             skuPrice2.setCurrency(currencyEnum.getCode());
             skuPrice2.setSkuPrice(max);
             maxList.add(skuPrice2);
+            SkuPrice skuPrice4=new SkuPrice();
+            skuPrice4.setCurrency(currencyEnum.getCode());
+            skuPrice4.setSkuPrice(retailMax);
+            retailMaxList.add(skuPrice4);
         }
         buySeriesEntity.setMinPrice(JSONObject.toJSONString(minList));
         buySeriesEntity.setMaxPrice(JSONObject.toJSONString(maxList));
+        buySeriesEntity.setRetailMinPrice(JSONObject.toJSONString(retailMinList));
+        buySeriesEntity.setRetailMaxPrice(JSONObject.toJSONString(retailMaxList));
+
     }
 }
