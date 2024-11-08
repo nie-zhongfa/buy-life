@@ -26,6 +26,9 @@ public class SkuPrice {
         }
         List<SkuPrice> skuPrices = JSON.parseArray(json, SkuPrice.class);
         SkuPrice skuPrice = skuPrices.stream().filter(s -> currency.equals(s.getCurrency())).findFirst().get();
+        if(StringUtils.isEmpty(skuPrice.getSkuPrice())){
+            return "0.00";
+        }
         return skuPrice.getSkuPrice();
     }
 

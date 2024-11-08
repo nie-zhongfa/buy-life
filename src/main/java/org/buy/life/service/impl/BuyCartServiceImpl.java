@@ -85,15 +85,8 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
             if(Objects.isNull(buySkuEntity)){
                 continue;
             }
-            List<SkuPrice> skuPrice = JSONObject.parseArray(buySkuEntity.getPrice(), SkuPrice.class);
-
-            Map<String, SkuPrice> skuPriceMap = skuPrice.stream().collect(Collectors.toMap(SkuPrice::getCurrency,
-                    Function.identity(), (key1, key2) -> key2));
-            
-            String price=skuPriceMap.get(TtlUtils.getSPCtx().getCurrency()).getSkuPrice();
-
+            String price = SkuPrice.getSkuPrice(buySkuEntity.getPrice(), TtlUtils.getSPCtx().getCurrency());
             String skuAmt = new BigDecimal(price).multiply(new BigDecimal(cart.getSkuNum())).setScale(2, RoundingMode.HALF_UP) + "";
-
             BuyCartResp.CartSku build = BuyCartResp.CartSku.builder().skuId(cart.getSkuId())
                     .stock(buySkuEntity.getStock()).skuName(buySkuEntity.getSkuName())
                     .price(buySkuEntity.getPrice())
