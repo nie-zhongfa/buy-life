@@ -11,6 +11,7 @@ import org.buy.life.entity.resp.SimplePage;
 import org.buy.life.exception.BusinessException;
 import org.buy.life.mapper.BuySeriesMapper;
 import org.buy.life.model.dto.ImportCategoryDto;
+import org.buy.life.model.dto.ImportCategoryInfoDto;
 import org.buy.life.model.dto.ImportSeriesInfoDto;
 import org.buy.life.model.enums.LangEnum;
 import org.buy.life.model.request.AdminSeriesRequest;
@@ -178,6 +179,6 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                 .en("Genshin Impact")
                 .file(null)
                 .build();
-        ExcelUtil.writeExcel(response, "sku_series_template", ImportCategoryDto.class, Arrays.asList(seriesInfoDto));
+        ExcelUtil.writeExcel(response, "sku_series_template", ImportSeriesInfoDto.class, Arrays.asList(seriesInfoDto));
     }
 }
