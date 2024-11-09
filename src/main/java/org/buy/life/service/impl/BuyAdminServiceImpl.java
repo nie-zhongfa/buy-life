@@ -136,7 +136,7 @@ public class BuyAdminServiceImpl extends ServiceImpl<BuyAdminMapper, BuyAdminEnt
             }
         }
         lambdaUpdate()
-                .set(BuyAdminEntity::getPwd, JSON.toJSONString(updateAdminAccountRequest.getPwd()))
+                .set(BuyAdminEntity::getPwd, updateAdminAccountRequest.getPwd())
                 .eq(BuyAdminEntity::getUserId, updateAdminAccountRequest.getUserId())
                 .update();
     }
