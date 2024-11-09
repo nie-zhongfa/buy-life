@@ -178,6 +178,6 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                 .en("Genshin Impact")
                 .file(null)
                 .build();
-        ExcelUtil.writeExcel(response, "category_template", ImportCategoryDto.class, Arrays.asList(seriesInfoDto));
+        ExcelUtil.writeExcel(response, "sku_series_template", ImportCategoryDto.class, Arrays.asList(seriesInfoDto));
     }
 }

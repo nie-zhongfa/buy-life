@@ -162,6 +162,6 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
                 .en("Badges")
                 .file(null)
                 .build();
-        ExcelUtil.writeExcel(response, "category_template", ImportCategoryDto.class, Arrays.asList(categoryInfoDto));
+        ExcelUtil.writeExcel(response, "sku_category_template", ImportCategoryDto.class, Arrays.asList(categoryInfoDto));
     }
 }
