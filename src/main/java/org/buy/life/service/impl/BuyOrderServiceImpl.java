@@ -3,6 +3,7 @@ package org.buy.life.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.buy.life.constant.OrderStatusEnum;
 import org.buy.life.entity.*;
 import org.buy.life.entity.req.BuyOrderDetailReq;
@@ -58,6 +59,11 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
     @Resource
     private IBuyOrderChangeLogService buyOrderChangeLogService;
 
+    @Resource
+    private  IBuyCategoryService buyCategoryService;
+
+    @Resource
+    private IBuySeriesService buySeriesService;
 
 
     @Override
@@ -154,6 +160,28 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         Map<String, List<BuyOrderDetailEntity>> detailMap = orderDetails.stream().collect(Collectors.groupingBy(BuyOrderDetailEntity::getOrderId));
 
         List<BuyOrderDetailResp> buyOrderDetailResps=new ArrayList<> ();
+        List<String> categoryCode = skuEntitys.stream().map(BuySkuEntity::getCategoryCode).collect(Collectors.toList());
+        Map<String, BuyCategoryEntity> categoryMap=new HashMap<>();
+        if(!org.apache.commons.collections4.CollectionUtils.isEmpty(categoryCode)){
+            LambdaQueryWrapper<BuyCategoryEntity> categoryWrapper = new LambdaQueryWrapper<>();
+            categoryWrapper.eq(BuyCategoryEntity::getIsDeleted, 0).
+                    in(BuyCategoryEntity::getCategoryCode,categoryCode);
+            List<BuyCategoryEntity> categoryEntityList = buyCategoryService.list(categoryWrapper);
+            categoryMap=ListUtils.emptyIfNull(categoryEntityList).stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, Function.identity(), (k1, k2) -> k2));
+        }
+
+        List<String> seriesCode = skuEntitys.stream().map(BuySkuEntity::getSeriesCode).collect(Collectors.toList());
+        Map<String, BuySeriesEntity> seriesMap=new  HashMap<>();
+        if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(seriesCode)){
+            LambdaQueryWrapper<BuySeriesEntity> seriesWrapper = new LambdaQueryWrapper<>();
+            seriesWrapper.eq(BuySeriesEntity::getIsDeleted, 0).
+                    in(BuySeriesEntity::getSeriesCode,seriesCode);
+            List<BuySeriesEntity> seriesEntityList = buySeriesService.list(seriesWrapper);
+            seriesMap = ListUtils.emptyIfNull(seriesEntityList).stream().collect(Collectors.toMap(BuySeriesEntity::getSeriesCode, Function.identity(), (k1, k2) -> k2));
+        }
+
+
+
         for (BuyOrderEntity buyOrderEntity:orderEntityList){
             BuyOrderDetailResp buyOrderDetailResp=new BuyOrderDetailResp();
             buyOrderDetailResp.setOrderAmt(buyOrderEntity.getOrderAmt());
@@ -165,12 +193,21 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
             buyOrderDetailResp.setStatus(buyOrderEntity.getStatus());
             List<BuyOrderDetailEntity> buyOrderDetailEntities = detailMap.get(buyOrderEntity.getOrderId());
             List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(buyOrderDetailEntities, BuyOrderDetailResp.OrderDetail.class);
+            Map<String, BuyCategoryEntity> finalCategoryMap = categoryMap;
+            Map<String, BuySeriesEntity> finalSeriesMap = seriesMap;
             orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
                 o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
                 o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
                 o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
                 o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
                 o.setClassification(skuMap.get(o.getSkuId()).getClassification());
+                if(finalCategoryMap.containsKey(skuMap.get(o.getSkuId()).getCategoryCode())){
+                    o.setCategoryName(finalCategoryMap.get(skuMap.get(o.getSkuId()).getCategoryCode()).getCategoryName());
+                }
+
+                if(finalSeriesMap.containsKey(skuMap.get(o.getSkuId()).getSeriesCode())){
+                    o.setSeriesName(finalSeriesMap.get(skuMap.get(o.getSkuId()).getSeriesCode()).getSeriesName());
+                }
                 return o;
             }).collect(Collectors.toList());
             buyOrderDetailResp.setOrderDetails(orderDetails1);
@@ -207,6 +244,26 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         List<BuySkuEntity> skuEntitys = skuService.list(skuWrapper);
         Map<String, BuySkuEntity> skuMap = skuEntitys.stream().collect(Collectors.toMap(BuySkuEntity::getSkuId, Function.identity(), (key1, key2) -> key2));
 
+
+        List<String> categoryCode = skuEntitys.stream().map(BuySkuEntity::getCategoryCode).collect(Collectors.toList());
+        Map<String, BuyCategoryEntity> categoryMap=new HashMap<>();
+        if(!org.apache.commons.collections4.CollectionUtils.isEmpty(categoryCode)){
+            LambdaQueryWrapper<BuyCategoryEntity> categoryWrapper = new LambdaQueryWrapper<>();
+            categoryWrapper.eq(BuyCategoryEntity::getIsDeleted, 0).
+                    in(BuyCategoryEntity::getCategoryCode,categoryCode);
+            List<BuyCategoryEntity> categoryEntityList = buyCategoryService.list(categoryWrapper);
+            categoryMap=ListUtils.emptyIfNull(categoryEntityList).stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, Function.identity(), (k1, k2) -> k2));
+        }
+
+        List<String> seriesCode = skuEntitys.stream().map(BuySkuEntity::getSeriesCode).collect(Collectors.toList());
+        Map<String, BuySeriesEntity> seriesMap=new  HashMap<>();
+        if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(seriesCode)){
+            LambdaQueryWrapper<BuySeriesEntity> seriesWrapper = new LambdaQueryWrapper<>();
+            seriesWrapper.eq(BuySeriesEntity::getIsDeleted, 0).
+                    in(BuySeriesEntity::getSeriesCode,seriesCode);
+            List<BuySeriesEntity> seriesEntityList = buySeriesService.list(seriesWrapper);
+            seriesMap = ListUtils.emptyIfNull(seriesEntityList).stream().collect(Collectors.toMap(BuySeriesEntity::getSeriesCode, Function.identity(), (k1, k2) -> k2));
+        }
         BuyOrderDetailResp buyOrderDetailResp=new BuyOrderDetailResp();
         buyOrderDetailResp.setOrderAmt(orderEntity.getOrderAmt());
         buyOrderDetailResp.setSubmitTime(orderEntity.getLstSubmitTime());
@@ -216,12 +273,21 @@ public class BuyOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderEnt
         buyOrderDetailResp.setUserRemark(orderEntity.getUserRemark());
         buyOrderDetailResp.setStatus(orderEntity.getStatus());
         List<BuyOrderDetailResp.OrderDetail> orderDetails1 = BeanCopiesUtils.copyList(orderDetails, BuyOrderDetailResp.OrderDetail.class);
+        Map<String, BuySeriesEntity> finalSeriesMap = seriesMap;
+        Map<String, BuyCategoryEntity> finalCategoryMap = categoryMap;
         orderDetails1.stream().filter(o->skuMap.containsKey(o.getSkuId())).map(o -> {
             o.setSkuName(skuMap.get(o.getSkuId()).getSkuName());
             o.setSkuType(skuMap.get(o.getSkuId()).getSkuType());
             o.setBatchKey(skuMap.get(o.getSkuId()).getBatchKey());
             o.setSkuCategory(skuMap.get(o.getSkuId()).getSkuCategory());
             o.setClassification(skuMap.get(o.getSkuId()).getClassification());
+            if(finalCategoryMap.containsKey(skuMap.get(o.getSkuId()).getCategoryCode())){
+                o.setCategoryName(finalCategoryMap.get(skuMap.get(o.getSkuId()).getCategoryCode()).getCategoryName());
+            }
+
+            if(finalSeriesMap.containsKey(skuMap.get(o.getSkuId()).getSeriesCode())){
+                o.setSeriesName(finalSeriesMap.get(skuMap.get(o.getSkuId()).getSeriesCode()).getSeriesName());
+            }
             return o;
         }).collect(Collectors.toList());
         buyOrderDetailResp.setOrderDetails(orderDetails1);
