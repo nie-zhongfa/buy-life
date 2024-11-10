@@ -37,7 +37,7 @@ public class ImportSeriesInfoDto {
     private String seriesCode;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "类别编码",index = 2)
+    @ExcelProperty(value = "品类编码",index = 2)
     private String categoryCode;
 
     @ColumnWidth(30)

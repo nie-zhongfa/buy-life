@@ -33,7 +33,7 @@ public class ImportCategoryInfoDto {
     private String ip;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "类别编码",index = 1)
+    @ExcelProperty(value = "品类编码",index = 1)
     private String categoryCode;
 
     @ColumnWidth(30)
