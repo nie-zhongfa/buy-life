@@ -15,7 +15,9 @@ public enum SkuStatusEnum {
 
     LISTED("LISTED", "{\"zh_cn\": \"已上架\",\"en\": \"Already listed\",\"es\": \"En los estantes\",\"fr\": \"Déjà sur les étagères\",\"de\": \"Bereits aufgeführt\"}"),
 
-    UPLOADING("UPLOADING", "{\"zh_cn\": \"上传中\",\"en\": \"upload ing\",\"es\": \"upload ing\",\"fr\": \"upload ing\",\"de\": \"upload ing\"}");
+    UPLOADING("UPLOADING", "{\"zh_cn\": \"上传中\",\"en\": \"upload ing\",\"es\": \"upload ing\",\"fr\": \"upload ing\",\"de\": \"upload ing\"}"),
+
+    UPLOAD_FAIL("UPLOAD_FAIL", "{\"zh_cn\": \"上传失败\",\"en\": \"upload fail\",\"es\": \"upload fail\",\"fr\": \"upload fail\",\"de\": \"upload fail\"}");
     /**
      * 后端code
      */

@@ -206,11 +206,18 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                         //上传图片
                         String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
                         log.info("img end upload ~~~ :{}", System.currentTimeMillis() - t1);
-                        lambdaUpdate()
-                                .eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId())
-                                .set(BuySkuEntity::getBatchKey, fileUrl)
-                                .set(BuySkuEntity::getStatus, importSkuDto.getSkuStatus())
-                                .update();
+                        if (fileUrl == null) {
+                            lambdaUpdate()
+                                    .eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId())
+                                    .set(BuySkuEntity::getStatus, SkuStatusEnum.UPLOAD_FAIL.getCode())
+                                    .update();
+                        } else {
+                            lambdaUpdate()
+                                    .eq(BuySkuEntity::getSkuId, importSkuDto.getSkuId())
+                                    .set(BuySkuEntity::getBatchKey, fileUrl)
+                                    .set(BuySkuEntity::getStatus, importSkuDto.getSkuStatus())
+                                    .update();
+                        }
                     } catch (Exception ex) {
                         log.error("上传图片失败，upload img error", ex);
                     }
@@ -312,6 +319,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
     @Override
     public String uploadImg(String fileName, InputStream file) {
         if (file == null) {
+            log.error("读片读取失败～");
             return null;
         }
         try {
