@@ -1,5 +1,6 @@
 package org.buy.life.entity.resp;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -92,6 +93,38 @@ public class BuyOrderDetailResp {
         private String skuCategory;
 
         private String classification;
+
+        /**
+         * 类别编码
+         */
+        private String categoryCode;
+
+        /**
+         * 系列编码
+         */
+        private String seriesCode;
+
+
+        /**
+         * 类别名称
+         */
+        private String categoryName;
+
+        /**
+         * 封面地址
+         */
+        private String categoryCover;
+
+
+        /**
+         * 系列名称
+         */
+        private String seriesName;
+
+        /**
+         * 系列封面
+         */
+        private String seriesCover;
 
     }
 

@@ -2,10 +2,13 @@ package org.buy.life.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.commons.collections4.ListUtils;
 import org.assertj.core.util.Lists;
 import org.buy.life.constant.CartStatusEnum;
 import org.buy.life.constant.SkuStatusEnum;
 import org.buy.life.entity.BuyCartEntity;
+import org.buy.life.entity.BuyCategoryEntity;
+import org.buy.life.entity.BuySeriesEntity;
 import org.buy.life.entity.BuySkuEntity;
 import org.buy.life.entity.req.BuyCartReq;
 import org.buy.life.entity.resp.BuyCartResp;
@@ -15,6 +18,8 @@ import org.buy.life.mapper.BuyCartMapper;
 import org.buy.life.model.request.SkuPrice;
 import org.buy.life.service.IBuyCartService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.buy.life.service.IBuyCategoryService;
+import org.buy.life.service.IBuySeriesService;
 import org.buy.life.service.IBuySkuService;
 import org.buy.life.utils.TtlUtils;
 import org.springframework.stereotype.Service;
@@ -26,6 +31,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +52,12 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
     @Resource
     private IBuySkuService buySkuService;
 
+
+    @Resource
+    private IBuyCategoryService buyCategoryService;
+
+    @Resource
+    private IBuySeriesService buySeriesService;
     @Override
     public BuyCartResp cartList(){
         if(StringUtils.isEmpty(TtlUtils.getSPCtx().getCurrency())){
@@ -78,6 +90,25 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
 
         BuyCartResp buyCartResp=new BuyCartResp();
 
+        List<String> categoryCode = skuEntities.stream().map(BuySkuEntity::getCategoryCode).collect(Collectors.toList());
+        Map<String, BuyCategoryEntity> categoryMap=new HashMap<>();
+        if(!org.apache.commons.collections4.CollectionUtils.isEmpty(categoryCode)){
+            LambdaQueryWrapper<BuyCategoryEntity> categoryWrapper = new LambdaQueryWrapper<>();
+            categoryWrapper.eq(BuyCategoryEntity::getIsDeleted, 0).
+                    in(BuyCategoryEntity::getCategoryCode,categoryCode);
+            List<BuyCategoryEntity> categoryEntityList = buyCategoryService.list(categoryWrapper);
+            categoryMap= ListUtils.emptyIfNull(categoryEntityList).stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, Function.identity(), (k1, k2) -> k2));
+        }
+
+        List<String> seriesCode = skuEntities.stream().map(BuySkuEntity::getSeriesCode).collect(Collectors.toList());
+        Map<String, BuySeriesEntity> seriesMap=new  HashMap<>();
+        if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(seriesCode)){
+            LambdaQueryWrapper<BuySeriesEntity> seriesWrapper = new LambdaQueryWrapper<>();
+            seriesWrapper.eq(BuySeriesEntity::getIsDeleted, 0).
+                    in(BuySeriesEntity::getSeriesCode,seriesCode);
+            List<BuySeriesEntity> seriesEntityList = buySeriesService.list(seriesWrapper);
+            seriesMap = ListUtils.emptyIfNull(seriesEntityList).stream().collect(Collectors.toMap(BuySeriesEntity::getSeriesCode, Function.identity(), (k1, k2) -> k2));
+        }
         BigDecimal totalAmt=new BigDecimal(0);
 
         for (BuyCartEntity cart:list){
@@ -94,6 +125,13 @@ public class BuyCartServiceImpl extends ServiceImpl<BuyCartMapper, BuyCartEntity
                     .skuNum(cart.getSkuNum()).skuAmt(skuAmt).batchKey(buySkuEntity.getBatchKey()).skuCategory(buySkuEntity.getSkuCategory())
                     .skuType(buySkuEntity.getSkuType()).classification(buySkuEntity.getClassification())
                     .build();
+            if(categoryMap.containsKey(buySkuEntity.getCategoryCode())){
+                build.setCategoryName(categoryMap.get(buySkuEntity.getCategoryCode()).getCategoryName());
+            }
+
+            if(seriesMap.containsKey(buySkuEntity.getSeriesCode())){
+                build.setSeriesName(seriesMap.get(buySkuEntity.getSeriesCode()).getSeriesName());
+            }
             buyCartResp.getCartSkuLists().add(build);
             totalAmt=totalAmt.add(new BigDecimal(skuAmt));
         }
