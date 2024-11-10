@@ -40,7 +40,7 @@
         u.mail,
         d.sku_id skuId,
         s.sku_name skuName,
-        s.sku_category skuCategory,
+        s.category_code skuCategory,
         s.sku_type skuType,
         d.price,
         d.total_amt totalAmt,

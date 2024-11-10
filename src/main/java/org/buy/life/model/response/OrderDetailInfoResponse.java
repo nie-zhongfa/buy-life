@@ -34,10 +34,15 @@ public class OrderDetailInfoResponse {
      */
     private String batchKey;
 
+//    /**
+//     * 材质品类
+//     */
+//    private String skuCategory;
+
     /**
-     * 材质品类
+     * 品类
      */
-    private String skuCategory;
+    private String categoryName;
 
     /**
      * 人物款式

@@ -66,10 +66,10 @@ public class ExportOrderDetailInfoDto {
     private String skuName;
 
     /**
-     * 材质品类
+     * 品类
      */
     @ColumnWidth(30)
-    @ExcelProperty(value = "材质品类",index = 6)
+    @ExcelProperty(value = "品类",index = 6)
     private String skuCategory;
 
     /**

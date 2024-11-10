@@ -103,7 +103,7 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
                 String skuType = SkuType.getSkuType(r.getSkuType(), LangEnum.ZH_CN.getCode());
 
                 adminSkuResponse.setSkuName(skuName);
-                adminSkuResponse.setSkuCategory(r.getSkuCategory());
+//                adminSkuResponse.setSkuCategory(r.getSkuCategory());
                 adminSkuResponse.setSkuType(skuType);
                 //单价
                 adminSkuResponse.setPriceCNY(SkuPrice.getSkuPrice(r.getPrice(), CurrencyEnum.CNY.getCode()));
@@ -219,83 +219,83 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         });
     }
 
-    private void cfUpload(List<List<ImportSkuDto>> doReadSyncs, Map<String, BuySkuEntity> skuEntityMap) {
-        try {
-            AtomicInteger counter = new AtomicInteger(0);
-            for (List<ImportSkuDto> doReadSync : doReadSyncs) {
-                long t1 = System.currentTimeMillis();
-                log.info("cfUpload start upload ~~~");
-                if (counter.incrementAndGet() % 2 > 0) {
-                    syncUpload(doReadSync, skuEntityMap, uploadThirdThreadPoolExecutor);
-                } else {
-                    syncUpload(doReadSync, skuEntityMap, thirdThreadPoolExecutor);
-                }
-                //上传图片
-                log.info("cfUpload end upload ~~~ :{}", System.currentTimeMillis() - t1);
-            }
-        } catch (Exception ex) {
-            log.error("cfUpload importSku fail", ex);
-            throw new BusinessException(9999, "导入失败");
-        }
-    }
+//    private void cfUpload(List<List<ImportSkuDto>> doReadSyncs, Map<String, BuySkuEntity> skuEntityMap) {
+//        try {
+//            AtomicInteger counter = new AtomicInteger(0);
+//            for (List<ImportSkuDto> doReadSync : doReadSyncs) {
+//                long t1 = System.currentTimeMillis();
+//                log.info("cfUpload start upload ~~~");
+//                if (counter.incrementAndGet() % 2 > 0) {
+//                    syncUpload(doReadSync, skuEntityMap, uploadThirdThreadPoolExecutor);
+//                } else {
+//                    syncUpload(doReadSync, skuEntityMap, thirdThreadPoolExecutor);
+//                }
+//                //上传图片
+//                log.info("cfUpload end upload ~~~ :{}", System.currentTimeMillis() - t1);
+//            }
+//        } catch (Exception ex) {
+//            log.error("cfUpload importSku fail", ex);
+//            throw new BusinessException(9999, "导入失败");
+//        }
+//    }
 
-    private void syncUpload(List<ImportSkuDto> doReadSync, Map<String, BuySkuEntity> skuEntityMap, ThreadPoolTaskExecutor thirdThreadPoolExecutor) {
-        try {
-            List<BuySkuEntity> buySkuEntities = new ArrayList<>();
-            CountDownLatch latch = new CountDownLatch(doReadSync.size());
-            for (ImportSkuDto importSkuDto : doReadSync) {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        long t1 = System.currentTimeMillis();
-                        log.info("start upload ~~~");
-                        //上传图片
-                        String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
-                        log.info("end upload ~~~ :{}", System.currentTimeMillis() - t1);
-
-                        List<SkuPrice> prices = new ArrayList<>();
-                        SkuPrice.buildPriceList(importSkuDto, prices);
-
-                        List<SkuPrice> retailPrices = new ArrayList<>();
-                        SkuPrice.buildRetailPriceList(importSkuDto, retailPrices);
-
-                        List<SkuType> skuTypes = new ArrayList<>();
-                        SkuType.buildSkuTypeList(importSkuDto, skuTypes);
-
-                        List<SkuName> skuNames = new ArrayList<>();
-                        SkuName.buildSkuNameList(importSkuDto, skuNames);
-
-                        BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
-                        buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
-                        buySkuEntity.setPrice(JSON.toJSONString(prices));
-                        buySkuEntity.setRetailPrice(JSON.toJSONString(retailPrices));
-                        buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
-                        buySkuEntity.setBatchKey(fileUrl);
-                        buySkuEntity.setStatus(importSkuDto.getSkuStatus());
-                        buySkuEntity.setCreator(CurrentAdminUser.getUserId());
-                        buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
-                        buySkuEntity.setClassification(importSkuDto.getClassification());
-                        buySkuEntity.setSeriesCode(importSkuDto.getSeriesCode());
-                        buySkuEntity.setCategoryCode(importSkuDto.getCategoryCode());
-
-                        BuySkuEntity buySku = skuEntityMap.get(importSkuDto.getSkuId());
-
-                        if (buySku != null) {
-                            buySkuEntity.setId(buySku.getId());
-                            buySkuEntity.setCreator(buySku.getCreator());
-                        }
-                        buySkuEntities.add(buySkuEntity);
-                    } finally {
-                        latch.countDown();
-                    }
-                }, thirdThreadPoolExecutor);
-            }
-            latch.await();
-            this.saveOrUpdateBatch(buySkuEntities);
-        } catch (Exception ex) {
-            log.error("importSku fail", ex);
-            throw new BusinessException(9999, "导入失败");
-        }
-    }
+//    private void syncUpload(List<ImportSkuDto> doReadSync, Map<String, BuySkuEntity> skuEntityMap, ThreadPoolTaskExecutor thirdThreadPoolExecutor) {
+//        try {
+//            List<BuySkuEntity> buySkuEntities = new ArrayList<>();
+//            CountDownLatch latch = new CountDownLatch(doReadSync.size());
+//            for (ImportSkuDto importSkuDto : doReadSync) {
+//                CompletableFuture.runAsync(() -> {
+//                    try {
+//                        long t1 = System.currentTimeMillis();
+//                        log.info("start upload ~~~");
+//                        //上传图片
+//                        String fileUrl = uploadImg(importSkuDto.getSkuNameZh_cn() + importSkuDto.getImgSuffix(), importSkuDto.getFile());
+//                        log.info("end upload ~~~ :{}", System.currentTimeMillis() - t1);
+//
+//                        List<SkuPrice> prices = new ArrayList<>();
+//                        SkuPrice.buildPriceList(importSkuDto, prices);
+//
+//                        List<SkuPrice> retailPrices = new ArrayList<>();
+//                        SkuPrice.buildRetailPriceList(importSkuDto, retailPrices);
+//
+//                        List<SkuType> skuTypes = new ArrayList<>();
+//                        SkuType.buildSkuTypeList(importSkuDto, skuTypes);
+//
+//                        List<SkuName> skuNames = new ArrayList<>();
+//                        SkuName.buildSkuNameList(importSkuDto, skuNames);
+//
+//                        BuySkuEntity buySkuEntity = BeanUtil.copyProperties(importSkuDto, BuySkuEntity.class);
+//                        buySkuEntity.setSkuName(JSON.toJSONString(skuNames));
+//                        buySkuEntity.setPrice(JSON.toJSONString(prices));
+//                        buySkuEntity.setRetailPrice(JSON.toJSONString(retailPrices));
+//                        buySkuEntity.setSkuType(JSON.toJSONString(skuTypes));
+//                        buySkuEntity.setBatchKey(fileUrl);
+//                        buySkuEntity.setStatus(importSkuDto.getSkuStatus());
+//                        buySkuEntity.setCreator(CurrentAdminUser.getUserId());
+//                        buySkuEntity.setUpdater(CurrentAdminUser.getUserId());
+//                        buySkuEntity.setClassification(importSkuDto.getClassification());
+//                        buySkuEntity.setSeriesCode(importSkuDto.getSeriesCode());
+//                        buySkuEntity.setCategoryCode(importSkuDto.getCategoryCode());
+//
+//                        BuySkuEntity buySku = skuEntityMap.get(importSkuDto.getSkuId());
+//
+//                        if (buySku != null) {
+//                            buySkuEntity.setId(buySku.getId());
+//                            buySkuEntity.setCreator(buySku.getCreator());
+//                        }
+//                        buySkuEntities.add(buySkuEntity);
+//                    } finally {
+//                        latch.countDown();
+//                    }
+//                }, thirdThreadPoolExecutor);
+//            }
+//            latch.await();
+//            this.saveOrUpdateBatch(buySkuEntities);
+//        } catch (Exception ex) {
+//            log.error("importSku fail", ex);
+//            throw new BusinessException(9999, "导入失败");
+//        }
+//    }
 
 
 
@@ -379,7 +379,8 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
         ImportSkuDto importSkuDto = ImportSkuDto.builder()
                 .skuId("6976068148784")
                 .classification("star_rail、genshin_impact、zenless_zone_zero、tears_of_themis(选择其中一个)")
-                .skuCategory("2007(需提前导入品类，传品类编码)")
+                .categoryCode("1001(需提前导入品类，传品类编码)")
+                .seriesCode("S2001(需提前导入系列，传系列编码)")
                 .skuTypeZh_cn("多人")
                 .skuTypeEn("Multiple people")
                 .skuNameZh_cn("发车倒计时系列镭射卡套组7枚入")

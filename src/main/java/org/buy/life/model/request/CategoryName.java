@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.buy.life.model.dto.ImportCategoryInfoDto;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.LangEnum;
@@ -24,6 +25,9 @@ public class CategoryName
 
 
     public static String getCategoryName(String json, String lang) {
+        if (StringUtils.isBlank(json)) {
+            return "";
+        }
         List<CategoryName> categoryNames = JSON.parseArray(json, CategoryName.class);
         CategoryName categoryName = categoryNames.stream().filter(s -> lang.equals(s.getLang())).findFirst().get();
         return categoryName.getCategoryName();

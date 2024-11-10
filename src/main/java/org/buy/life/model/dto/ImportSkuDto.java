@@ -37,58 +37,57 @@ public class ImportSkuDto {
     @ExcelProperty(value = "IP",index = 1)
     private String classification;
 
+//    @ColumnWidth(30)
+//    @ExcelProperty(value = "材质品类",index = 2)
+//    private String skuCategory;
     @ColumnWidth(30)
-    @ExcelProperty(value = "材质品类",index = 2)
-    private String skuCategory;
+    @ExcelProperty(value = "类别(编码)",index = 2)
+    private String categoryCode;
 
     @ColumnWidth(30)
     @ExcelProperty(value = "系列(编码)",index = 3)
     private String seriesCode;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "类别(编码)",index = 4)
-    private String categoryCode;
-
-    @ColumnWidth(30)
-    @ExcelProperty(value = "人物款式中文",index = 5)
+    @ExcelProperty(value = "人物款式中文",index = 4)
     private String skuTypeZh_cn;
     @ColumnWidth(30)
-    @ExcelProperty(value = "人物款式英文",index = 6)
+    @ExcelProperty(value = "人物款式英文",index = 5)
     private String skuTypeEn;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "商品名称中文",index = 7)
+    @ExcelProperty(value = "商品名称中文",index = 6)
     private String skuNameZh_cn;
     @ColumnWidth(30)
-    @ExcelProperty(value = "商品名称英文",index = 8)
+    @ExcelProperty(value = "商品名称英文",index = 7)
     private String skuNameEn;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "成本价",index = 9)
+    @ExcelProperty(value = "成本价",index = 8)
     private String costPrice;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "人民币单价",index = 10)
+    @ExcelProperty(value = "人民币单价",index = 9)
     private String priceCNY;
     @ColumnWidth(30)
-    @ExcelProperty(value = "美元单价",index = 11)
+    @ExcelProperty(value = "美元单价",index = 10)
     private String priceUSD;
     @ColumnWidth(30)
-    @ExcelProperty(value = "欧元单价",index = 12)
+    @ExcelProperty(value = "欧元单价",index = 11)
     private String priceEUR;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "人民币零售价",index = 13)
+    @ExcelProperty(value = "人民币零售价",index = 12)
     private String retailPriceCNY;
     @ColumnWidth(30)
-    @ExcelProperty(value = "美元零售价",index = 14)
+    @ExcelProperty(value = "美元零售价",index = 13)
     private String retailPriceUSD;
     @ColumnWidth(30)
-    @ExcelProperty(value = "欧元零售价",index = 15)
+    @ExcelProperty(value = "欧元零售价",index = 14)
     private String retailPriceEUR;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "图片",index = 16)
+    @ExcelProperty(value = "图片",index = 15)
     @ExcelImageProperty(value = "表明这是一个图片字段")
     private InputStream file;
     @ExcelIgnore
@@ -96,11 +95,11 @@ public class ImportSkuDto {
     private String imgSuffix;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "数量",index = 17)
+    @ExcelProperty(value = "数量",index = 16)
     private String stock;
 
     @ColumnWidth(30)
-    @ExcelProperty(value = "上下架",index = 18)
+    @ExcelProperty(value = "上下架",index = 17)
     private String skuStatus;
 
 }
