@@ -125,7 +125,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
 
             //品类名称
             List<BuyCategoryEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getCategoryCode());
-            if (CollectionUtils.isEmpty(skuCategoryList)) {
+            if (!CollectionUtils.isEmpty(skuCategoryList)) {
                 String categoryName = CategoryName.getCategoryName(skuCategoryList.get(0).getCategoryName(), LangEnum.ZH_CN.getCode());
                 orderDetailInfoResponse.setCategoryName(categoryName);
             }
@@ -383,7 +383,7 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
                     .build();
             //品类名称
             List<BuyCategoryEntity> skuCategoryList = skuCategoryMap.get(buySkuEntity.getCategoryCode());
-            if (CollectionUtils.isEmpty(skuCategoryList)) {
+            if (!CollectionUtils.isEmpty(skuCategoryList)) {
                 String categoryName = CategoryName.getCategoryName(skuCategoryList.get(0).getCategoryName(), LangEnum.ZH_CN.getCode());
                 detailInfoDto.setSkuCategory(categoryName);
             }
