@@ -17,6 +17,7 @@ import org.buy.life.filter.CurrentAdminUser;
 import org.buy.life.mapper.BuyOrderMapper;
 import org.buy.life.model.dto.ChangeValueDto;
 import org.buy.life.model.dto.ExportOrderDetailInfoDto;
+import org.buy.life.model.dto.ExportOrderNoDetailInfoDto;
 import org.buy.life.model.dto.ImportOrderDto;
 import org.buy.life.model.enums.ActionEnum;
 import org.buy.life.model.enums.LangEnum;
@@ -484,28 +485,29 @@ public class AdminOrderServiceImpl extends ServiceImpl<BuyOrderMapper, BuyOrderE
         });
         if (!getOrderRequest.isDownLoadDetail()) {
             Map<String, List<ExportOrderDetailInfoDto>> orderMap = orderDetails.stream().collect(Collectors.groupingBy(ExportOrderDetailInfoDto::getOrderId));
-            List<ExportOrderDetailInfoDto> groupOrderList = new ArrayList<>();
+            List<ExportOrderNoDetailInfoDto> groupOrderList = new ArrayList<>();
             orderMap.forEach((orderId, list) -> {
                 BigDecimal orderAmt = list.stream().map(ExportOrderDetailInfoDto::getTotalAmt).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add);
                 Long totalSkuNum = list.stream().mapToLong(ExportOrderDetailInfoDto::getSkuNum).sum();
                 ExportOrderDetailInfoDto exportOrderDetailInfoDto = list.get(0);
-                ExportOrderDetailInfoDto detailInfoDto = ExportOrderDetailInfoDto.builder()
+
+                ExportOrderNoDetailInfoDto detailInfoDto = ExportOrderNoDetailInfoDto.builder()
                         .orderId(orderId)
                         .ctime(exportOrderDetailInfoDto.getCtime())
                         .userId(exportOrderDetailInfoDto.getUserId())
                         .mail(exportOrderDetailInfoDto.getMail())
-                        .skuId("")
-                        .skuName("")
-                        .skuCategory("")
-                        .skuType("")
-                        .price("")
+//                        .skuId("")
+//                        .skuName("")
+//                        .skuCategory("")
+//                        .skuType("")
+//                        .price("")
                         .totalAmt(String.valueOf(orderAmt))
                         .currency(exportOrderDetailInfoDto.getCurrency())
                         .skuNum(totalSkuNum)
                         .build();
                 groupOrderList.add(detailInfoDto);
             });
-            ExcelUtil.writeExcel(response, "order", ExportOrderDetailInfoDto.class, groupOrderList);
+            ExcelUtil.writeExcel(response, "order", ExportOrderNoDetailInfoDto.class, groupOrderList);
             return;
         }
         ExcelUtil.writeExcel(response, "order", ExportOrderDetailInfoDto.class, orderDetails);

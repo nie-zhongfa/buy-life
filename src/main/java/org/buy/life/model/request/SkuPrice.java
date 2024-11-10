@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.buy.life.model.dto.ImportSkuDto;
 import org.buy.life.model.enums.CurrencyEnum;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Data
@@ -43,14 +45,27 @@ public class SkuPrice {
     }
 
     public static void buildPriceList(ImportSkuDto importSkuDto, List<SkuPrice> skuPrices) {
-        SkuPrice.buildPrice(importSkuDto.getPriceCNY(), CurrencyEnum.CNY.getCode(), skuPrices);
-        SkuPrice.buildPrice(importSkuDto.getPriceUSD(), CurrencyEnum.USD.getCode(), skuPrices);
-        SkuPrice.buildPrice(importSkuDto.getPriceEUR(), CurrencyEnum.EUR.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getPriceCNY()), CurrencyEnum.CNY.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getPriceUSD()), CurrencyEnum.USD.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getPriceEUR()), CurrencyEnum.EUR.getCode(), skuPrices);
     }
 
     public static void buildRetailPriceList(ImportSkuDto importSkuDto, List<SkuPrice> skuPrices) {
-        SkuPrice.buildPrice(importSkuDto.getRetailPriceCNY(), CurrencyEnum.CNY.getCode(), skuPrices);
-        SkuPrice.buildPrice(importSkuDto.getRetailPriceUSD(), CurrencyEnum.USD.getCode(), skuPrices);
-        SkuPrice.buildPrice(importSkuDto.getRetailPriceEUR(), CurrencyEnum.EUR.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getRetailPriceCNY()), CurrencyEnum.CNY.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getRetailPriceUSD()), CurrencyEnum.USD.getCode(), skuPrices);
+        SkuPrice.buildPrice(formatTo2Decimal(importSkuDto.getRetailPriceEUR()), CurrencyEnum.EUR.getCode(), skuPrices);
+    }
+
+    public static String formatTo2Decimal(String number) {
+        if (number == null || number.isEmpty()) {
+            return "0.00";
+        }
+        try {
+            BigDecimal decimal = new BigDecimal(number);
+            // 设置保留2位小数，四舍五入
+            return decimal.setScale(2, RoundingMode.HALF_UP).toString();
+        } catch (NumberFormatException e) {
+            return "0.00";
+        }
     }
 }
