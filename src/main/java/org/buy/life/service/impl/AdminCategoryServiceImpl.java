@@ -99,7 +99,7 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
         return lambdaQuery()
                 .eq(BuyCategoryEntity::getClassification, adminCategoryRequest.getClassification())
                 .eq(BuyCategoryEntity::getIsDeleted, false)
-                .orderByDesc(BuyCategoryEntity::getMtime)
+                .orderByAsc(BuyCategoryEntity::getCategoryCode)
                 .page(page);
     }
 

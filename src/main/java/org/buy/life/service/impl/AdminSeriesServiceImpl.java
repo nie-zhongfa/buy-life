@@ -99,7 +99,7 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
         return lambdaQuery()
                 .eq(BuySeriesEntity::getClassification, adminSeriesRequest.getClassification())
                 .eq(BuySeriesEntity::getIsDeleted, false)
-                .orderByDesc(BuySeriesEntity::getMtime)
+                .orderByAsc(BuySeriesEntity::getSeriesCode)
                 .page(page);
     }
     public List<BuySeriesEntity> getSeriesByCode(String cateGoryCode, String seriesCode) {
