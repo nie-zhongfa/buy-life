@@ -99,12 +99,28 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
         return lambdaQuery()
                 .eq(BuySeriesEntity::getClassification, adminSeriesRequest.getClassification())
                 .eq(BuySeriesEntity::getIsDeleted, false)
-                .orderByDesc(BuySeriesEntity::getMtime)
+                .orderByAsc(BuySeriesEntity::getSeriesCode)
                 .page(page);
     }
     public List<BuySeriesEntity> getSeriesByCode(String cateGoryCode, String seriesCode) {
         return lambdaQuery()
                 .eq(BuySeriesEntity::getCategoryCode, cateGoryCode)
+                .eq(BuySeriesEntity::getSeriesCode, seriesCode)
+                .eq(BuySeriesEntity::getIsDeleted, false)
+                .orderByDesc(BuySeriesEntity::getMtime)
+                .list();
+    }
+
+    public List<BuySeriesEntity> getCategoryByCode(String categoryCode) {
+        return lambdaQuery()
+                .eq(BuySeriesEntity::getCategoryCode, categoryCode)
+                .eq(BuySeriesEntity::getIsDeleted, false)
+                .orderByDesc(BuySeriesEntity::getMtime)
+                .list();
+    }
+
+    public List<BuySeriesEntity> getSeriesByCode(String seriesCode) {
+        return lambdaQuery()
                 .eq(BuySeriesEntity::getSeriesCode, seriesCode)
                 .eq(BuySeriesEntity::getIsDeleted, false)
                 .orderByDesc(BuySeriesEntity::getMtime)
@@ -134,6 +150,7 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
             }
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
             List<BuySeriesEntity> buySeriesEntityList = new ArrayList<>();
+            List<Long> deleteIdList = new ArrayList<>();
             CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSeriesInfoDto seriesInfoDto : doReadSync) {
                 CompletableFuture.runAsync(() -> {
@@ -151,10 +168,16 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                         SeriesName.buildSeriesNameList(seriesInfoDto, seriesNames);
                         buySeriesEntity.setSeriesName(JSON.toJSONString(seriesNames));
 
-                        List<BuySeriesEntity> seriesEntityList = getSeriesByCode(seriesInfoDto.getSeriesCode(), seriesInfoDto.getCategoryCode());
-                        if (!CollectionUtils.isEmpty(seriesEntityList)) {
-                            buySeriesEntity.setId(seriesEntityList.get(0).getId());
+                        List<BuySeriesEntity> seriesEntityList = getCategoryByCode(seriesInfoDto.getCategoryCode());
+                        if (CollectionUtils.isEmpty(seriesEntityList)) {
+                            List<Long> idList = seriesEntityList.stream().map(BuySeriesEntity::getId).collect(Collectors.toList());
+                            deleteIdList.addAll(idList);
                         }
+
+//                        List<BuySeriesEntity> seriesEntityList = getSeriesByCode(seriesInfoDto.getCategoryCode(), seriesInfoDto.getSeriesCode());
+//                        if (!CollectionUtils.isEmpty(seriesEntityList)) {
+//                            buySeriesEntity.setId(seriesEntityList.get(0).getId());
+//                        }
                         buySeriesEntityList.add(buySeriesEntity);
                     } finally {
                         latch.countDown();
@@ -162,7 +185,8 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                 }, thirdThreadPoolExecutor);
             }
             latch.await();
-            this.saveOrUpdateBatch(buySeriesEntityList);
+            lambdaUpdate().set(BuySeriesEntity::getIsDeleted, 1).in(BuySeriesEntity::getId, deleteIdList).update();
+            this.saveBatch(buySeriesEntityList);
         } catch (Exception ex) {
             log.error("importSeriesInfo fail", ex);
             throw new BusinessException(9999, "导入失败");
