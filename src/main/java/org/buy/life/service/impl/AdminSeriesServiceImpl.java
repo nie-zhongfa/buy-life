@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -149,7 +150,7 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                 return;
             }
             ExcelReadImageUtil.readImage(inputStream, doReadSync);
-            List<BuySeriesEntity> buySeriesEntityList = new ArrayList<>();
+            List<BuySeriesEntity> buySeriesEntityList = new CopyOnWriteArrayList<>();
             List<Long> deleteIdList = new ArrayList<>();
             CountDownLatch latch = new CountDownLatch(doReadSync.size());
             for (ImportSeriesInfoDto seriesInfoDto : doReadSync) {
@@ -169,7 +170,7 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                         buySeriesEntity.setSeriesName(JSON.toJSONString(seriesNames));
 
                         List<BuySeriesEntity> seriesEntityList = getCategoryByCode(seriesInfoDto.getCategoryCode());
-                        if (CollectionUtils.isEmpty(seriesEntityList)) {
+                        if (!CollectionUtils.isEmpty(seriesEntityList)) {
                             List<Long> idList = seriesEntityList.stream().map(BuySeriesEntity::getId).collect(Collectors.toList());
                             deleteIdList.addAll(idList);
                         }

@@ -194,7 +194,15 @@ public class AdminSkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity>
             }
             buySkuEntities.add(buySkuEntity);
         }
-        this.saveOrUpdateBatch(buySkuEntities);
+        List<BuySkuEntity> updateDate = buySkuEntities.stream().filter(b -> b.getId() != null).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(updateDate)) {
+            this.updateBatchById(updateDate);
+        }
+        List<BuySkuEntity> addDate = buySkuEntities.stream().filter(b -> b.getId() == null).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(addDate)) {
+            this.saveBatch(addDate);
+        }
+//        this.saveOrUpdateBatch(buySkuEntities);
 
         //异步上传图片
         CompletableFuture.runAsync(() -> {
