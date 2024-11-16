@@ -109,7 +109,7 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
 
 
             String retailMin = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getRetailPrice())).map(k -> {
-                return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
+                return SkuPrice.getSkuPrice(k.getRetailPrice(), currencyEnum.getCode());
             }).min(Comparator.comparing(m -> {
                 try {
                     return  Double.parseDouble(m);
@@ -119,7 +119,7 @@ public class BuySeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeries
             })).orElse("0.00");
 
             String retailMax = skuEntities.stream().filter(k -> StringUtils.isNotEmpty(k.getRetailPrice())).map(k -> {
-                return SkuPrice.getSkuPrice(k.getPrice(), currencyEnum.getCode());
+                return SkuPrice.getSkuPrice(k.getRetailPrice(), currencyEnum.getCode());
             }).max(Comparator.comparing(m -> {
                 try {
                     return  Double.parseDouble(m);
