@@ -186,7 +186,9 @@ public class AdminSeriesServiceImpl extends ServiceImpl<BuySeriesMapper, BuySeri
                 }, thirdThreadPoolExecutor);
             }
             latch.await();
-            lambdaUpdate().set(BuySeriesEntity::getIsDeleted, 1).in(BuySeriesEntity::getId, deleteIdList).update();
+            if (!CollectionUtils.isEmpty(deleteIdList)) {
+                lambdaUpdate().set(BuySeriesEntity::getIsDeleted, 1).in(BuySeriesEntity::getId, deleteIdList).update();
+            }
             this.saveBatch(buySeriesEntityList);
         } catch (Exception ex) {
             log.error("importSeriesInfo fail", ex);
