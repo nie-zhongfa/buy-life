@@ -66,11 +66,12 @@ public class BuySkuServiceImpl extends ServiceImpl<BuySkuMapper, BuySkuEntity> i
                     or().like(BuySkuEntity::getSkuId, buySkuReq.getCondition().getKeyWord()).or().like(BuySkuEntity::getClassification,buySkuReq.getCondition().getKeyWord()).
                     or().like(BuySkuEntity::getSkuType, buySkuReq.getCondition().getKeyWord()).or().like(BuySkuEntity::getSkuCategory, buySkuReq.getCondition().getKeyWord()).or().
                     in(CollectionUtils.isNotEmpty(categoryEntityList),BuySkuEntity::getCategoryCode,categoryEntityList).or().
-                    in(CollectionUtils.isNotEmpty(buySeriesEntities),BuySkuEntity::getSeriesCode,buySeriesEntities));
+                    in(CollectionUtils.isNotEmpty(buySeriesEntities),BuySkuEntity::getSeriesCode,buySeriesEntities))
+                    .eq(BuySkuEntity::getStatus,SkuStatusEnum.LISTED.getCode());
             Page<BuySkuEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), skuWrapper);
             return  getSimplePage(buySkuReq,page);
         }else {
-            skuWrapper.eq(BuySkuEntity::getIsDeleted, 0);
+            skuWrapper.eq(BuySkuEntity::getIsDeleted, 0).eq(BuySkuEntity::getStatus,SkuStatusEnum.LISTED.getCode());;
         }
         Page<BuySkuEntity> page = this.page(new Page<>(buySkuReq.getPageNum(), buySkuReq.getPageSize()), skuWrapper);
         buildResp(page.getRecords());
