@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -116,7 +117,7 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
             List<String> categoryCodeList = doReadSync.stream().map(ImportCategoryInfoDto::getCategoryCode).collect(Collectors.toList());
             List<BuyCategoryEntity> categoryListByCode = getCategoryListByCode(categoryCodeList);
             Map<String, BuyCategoryEntity> categoryEntityMap = categoryListByCode.stream().collect(Collectors.toMap(BuyCategoryEntity::getCategoryCode, c -> c, (a, b) -> a));
-            List<BuyCategoryEntity> buyCategoryEntities = new ArrayList<>();
+            List<BuyCategoryEntity> buyCategoryEntities = new CopyOnWriteArrayList<>();
 
             CountDownLatch latch = new CountDownLatch(doReadSync.size());
 
@@ -146,7 +147,15 @@ public class AdminCategoryServiceImpl extends ServiceImpl<BuyCategoryMapper, Buy
                 }, thirdThreadPoolExecutor);
             }
             latch.await();
-            this.saveOrUpdateBatch(buyCategoryEntities);
+            List<BuyCategoryEntity> updateDate = buyCategoryEntities.stream().filter(b -> b.getId() != null).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(updateDate)) {
+                this.updateBatchById(updateDate);
+            }
+            List<BuyCategoryEntity> addDate = buyCategoryEntities.stream().filter(b -> b.getId() == null).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(addDate)) {
+                this.saveBatch(addDate);
+            }
+//            this.saveOrUpdateBatch(buyCategoryEntities);
         } catch (Exception ex) {
             log.error("importCategoryInfo fail", ex);
             throw new BusinessException(9999, "导入失败");
